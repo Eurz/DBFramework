@@ -2,16 +2,21 @@
 
 namespace Core;
 
-use App\Model\Attributes;
 use Core\Database;
 
 class Model
 {
     private $db;
     protected $tableName;
-    public function __construct($db)
+
+    /**
+     * Define default table name : $tableName
+     * @param Database $db - Instance of Database
+     */
+    public function __construct(Database $db)
     {
         $this->db = $db;
+
         if (is_null($this->tableName)) {
             $className = get_called_class();
             $classNameParts = explode('\\', $className);
@@ -19,15 +24,13 @@ class Model
         }
     }
     /**
-     * Get all data
+     * Get all data from default table named $tableName
      * @return array $data - Array of selected data's entity
      */
     public function findAll(): array
     {
         $query = "SELECT * FROM $this->tableName";
-
         $data = $this->query($query);
-
         return $data;
     }
 
@@ -36,11 +39,10 @@ class Model
      * Find data by id
      * @param int $id - Id of data to fetch 
      */
-    public function findById($id)
+    public function findById(int $id)
     {
         $query = "SELECT * FROM $this->tableName WHERE id = :id";
         $data = $this->query($query, ['id' => $id]);
-
         return $data;
     }
 
@@ -52,7 +54,6 @@ class Model
     public function insert($data)
     {
         $markers = $this->makeMarkers($data);
-        // $table = $tableName ? $tableName : $this->tableName;
         $query = "INSERT INTO $this->tableName SET $markers";
         $response = $this->query($query, $data);
         return $response;
@@ -72,13 +73,16 @@ class Model
      * Delete an item from Database
      * @param int $id - ID of the item to delete
      */
-    public function delete($id)
+    public function delete(int $id)
     {
         # code...
     }
 
-
-    public function query($query, $attributes = null, $entity = null, $isSingleData = false)
+    /**
+     * Querying from models
+     * 
+     */
+    public function query(string $query, array $attributes = null, $entity = null, bool $isSingleData = false): mixed
     {
         $result = $this->db->query($query, $attributes, $entity, $isSingleData);
         return $result;

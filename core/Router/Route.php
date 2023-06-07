@@ -1,7 +1,6 @@
 <?php
 
-namespace App\Router;
-
+namespace Core\Router;
 
 class Route
 {
@@ -18,7 +17,12 @@ class Route
         $this->namedRoute = $namedRoute;
     }
 
-    public function match($url)
+    /**
+     * Match an url with this route's url
+     * @param string $url - Url to match with
+     * @return bool - True if it is url macthes otherwise false
+     */
+    public function match(string $url): bool
     {
         $url = trim($url, '/');
         $path = preg_replace('#:([\w]+)#', '([^/]+)', $this->path);
@@ -33,12 +37,15 @@ class Route
     }
 
 
-
+    /**
+     * Call this route
+     * @return callable
+     */
     public function call()
     {
         if ($this->namedRoute) {
             $action = explode('.', $this->namedRoute);
-            $controllerName =  ucfirst('App\\Controller\\' . ucfirst($action[0]));
+            $controllerName =  ucfirst('App\\Controller\\' . ucfirst($action[0]) . 'Controller');
             $task = $action[1];
             $controller = new $controllerName();
             return call_user_func_array([$controller, $task], $this->matches);

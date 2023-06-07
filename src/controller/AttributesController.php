@@ -5,14 +5,15 @@ namespace App\Controller;
 use Core\Database;
 use Core\Http;
 
-class Attributes extends DefaultController
+class AttributesController extends DefaultController
 {
     private array $types = ['country' => 'Country', 'nationality' => 'Nationalities', 'hiding' => 'Hidings type', 'speciality' => 'Specialities', 'status' => 'Missions status', 'type' => 'Missions types', 'userType' => 'User type'];
 
-
+    /**
+     * Read all attributes
+     */
     public function index()
     {
-
         $attributes = $this->model->findAll();
         $hidings = $this->getModel('hidings')->findAll();
 
@@ -22,18 +23,21 @@ class Attributes extends DefaultController
         $this->render('attribute/index', compact('pageTitle', 'attributes', 'types'));
     }
 
+    /**
+     * Read a single attribute
+     */
     public function view($id)
     {
         $attribute = $this->model->findById($id);
-        // if (!$attribute) {
-        //     $attribute = [];
-        // }
+
 
         $pageTitle = 'View an attribute';
         $this->render('attribute/view', compact('pageTitle', 'attribute'));
     }
 
-
+    /**
+     * Create an attribute
+     */
     public function create()
     {
         $response = $this->model->insert(['title' => 'salutjinsere', 'type' => 'typetest']);
@@ -47,6 +51,9 @@ class Attributes extends DefaultController
         $this->render('attribute/form', compact('pageTitle'));
     }
 
+    /**
+     * Edit an attribute
+     */
     public function edit($id)
     {
         $attribute = $this->model->findById($id);

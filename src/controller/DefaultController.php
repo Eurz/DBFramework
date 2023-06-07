@@ -4,9 +4,13 @@ namespace App\Controller;
 
 use Core\Controller;
 
+/**
+ * Default controller for Application
+ */
 class DefaultController extends Controller
 {
-    protected $modelName;
+
+    // protected $modelName;
 
     public function __construct()
     {

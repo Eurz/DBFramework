@@ -4,8 +4,13 @@ namespace Core;
 
 class Renderer
 {
-
-    public static function render(string $path, array $variables = [])
+    /**
+     * Render a view
+     * @param string $path - View path to render
+     * @param array $variables - Additionnals parameters to add to an url
+     * @return void
+     */
+    public static function render(string $path, array $variables = []): void
     {
         extract($variables);
         ob_start();
