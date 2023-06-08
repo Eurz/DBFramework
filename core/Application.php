@@ -53,11 +53,12 @@ class Application
         $router = new Router($_GET['url']);
 
         $router->get('/attributes', 'attributes.index');
-        $router->get('/attributes/add', 'attributes.create');
+        $router->get('/attributes/add', 'attributes.add');
         $router->get('/attributes/edit/:id', 'attributes.edit');
         $router->get('/attributes/:id', 'attributes.view');
 
-        $router->post('/attributes/add', 'attributes.create');
+        $router->post('/attributes/add', 'attributes.add');
+        $router->post('/attributes/edit/:id', 'attributes.edit');
 
         // $router->post('/attribute/:id', function ($id) {
         //     echo "I'm adding attributes number $id";

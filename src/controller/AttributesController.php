@@ -2,12 +2,20 @@
 
 namespace App\Controller;
 
-use Core\Database;
+use App\Entity\AttributeEntity;
 use Core\Http;
 
 class AttributesController extends DefaultController
 {
-    private array $types = ['country' => 'Country', 'nationality' => 'Nationalities', 'hiding' => 'Hidings type', 'speciality' => 'Specialities', 'status' => 'Missions status', 'type' => 'Missions types', 'userType' => 'User type'];
+    private array $types = [
+        'country' => 'Country',
+        'nationality' => 'Nationalities',
+        'hiding' => 'Hidings type',
+        'speciality' => 'Specialities',
+        'status' => 'Missions status',
+        'missionType' => 'Missions types',
+        'userType' => 'User type'
+    ];
 
     /**
      * Read all attributes
@@ -15,10 +23,8 @@ class AttributesController extends DefaultController
     public function index()
     {
         $attributes = $this->model->findAll();
-        $hidings = $this->getModel('hidings')->findAll();
 
         $types = $this->types;
-
         $pageTitle = 'Welcome to SPION';
         $this->render('attribute/index', compact('pageTitle', 'attributes', 'types'));
     }
@@ -38,17 +44,44 @@ class AttributesController extends DefaultController
     /**
      * Create an attribute
      */
-    public function create()
+    public function add()
     {
-        $response = $this->model->insert(['title' => 'salutjinsere', 'type' => 'typetest']);
-        if (!$response) {
-            echo 'Echec de linsertion';
-        } else {
-            Http::redirect('/attribute');
+        $message = '';
+
+        $types = $this->types;
+        $isValid = false;
+
+        $attribute = new \App\Entities\AttributeEntity();
+        $attribute->setTitle($_POST['title'] ?? '');
+        $attribute->setType($_POST['type'] ?? 'country');
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            foreach ($_POST as $key => $value) {
+                if ($value === '') {
+                    $message = 'Field "' . $key . '"is required';
+                    $isValid = false;
+                    break;
+                } else {
+                    $isValid = true;
+                }
+
+                $data[$key] = $value;
+            }
+
+            if ($isValid !== false) {
+                $response = $this->model->insert($_POST);
+
+                if ($response) {
+                    $message = 'Attribute saved in database';
+                    $id = $this->model->lastInsertId();
+
+                    Http::redirect('attributes/edit/' . $id);
+                }
+            }
         }
 
         $pageTitle = 'Add an attribute';
-        $this->render('attribute/form', compact('pageTitle'));
+        $this->render('attribute/form', compact('pageTitle', 'attribute', 'message', 'types'));
     }
 
     /**
@@ -56,10 +89,50 @@ class AttributesController extends DefaultController
      */
     public function edit($id)
     {
+        $message = '';
+        $types = $this->types;
         $attribute = $this->model->findById($id);
-        var_dump($attribute);
-        $pageTitle = 'Edit an attribute';
+        // Si utilisateur n'existe pas, redirection avec message d'erreur (en session)
+        if ($attribute === false) {
+            $message = 'Cet utilisateur n\'existe pas';
+            Http::redirect('attributes');
+        }
 
-        $this->render('attribute/form', compact('pageTitle', 'attribute'));
+        // Todo: implement a Form Class to manage the form and submitted data
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // $data = $_POST;
+            foreach ($_POST as $key => $value) {
+                if ($value === '') {
+                    $message = 'Field "' . $key . '"is required';
+                    $isValid = false;
+                    break;
+                } else {
+                    $isValid = true;
+                }
+
+                $data[$key] = $value;
+            }
+
+            if ($isValid !== false) {
+                $response = $this->model->update($id, $_POST);
+
+
+                if ($response) {
+                    $message = 'Attribute saved in database';
+                    // $id = $this->model->lastInsertId();
+                    $message = 'Utilisateur mis à jour';
+
+                    Http::redirect('attributes/edit/' . $id);
+                }
+
+                $message = 'Utilisateur non mis à jour';
+            }
+        }
+
+
+        $attributeType =  $this->types[$attribute->type] ?? 'attribute';
+        $pageTitle = 'Edit an ' . $attributeType;
+
+        $this->render('attribute/form', compact('pageTitle', 'attribute', 'message', 'types'));
     }
 }

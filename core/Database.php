@@ -11,6 +11,7 @@ class Database
     private string $dbHost;
     private string $dbUser;
     private string $dbPassword;
+    private $pdo;
 
     public function __construct($dbName, $dbHost, $dbUser, $dbPassword)
     {
@@ -25,22 +26,25 @@ class Database
      */
     public function getPdo()
     {
-        $dsn = "mysql:";
-        $dsn .= "host=" . $this->dbHost . ';';
-        $dsn .= "dbname=" . $this->dbName;
+        if (is_null($this->pdo)) {
 
-        $dbOptions = [
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
-        ];
+            $dsn = "mysql:";
+            $dsn .= "host=" . $this->dbHost . ';';
+            $dsn .= "dbname=" . $this->dbName;
 
-        try {
-            $pdo = new PDO($dsn, $this->dbUser, $this->dbPassword, $dbOptions);
-        } catch (\PDOException $th) {
-            die('Unable to connect to data base');
+            $dbOptions = [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+            ];
+
+            try {
+                $this->pdo = new PDO($dsn, $this->dbUser, $this->dbPassword, $dbOptions);
+            } catch (\PDOException $th) {
+                die('Unable to connect to data base');
+            }
         }
 
-        return $pdo;
+        return $this->pdo;
     }
 
     /**
@@ -49,9 +53,10 @@ class Database
      * @param object $entity - Entity object to fetch data
      * @param boolean $isSingleData - True if fetching one data, or false for multiple data
      */
-    public function query($query, $attributes, $entity, $isSingleData): mixed
+    public function query(string $query, $attributes, $entity, $isSingleData): mixed
     {
-        $statement = $this->getPdo()->prepare($query);
+        $pdo = $this->getPdo();
+        $statement = $pdo->prepare($query);
 
         if (!is_null($entity)) {
             $statement->setFetchMode(PDO::FETCH_CLASS, $entity);
@@ -61,16 +66,15 @@ class Database
 
         try {
             $response = $statement->execute($attributes);
-            if (
-                strpos($query, 'UPDATE') === 0 ||
-                strpos($query, 'DELETE') === 0 ||
-                strpos($query, 'INSERT') === 0
-            ) {
-
-                return $response;
-            }
-
             if ($response !== false) {
+                if (
+                    strpos($query, 'UPDATE') === 0 ||
+                    strpos($query, 'DELETE') === 0 ||
+                    strpos($query, 'INSERT') === 0
+                ) {
+                    return $response;
+                }
+
                 if ($isSingleData) {
                     $result = $statement->fetch();
                 } else {
@@ -84,5 +88,10 @@ class Database
             var_dump($e->getMessage());
             return false;
         }
+    }
+
+    public function lastInsertId()
+    {
+        return $this->getPdo()->lastInsertId();
     }
 }
