@@ -53,4 +53,14 @@ class Controller
         $model = $app::getModel($modelName);
         return $model;
     }
+
+    public function notFound()
+    {
+        echo 'Not found from controller';
+    }
+
+    public function errorPage()
+    {
+        # code...
+    }
 }

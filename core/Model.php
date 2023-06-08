@@ -42,7 +42,7 @@ class Model
     public function findById(int $id)
     {
         $query = "SELECT * FROM $this->tableName WHERE id = :id";
-        $data = $this->query($query, ['id' => $id]);
+        $data = $this->query($query, ['id' => $id], "\\App\\Entities\\AttributeEntity", true);
         return $data;
     }
 
@@ -67,6 +67,10 @@ class Model
      */
     public function update($id, $data)
     {
+        $markers = $this->makeMarkers($data);
+        $query = "UPDATE $this->tableName SET $markers WHERE id = $id ";
+        $response = $this->query($query, $data);
+        return $response;
     }
 
     /**
@@ -101,5 +105,10 @@ class Model
         }
         $queryMarkers = implode(' , ', $markers);
         return $queryMarkers;
+    }
+
+    public function lastInsertId()
+    {
+        return  $this->db->getPdo()->lastInsertId();
     }
 }

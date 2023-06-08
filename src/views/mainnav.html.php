@@ -4,13 +4,13 @@
             <a class="nav-link" aria-current="page" href="#">Missions</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link href=" #">Users</a>
+            <a class="nav-link" href=" #">Users</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link href=" #">Hidings</a>
+            <a class="nav-link" href=" #">Hidings</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link href=" #">Attributes</a>
+            <a class="nav-link" href="/attributes">Attributes</a>
         </li>
     </ul>
 </div>

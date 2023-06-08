@@ -75,7 +75,6 @@ class Router
         if (!isset($this->routes[$_SERVER['REQUEST_METHOD']])) {
             throw new Exception('No data to treat');
         }
-
         foreach ($this->routes[$_SERVER['REQUEST_METHOD']] as $route) {
             if ($route->match($this->url)) {
                 return $route->call();

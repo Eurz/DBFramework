@@ -49,7 +49,7 @@ class Database
      * @param object $entity - Entity object to fetch data
      * @param boolean $isSingleData - True if fetching one data, or false for multiple data
      */
-    public function query($query, $attributes, $entity, $isSingleData): mixed
+    public function query(string $query, $attributes, $entity, $isSingleData): mixed
     {
         $statement = $this->getPdo()->prepare($query);
 
@@ -61,16 +61,16 @@ class Database
 
         try {
             $response = $statement->execute($attributes);
-            if (
-                strpos($query, 'UPDATE') === 0 ||
-                strpos($query, 'DELETE') === 0 ||
-                strpos($query, 'INSERT') === 0
-            ) {
-
-                return $response;
-            }
-
             if ($response !== false) {
+                if (
+                    strpos($query, 'UPDATE') === 0 ||
+                    strpos($query, 'DELETE') === 0 ||
+                    strpos($query, 'INSERT') === 0
+                ) {
+
+                    return $response;
+                }
+
                 if ($isSingleData) {
                     $result = $statement->fetch();
                 } else {
@@ -84,5 +84,10 @@ class Database
             var_dump($e->getMessage());
             return false;
         }
+    }
+
+    public function lastInsertId()
+    {
+        return $this->getPdo()->lastInsertId();
     }
 }

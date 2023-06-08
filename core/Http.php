@@ -4,23 +4,18 @@ namespace Core;
 
 class Http
 {
+
+    private $header;
+
     /**
      * @param string $controller - Controller name
      * @param string $task - Method from controller
      * @param array $options - Additionnal url params
      */
-    public static function redirect(string $url, string $task = 'index',  array $options = [])
+    public static function redirect(string $url)
     {
-
-        $locationRoot = 'attributes';
-
-        if ($options) {
-            foreach ($options as $key => $value) {
-                $locationRoot .= '&' . $key . '=' . $value;
-            }
-        }
-
-        header('Location: ' . $url);
+        header($_SERVER["SERVER_PROTOCOL"] . SPACER . "200 OK");
+        header('Location: /' . trim($url, '/'));
     }
 
     public static function notFound()
@@ -29,4 +24,6 @@ class Http
         // self::redirect(Config::getInstance()->get('homepage'));
         die('Page introuvable');
     }
+
+    
 }
