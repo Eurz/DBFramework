@@ -33,13 +33,14 @@ class Application
     /**
      * Load a model from gien name $modelName
      * @param string $modelName - Model name. Ex: 'Posts', 'Comments',...
-     * @return Model
+     * @return ?Model
      */
-    public static function getModel(string $modelName): Model
+    public static function getModel(string $modelName): ?Model
     {
         $modelName = ucfirst(strtolower($modelName));
         $fqn = '\\App\\Model\\' . $modelName;
         self::getDb();
+
         return new $fqn(self::getDb());
     }
 
@@ -52,11 +53,22 @@ class Application
         // Router
         $router = new Router($_GET['url']);
 
+        // Home
+        $router->get('/', 'home.index');
+        $router->get('/home', 'home.index');
+
+        // Attributes
         $router->get('/attributes', 'attributes.index');
         $router->get('/attributes/add', 'attributes.add');
+        $router->get('/attributes/delete/:id', 'attributes.delete');
         $router->get('/attributes/edit/:id', 'attributes.edit');
         $router->get('/attributes/:id', 'attributes.view');
+        // $router->get('/notFound', function () {
 
+        //     echo 'oups';
+        // }, 'default.error');
+
+        $router->post('/attributes/delete/:id', 'attributes.delete');
         $router->post('/attributes/add', 'attributes.add');
         $router->post('/attributes/edit/:id', 'attributes.edit');
 

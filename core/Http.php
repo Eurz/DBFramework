@@ -22,8 +22,7 @@ class Http
     {
         header("HTTP/1.1 404 Not Found");
         // self::redirect(Config::getInstance()->get('homepage'));
-        die('Page introuvable');
+        // header('Location: /notFound');
+        self::redirect('notFound');
     }
-
-    
 }

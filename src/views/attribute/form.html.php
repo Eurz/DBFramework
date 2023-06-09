@@ -1,4 +1,6 @@
-<form action="" method="post">
+<?php
+if ($attribute) :
+?>
 
     <?php
     if ($message) {
@@ -9,9 +11,11 @@
     <?php
     }
     ?>
+
+
     <div class="row mb-3">
 
-        <div>Created at : <?= $attribute->createdAt ?></div>
+        <div class="p-3 mb-3 bg-light"><a href="/attributes">Back to attributes</a></div>
         <span class="col-sm-2 form-label">
             Type
         </span>
@@ -40,4 +44,9 @@
         <span class="col-sm-2 form-label"></span>
         <div class="col-sm-6"><button type="submit" class="btn btn-primary">Save</button></div>
     </div>
-</form>
+    </form>
+
+<?php else : ?>
+    <div class="alert alert-success"><?= $message ?></div>
+
+<?php endif; ?>

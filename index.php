@@ -14,5 +14,9 @@ define('SPACER', ' ');
 
 
 // App
-$app = new Application();
-$app->process();
+try {
+    $app = new Application();
+    $app->process();
+} catch (\Throwable $e) {
+    echo '<div class="alert">' . $e->getMessage() . '</div>';
+}

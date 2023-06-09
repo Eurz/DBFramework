@@ -6,12 +6,11 @@ use Core\Renderer;
 
 class Controller
 {
-    protected $model;
+    protected Model $model;
 
 
     public function __construct()
     {
-        $this->model = $this->getModel();
     }
 
     /**
@@ -38,9 +37,9 @@ class Controller
     /**
      * Load a model - Default name = name from called class
      * @param string $modelName - Load a model from name $modelName. Default name is model for the current controller
-     * @return Model $model - Model to fetch data
+     * @return ?Model $model - Model to fetch data
      */
-    public function getModel(string $modelName = null): Model
+    public function getModel(string $modelName = null): ?Model
     {
         if ($modelName === null) {
             $className = get_called_class();
@@ -51,12 +50,15 @@ class Controller
 
         $app = Application::getInstance();
         $model = $app::getModel($modelName);
+
+
         return $model;
     }
 
     public function notFound()
     {
-        echo 'Not found from controller';
+        $pageTitle = 'Not found from controller';
+        $this->render('error', compact('pageTitle'));
     }
 
     public function errorPage()

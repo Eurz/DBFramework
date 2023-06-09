@@ -7,7 +7,7 @@ use Core\Controller;
 /**
  * Default controller for Application
  */
-class DefaultController extends Controller
+class AppController extends Controller
 {
 
     // protected $modelName;

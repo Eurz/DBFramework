@@ -6,8 +6,10 @@ use Core\Database;
 
 class Model
 {
-    private $db;
+    protected $db;
     protected $tableName;
+    protected $entityName;
+
 
     /**
      * Define default table name : $tableName
@@ -16,6 +18,9 @@ class Model
     public function __construct(Database $db)
     {
         $this->db = $db;
+        $parts = explode('\\', get_called_class());
+        $entityRoot = end($parts) . 'Entity';
+        $this->entityName = "\\App\\Entities\\" . $entityRoot;
 
         if (is_null($this->tableName)) {
             $className = get_called_class();
@@ -37,12 +42,13 @@ class Model
 
     /**
      * Find data by id
-     * @param int $id - Id of data to fetch 
+     * @param int $id - Id of data to fetch
+     * @return Entity|false $data - False or an entity if data exist
      */
     public function findById(int $id)
     {
         $query = "SELECT * FROM $this->tableName WHERE id = :id";
-        $data = $this->query($query, ['id' => $id], "\\App\\Entities\\AttributeEntity", true);
+        $data = $this->query($query, ['id' => $id], $this->entityName, true);
         return $data;
     }
 
@@ -69,17 +75,23 @@ class Model
     {
         $markers = $this->makeMarkers($data);
         $query = "UPDATE $this->tableName SET $markers WHERE id = $id ";
-        $response = $this->query($query, $data);
-        return $response;
+
+        return $this->query($query, $data);
     }
 
     /**
      * Delete an item from Database
      * @param int $id - ID of the item to delete
+     * @return mixed - False if delete failed, treu otherwise
      */
     public function delete(int $id)
     {
-        # code...
+        if ($this->itemExist($id)) {
+            $query = "DELETE FROM $this->tableName WHERE id = :id";
+            return $this->query($query, ['id' => $id]);
+        }
+
+        return false;
     }
 
     /**
@@ -110,5 +122,28 @@ class Model
     public function lastInsertId()
     {
         return  $this->db->lastInsertId();
+    }
+
+    /**
+     * 
+     */
+    private function setEntityName()
+    {
+        # code...
+    }
+
+    /**
+     * @param int $id - Id of tuple to check in Database 
+     * @return bool - True if item exist, otherwise false
+     */
+
+    private function itemExist($id)
+    {
+        $response = $this->findById($id);
+        if ($response === false) {
+            return $response;
+        }
+
+        return true;
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\AttributeEntity;
+use App\Entities\AttributesEntity;
 use Core\Http;
 
-class AttributesController extends DefaultController
+class AttributesController extends AppController
 {
     private array $types = [
         'country' => 'Country',
@@ -17,12 +17,18 @@ class AttributesController extends DefaultController
         'userType' => 'User type'
     ];
 
+    public function __construct()
+    {
+        $this->model = $this->getModel();
+    }
+
     /**
      * Read all attributes
      */
     public function index()
     {
         $attributes = $this->model->findAll();
+
 
         $types = $this->types;
         $pageTitle = 'Welcome to SPION';
@@ -51,7 +57,7 @@ class AttributesController extends DefaultController
         $types = $this->types;
         $isValid = false;
 
-        $attribute = new \App\Entities\AttributeEntity();
+        $attribute = new AttributesEntity();
         $attribute->setTitle($_POST['title'] ?? '');
         $attribute->setType($_POST['type'] ?? 'country');
 
@@ -73,9 +79,10 @@ class AttributesController extends DefaultController
 
                 if ($response) {
                     $message = 'Attribute saved in database';
-                    $id = $this->model->lastInsertId();
+                    // $id = $this->model->lastInsertId();
 
-                    Http::redirect('attributes/edit/' . $id);
+                    // Http::redirect('attributes/edit/' . $id);
+                    Http::redirect('attributes');
                 }
             }
         }
@@ -92,6 +99,8 @@ class AttributesController extends DefaultController
         $message = '';
         $types = $this->types;
         $attribute = $this->model->findById($id);
+        $isValid = false;
+
         // Si utilisateur n'existe pas, redirection avec message d'erreur (en session)
         if ($attribute === false) {
             $message = 'Cet utilisateur n\'existe pas';
@@ -134,5 +143,51 @@ class AttributesController extends DefaultController
         $pageTitle = 'Edit an ' . $attributeType;
 
         $this->render('attribute/form', compact('pageTitle', 'attribute', 'message', 'types'));
+    }
+
+    /**
+     * 
+     */
+    public function delete($id)
+    {
+
+        // CHECK if ATTRIBUTE with $id exist
+        // If ATTRIBUTE exist
+        //      DELETE ATTRIBUTE
+        // ELSE
+        // CREATE error message
+        // REDIRECT to all attributes
+
+        $attribute = $this->model->findById($id);
+        $message = '';
+        $isValid = false;
+
+        if (!$attribute) {
+            $message = 'This attribute doesn\'t exist';
+        };
+
+        // if($attribute)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            if (isset($_POST['choice']) && $_POST['choice'] === 'yes') {
+                $isValid = true;
+            }
+
+
+
+            if ($isValid !== false) {
+                $response = $this->model->delete($id);
+
+                if ($response) {
+                    $message = 'Attribute delete in database';
+                }
+            }
+
+            Http::redirect('attributes');
+        }
+
+
+        $pageTitle = 'Delete an attribute';
+        $this->render('attribute/delete', compact('pageTitle', 'attribute', 'message'));
     }
 }

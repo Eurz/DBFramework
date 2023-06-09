@@ -6,6 +6,12 @@ class Entity
 {
 
     protected $method;
+    protected $name;
+
+    public function __construct()
+    {
+        // $this->name = $this->getEntityName();
+    }
 
     /**
      * Access to the method specified with $key
@@ -32,5 +38,10 @@ class Entity
     {
 
         return 'index?controller=attribute&task=index';
+    }
+
+    public function getEntityName()
+    {
+        var_dump(get_called_class());
     }
 }

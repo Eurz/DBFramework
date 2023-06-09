@@ -4,14 +4,16 @@ namespace App\Entities;
 
 use Core\Entity;
 
-class AttributeEntity extends Entity
+class AttributesEntity extends Entity
 {
     protected int $id;
     protected string $title = '';
     protected string $type = '';
     protected $createdAt;
-    // protected $typeTitle;
 
+    public function __construct()
+    {
+    }
 
     public function getUrl()
     {
