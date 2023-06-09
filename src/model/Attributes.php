@@ -13,9 +13,16 @@ class Attributes extends AppModel
     public function findAll(): array
     {
         $query = "SELECT * FROM $this->tableName";
+<<<<<<< HEAD
         $query .= SPACER . "ORDER BY type ASC";
 
         $data = $this->query($query, null, "\\App\\Entities\\AttributesEntity");
+=======
+        // $query .= SPACER . "WHERE type = 'speciality'";
+        $query .= SPACER . "ORDER BY type ASC";
+
+        $data = $this->query($query, null, "\\App\\Entities\\AttributeEntity");
+>>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
 
         return $data;
     }

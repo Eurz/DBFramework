@@ -2,7 +2,11 @@
 
 namespace App\Controller;
 
+<<<<<<< HEAD
 use App\Entities\AttributesEntity;
+=======
+use App\Entity\AttributeEntity;
+>>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
 use Core\Http;
 
 class AttributesController extends AppController
@@ -16,11 +20,14 @@ class AttributesController extends AppController
         'missionType' => 'Missions types',
         'userType' => 'User type'
     ];
+<<<<<<< HEAD
 
     public function __construct()
     {
         $this->model = $this->getModel();
     }
+=======
+>>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
 
     /**
      * Read all attributes
@@ -28,11 +35,15 @@ class AttributesController extends AppController
     public function index()
     {
         $attributes = $this->model->findAll();
+<<<<<<< HEAD
 
+=======
+>>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
 
         $types = $this->types;
         $pageTitle = 'Welcome to SPION';
-        $this->render('attribute/index', compact('pageTitle', 'attributes', 'types'));
+        // var_dump($attributes);
+        // $this->render('attribute/index', compact('pageTitle', 'attributes', 'types'));
     }
 
     /**
@@ -53,6 +64,7 @@ class AttributesController extends AppController
     public function add()
     {
         $message = '';
+<<<<<<< HEAD
 
         $types = $this->types;
         $isValid = false;
@@ -64,6 +76,21 @@ class AttributesController extends AppController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($_POST as $key => $value) {
                 if ($value === '') {
+=======
+        $attribute = new \App\Entities\AttributeEntity();
+        $attribute->setCreatedAt(date("Y-m-d H:i:s"));
+
+        $types = $this->types;
+        $isValid = false;
+        $data = ['title' => '', 'type' => 'country'];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // $data = $_POST;
+            foreach ($_POST as $key => $value) {
+                if ($value === '') {
+                    // $attribute->setTitle($_POST['title']);
+                    // $attribute->setType($_POST['type']);
+>>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
                     $message = 'Field "' . $key . '"is required';
                     $isValid = false;
                     break;
@@ -75,6 +102,7 @@ class AttributesController extends AppController
             }
 
             if ($isValid !== false) {
+<<<<<<< HEAD
                 $response = $this->model->insert($_POST);
 
                 if ($response) {
@@ -83,12 +111,26 @@ class AttributesController extends AppController
 
                     // Http::redirect('attributes/edit/' . $id);
                     Http::redirect('attributes');
+=======
+                $response = $this->model->insert($data);
+                if ($response) {
+                    $message = 'Attribute saved in database';
+
+
+                    //  Http::redirect('attributes/edit/' . $id);
+
+
+>>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
                 }
             }
         }
 
         $pageTitle = 'Add an attribute';
+<<<<<<< HEAD
         $this->render('attribute/form', compact('pageTitle', 'attribute', 'message', 'types'));
+=======
+        $this->render('attribute/add', compact('pageTitle', 'data', 'message', 'types'));
+>>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
     }
 
     /**
@@ -97,6 +139,7 @@ class AttributesController extends AppController
     public function edit($id)
     {
         $message = '';
+<<<<<<< HEAD
         $types = $this->types;
         $attribute = $this->model->findById($id);
         $isValid = false;
@@ -189,5 +232,36 @@ class AttributesController extends AppController
 
         $pageTitle = 'Delete an attribute';
         $this->render('attribute/delete', compact('pageTitle', 'attribute', 'message'));
+=======
+        $attribute = $this->model->findById($id);
+        // Si utilisateur n'existe pas, redirection avec message d'erreur (en session)
+        if ($attribute === false) {
+            $attribute['title'] = 'unknown';
+            $message = 'Cet utilisateur n\'existe pas';
+            // Http::redirect('attributes');
+            // die();
+        }
+
+        // Si formulaire soumis
+        // => récupération des données
+        if (isset($_POST['title'])) {
+            $attribute['title'] = $_POST['title'];
+            $response = $this->model->update($id, $_POST);
+
+            // Si mise à jour réussie
+            if ($response) {
+                // => message de succès
+                // Http::redirect('attributes/edit/' . $id, '404');
+                $message = 'Utilisateur mis à jour';
+            } else {
+                // => message d'erreur'
+                $message = 'Utilisateur non mis à jour';
+            }
+        }
+        $attributeType =  $this->types[$attribute->type] ?? 'attribute';
+        $pageTitle = 'Edit an ' . $attributeType;
+
+        $this->render('attribute/edit', compact('pageTitle', 'attribute', 'message'));
+>>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
     }
 }

@@ -72,6 +72,10 @@ class Database
                     strpos($query, 'DELETE') === 0 ||
                     strpos($query, 'INSERT') === 0
                 ) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
                     return $response;
                 }
 

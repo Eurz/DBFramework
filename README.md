@@ -3,6 +3,7 @@
 ## What is DB Framework?
 
 DB Framework is a project based on MVC pattern during my studies.
+<<<<<<< HEAD
 Features:
 
 -   use Model, View and Controller to display pages
@@ -35,3 +36,9 @@ To do:
     -   contacts (ex: Todd)
 -   implementation of an authentication system
 -   Implementation of error handling and flash messages
+=======
+
+## Fictive project
+
+I am creating a fictional project in which you manage agents like in the famous movie, mission impossible
+>>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
