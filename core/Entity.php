@@ -6,15 +6,16 @@ class Entity
 {
 
     protected $method;
-<<<<<<< HEAD
-    protected $name;
+
+    /**
+     *  @var string $entityName Default entity name
+     */
+    // private $entityName = null;
 
     public function __construct()
     {
-        // $this->name = $this->getEntityName();
+        // $this->entityName = $this->getEntityName();
     }
-=======
->>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
 
     /**
      * Access to the method specified with $key
@@ -31,26 +32,20 @@ class Entity
     }
 
 
-<<<<<<< HEAD
     public function getHello()
     {
         return 'salut je suis une entité';
     }
 
-=======
->>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
 
     public function getBackLink()
     {
 
         return 'index?controller=attribute&task=index';
     }
-<<<<<<< HEAD
 
     public function getEntityName()
     {
         var_dump(get_called_class());
     }
-=======
->>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
 }

@@ -18,5 +18,6 @@ try {
     $app = new Application();
     $app->process();
 } catch (\Throwable $e) {
+    echo 'App says:';
     echo '<div class="alert">' . $e->getMessage() . '</div>';
 }

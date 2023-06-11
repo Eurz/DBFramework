@@ -20,30 +20,39 @@
                 <th>Title</th>
                 <th scope="col">Created at</th>
                 <th scope="col"></th>
-                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
 
             <?php
-            if ($attributes) {
+            if ($attributes) :
                 $previousType = '';
+
+
                 foreach ($attributes as $attribute) {
                     if ($previousType !== $attribute->type) {
                         echo '<tr><th colspan="4" class="table-light">' . $types[$attribute->type] . '</th></tr>';
                     }
-                    echo '<tr>';
-                    echo '<td>' . $attribute->title . '</td>';
-                    echo '<td>' . $attribute->createdAt . '</td>';
-                    echo '<td><a href="attributes/edit/' . $attribute->id . '" class="btn btn-sm btn-primary">Edit</a></td>';
-                    echo '<td><a href="attributes/delete/' . $attribute->id . '" class="btn btn-sm btn-danger">Delete</a></td>';
-                    echo '</tr>';
+            ?>
+                    <tr>
+                        <td><?= $attribute->title ?></td>
+                        <td><?= $attribute->createdAt ?> </td>
+                        <td class="text-end">
+                            <a href="attributes/edit/<?= $attribute->id ?>" class="btn btn-sm btn-primary">Edit</a>
+                            <a href="attributes/delete/<?= $attribute->id ?>" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+
+                <?php
                     $previousType = $attribute->type;
                 }
-            } else {
-                echo '<tr><td colspan="4">There is no defined attributes</td></tr>';
-            }
-            ?>
+                ?>
+            <?php else : ?>
+                <tr>
+                    <td colspan="4">There is no defined attributes</td>
+                </tr>
+            <?php endif; ?>
+
         </tbody>
     </table>
 </div>

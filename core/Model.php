@@ -30,9 +30,8 @@ class Model
     }
     /**
      * Get all data from default table named $tableName
-     * @return array $data - Array of selected data's entity
      */
-    public function findAll(): array
+    public function findAll()
     {
         $query = "SELECT * FROM $this->tableName";
         $data = $this->query($query);
@@ -48,11 +47,7 @@ class Model
     public function findById(int $id)
     {
         $query = "SELECT * FROM $this->tableName WHERE id = :id";
-<<<<<<< HEAD
         $data = $this->query($query, ['id' => $id], $this->entityName, true);
-=======
-        $data = $this->query($query, ['id' => $id], "\\App\\Entities\\AttributeEntity", true);
->>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
         return $data;
     }
 
@@ -79,13 +74,8 @@ class Model
     {
         $markers = $this->makeMarkers($data);
         $query = "UPDATE $this->tableName SET $markers WHERE id = $id ";
-<<<<<<< HEAD
 
         return $this->query($query, $data);
-=======
-        $response = $this->query($query, $data);
-        return $response;
->>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
     }
 
     /**
@@ -130,7 +120,6 @@ class Model
 
     public function lastInsertId()
     {
-<<<<<<< HEAD
         return  $this->db->lastInsertId();
     }
 
@@ -155,8 +144,5 @@ class Model
         }
 
         return true;
-=======
-        return  $this->db->getPdo()->lastInsertId();
->>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
     }
 }

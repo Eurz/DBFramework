@@ -60,23 +60,27 @@ class Application
         // Attributes
         $router->get('/attributes', 'attributes.index');
         $router->get('/attributes/add', 'attributes.add');
-<<<<<<< HEAD
         $router->get('/attributes/delete/:id', 'attributes.delete');
-=======
->>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
         $router->get('/attributes/edit/:id', 'attributes.edit');
         $router->get('/attributes/:id', 'attributes.view');
+
+        $router->post('/attributes/delete/:id', 'attributes.delete');
+        $router->post('/attributes/add', 'attributes.add');
+        $router->post('/attributes/edit/:id', 'attributes.edit');
+
+
+        // Hidings
+        $router->get('/hidings', 'hidings.index');
+        $router->get('/hidings/add', 'hidings.add');
+        $router->get('/hidings/edit/:id', 'hidings.edit');
+
+        $router->post('/hidings/edit/:id', 'hidings.edit');
+        $router->post('/hidings/add', 'hidings.add');
         // $router->get('/notFound', function () {
 
-<<<<<<< HEAD
         //     echo 'oups';
         // }, 'default.error');
 
-        $router->post('/attributes/delete/:id', 'attributes.delete');
-=======
->>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
-        $router->post('/attributes/add', 'attributes.add');
-        $router->post('/attributes/edit/:id', 'attributes.edit');
 
         // $router->post('/attribute/:id', function ($id) {
         //     echo "I'm adding attributes number $id";

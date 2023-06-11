@@ -57,12 +57,8 @@ class Controller
 
     public function notFound()
     {
-<<<<<<< HEAD
         $pageTitle = 'Not found from controller';
         $this->render('error', compact('pageTitle'));
-=======
-        echo 'Not found from controller';
->>>>>>> d8871f8d8458666d7d1615d00e1d12557cd9c59b
     }
 
     public function errorPage()

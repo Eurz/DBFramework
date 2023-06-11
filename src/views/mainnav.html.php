@@ -7,7 +7,7 @@
             <a class="nav-link" href=" #">Users</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href=" #">Hidings</a>
+            <a class="nav-link" href="/hidings">Hidings</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="/attributes">Attributes</a>
