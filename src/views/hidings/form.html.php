@@ -52,7 +52,6 @@ if ($hiding) :
                         <option value="<?= $country->id ?>" <?= $selected ?>>
                             <?= $country->title ?? '' ?>
                         </option>
-                        </label>
                     <?php endforeach; ?>
                 </select>
             </div>

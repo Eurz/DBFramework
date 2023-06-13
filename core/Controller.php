@@ -6,7 +6,7 @@ use Core\Renderer;
 
 class Controller
 {
-    protected Model $model;
+    protected $model;
 
 
     public function __construct()
@@ -50,7 +50,6 @@ class Controller
 
         $app = Application::getInstance();
         $model = $app::getModel($modelName);
-
 
         return $model;
     }

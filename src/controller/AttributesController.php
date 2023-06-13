@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entities\AttributesEntity;
+use Core\Forms;
 use Core\Http;
 
 class AttributesController extends AppController
@@ -31,7 +32,7 @@ class AttributesController extends AppController
 
         $types = $this->types;
         $pageTitle = 'Missions attributes';
-        $this->render('attribute/index', compact('pageTitle', 'attributes', 'types'));
+        $this->render('attributes/index', compact('pageTitle', 'attributes', 'types'));
     }
 
     /**
@@ -42,7 +43,7 @@ class AttributesController extends AppController
         $attribute = $this->model->findById($id);
 
         $pageTitle = 'View an attribute';
-        $this->render('attribute/view', compact('pageTitle', 'attribute'));
+        $this->render('attributes/view', compact('pageTitle', 'attribute'));
     }
 
     /**
@@ -59,7 +60,7 @@ class AttributesController extends AppController
         $attribute->setType($_POST['type'] ?? 'country');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $response = $this->model->insert($_POST);
+            // $response = $this->model->insert($_POST);
 
             foreach ($_POST as $key => $value) {
                 if ($value === '') {
@@ -86,7 +87,59 @@ class AttributesController extends AppController
         }
 
         $pageTitle = 'Add an attribute';
-        $this->render('attribute/form', compact('pageTitle', 'attribute', 'message', 'types'));
+        $this->render('attributes/form', compact('pageTitle', 'attribute', 'message', 'types'));
+    }
+
+
+    public function addtest()
+    {
+
+        $message = '';
+        $types = $this->types;
+        $isValid = false;
+        $countries = $this->model->findIdAndTitle('country');
+
+
+
+        $form = new Forms();
+        $form
+            ->addRow('title', 'default value', 'Title', 'input:text', true, ['notBlank' => true])
+            ->addRow('type', 'country', 'Type', 'select', true, ['notBlank' => true, 'data' => $types]);
+        // ->addRow('country', 'country', 'Country', 'select:multiple', true, ['notBlank' => false, 'data' => $countries]);
+
+
+        // ->addRadios('type');
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+            // var_dump($data);
+            // $response = $this->model->insert($data);
+
+            // // foreach ($_POST as $key => $value) {
+            // //     if ($value === '') {
+            // //         $message = 'Field "' . $key . '" is required';
+            // //         $isValid = false;
+            // //         break;
+            // //     } else {
+            // //         $isValid = true;
+            // //     }
+
+            // //     $data[$key] = $value;
+            // // }
+
+            // // if ($isValid !== false) {
+            // //     // $response = $this->model->insert($_POST);
+
+            // if ($response) {
+            //     $message = 'Attribute saved in database';
+            //     $id = $this->model->lastInsertId();
+
+            //     Http::redirect('attributes/edit/' . $id);
+            // }
+            // }
+        }
+
+        $pageTitle = 'Add an attribute test';
+        $this->render('attributes/formtest', compact('pageTitle', 'message', 'types', 'form'));
     }
 
     /**
@@ -140,7 +193,7 @@ class AttributesController extends AppController
 
         $pageTitle = 'Edit an attribute';
 
-        $this->render('attribute/form', compact('pageTitle', 'attribute', 'message', 'types'));
+        $this->render('attributes/form', compact('pageTitle', 'attribute', 'message', 'types'));
     }
 
     /**
@@ -186,6 +239,6 @@ class AttributesController extends AppController
 
 
         $pageTitle = 'Delete an attribute';
-        $this->render('attribute/delete', compact('pageTitle', 'attribute', 'message'));
+        $this->render('attributes/delete', compact('pageTitle', 'attribute', 'message'));
     }
 }

@@ -37,7 +37,6 @@ class HidingsController extends Controller
 
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            var_dump($_POST);
             foreach ($_POST as $key => $value) {
                 if ($value === '') {
                     $message = 'Field "' . $key . '" is required';
@@ -89,7 +88,6 @@ class HidingsController extends Controller
                 }
 
                 $data[$key] = $value;
-                
             }
 
             if ($isValid !== false) {

@@ -59,13 +59,13 @@ class Application
 
         // Attributes
         $router->get('/attributes', 'attributes.index');
-        $router->get('/attributes/add', 'attributes.add');
+        $router->get('/attributes/add', 'attributes.addtest');
         $router->get('/attributes/delete/:id', 'attributes.delete');
         $router->get('/attributes/edit/:id', 'attributes.edit');
         $router->get('/attributes/:id', 'attributes.view');
 
         $router->post('/attributes/delete/:id', 'attributes.delete');
-        $router->post('/attributes/add', 'attributes.add');
+        $router->post('/attributes/add', 'attributes.addtest');
         $router->post('/attributes/edit/:id', 'attributes.edit');
 
 

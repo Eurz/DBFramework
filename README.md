@@ -24,9 +24,9 @@ Completed:
 
 In progress:
 
-To do:
-
 -   implentation of form's submission
+
+To do:
 
 -   creation of the 'users' section
 -   Creation of the "users" section to manage:
