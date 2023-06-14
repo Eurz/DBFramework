@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 // use Core\Application;
 
 use Core\Application;

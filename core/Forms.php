@@ -14,14 +14,16 @@ class Forms
      */
     private $data = [];
     /**
-     * Html of the form
+     * Message from form submission
      */
-    private $errors;
+    private $message;
 
     public function __construct()
     {
         $this->data = $_POST;
     }
+
+    private $isValid = false;
 
     /**
      * Generate html for an form input element
@@ -35,13 +37,14 @@ class Forms
     {
         $params = $this->formParams[$name];
         $html = '<div class="row mb-3">';
-        $html .= '<label for="' . $name . '" class="col-sm-2 form-label">' . $params['label'] . '</label>';
+        $html .= $this->createLabel($name);
         $html .= '<div class="col-lg-6 col-sm-10 ">
-        <input class="form-control" type="' . $type . '" name="' . $params['type'] . '" id="' . $name . '" value="' . $this->getValue($name) . '" />
+        <input class="form-control" type="' . $type . '" name="' . $name . '" id="' . $name . '" value="' . $this->getValue($name) . '" />
         </div>';
         $html .= '</div>';
         return $html;
     }
+
 
     /**
      * Generate html for an form select element
@@ -50,38 +53,35 @@ class Forms
      * @param string $type Input's type
      * @param string Input's label
      */
-    public function addSelect($name, $type): string
+    public function addSelect($name, $type, $data): string
     {
         $params = $this->formParams[$name];
-        $data = $params['data'];
+
         $html = '<div class="row mb-3">';
         $html .= '<label for="' . $name . '" class="col-sm-2 form-label">' . $params['label'] . '</label>';
         $html .= '<div class="col-lg-6 col-sm-10 ">';
 
         if ($type === 'multiple') {
             $ext = '[]';
+            $typeSize = 'size="4"';
         } else {
             $ext = null;
+            $typeSize = null;
         }
 
-
-        $html .= '<select name="' . $name . $ext . '"  id="' . $name . '" class="form-select form-select-sm" aria-label="Hiding type" ' . $type . ' ' . $type ?? 'size="4"' . '>';
-
+        $html .= '<select name="' . $name . $ext . '"  id="' . $name . '" class="form-select form-select-sm" aria-label="Hiding type" ' . $type . ' ' . $typeSize . '>';
         foreach ($data as $k => $v) {
             if (is_array($v)) {
-                $result = [];
                 $test = array_keys($v);
 
                 $k = $v[$test[0]];
                 $v = $v[$test[1]];
             }
+
             if ($type) {
-                // var_dump($this->data[$k]);
-                var_dump($this->getValue('country'));
-                // $selected = isset($this->getValue('country')) && in_array($k, $this->getValue('country')) ? 'selected' : null;
-                $selected = null;
+                $selected = in_array($k, $this->getValue($name)) ? 'selected' : null;
             } else {
-                $selected = $this->getValue($name) === $k ? 'selected' : null;
+                $selected = $this->getValue($name) == $k ? 'selected' : null;
             }
             $html .= '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
         }
@@ -90,11 +90,18 @@ class Forms
         return $html;
     }
 
-    function extractSelectData($data)
+
+    public function errors()
+    {
+        if (isset($this->message)) {
+            return $this->message;
+        }
+        return false;
+    }
+    private function extractSelectData($data)
     {
         $result = [];
         foreach ($data as $item) {
-
             $keys = array_keys($item);
             $index = $item[$keys[0]];
             $value = $item[$keys[1]];
@@ -103,16 +110,12 @@ class Forms
         return $result;
     }
     /**
-     * Define a form element input parameters
+     * Define a form element with input parameters
      */
-    public function addRow($name, $value, $label, $type = 'text', $required = false, $params = [])
+    public function addRow($name, $value, $label, $type = 'text', $required = false, $data = null, $params = [])
     {
 
-        $params['value'] = $value ?? 'valeur par default';
-        $params['label'] = $label;
-        $params['type'] = $type;
-        $params['required'] = $required;
-        $this->formParams[$name] = $params;
+        $this->formParams[$name] = compact('name', 'value', 'label', 'type', 'required', 'data', 'params');
 
         return $this;
     }
@@ -132,19 +135,13 @@ class Forms
 
         preg_match('#^(select|input):?([a-z)]+)?#', $rowType, $matches);
         array_shift($matches);
-        // var_dump($matches);
 
-        $methodName = 'add' . ucfirst($matches[0]);
+        $inputType = $matches[0];
         $type = isset($matches[1]) ? $matches[1] : null;
-        // var_dump($matches[1]);
-        // die();
+
+        $methodName = 'add' . ucfirst($inputType);
         // call_user_func(array($this, $methodName), [$key]);
-        // if ($rowType === 'select') {
-        // } else {
-        //     $methodName = 'addInput';
-        // }
-        // call_user_func(array($this, $methodName), [$key]);
-        $input = $this->$methodName($key, $type);
+        $input = $this->$methodName($key, $type, $this->formParams[$key]['data']);
         return $input;
     }
 
@@ -177,12 +174,55 @@ class Forms
     }
 
     /**
+     * 
+     */
+    public function isValid(): bool
+    {
+        foreach ($this->data as $key => $value) {
+            if ($value === '') {
+                $this->message = 'Field "' . $key . '" is required';
+                $this->isValid = false;
+                break;
+            } else {
+                // $this->message = 'Formulaire valide';
+                $this->isValid = true;
+            }
+
+            return $this->isValid;
+        }
+
+        foreach ($_POST as $key => $value) {
+            if ($value === '') {
+                $message = 'Field "' . $key . '" is required';
+                $isValid = false;
+                break;
+            } else {
+                $isValid = true;
+            }
+
+            $data[$key] = $value;
+        }
+        return false;
+    }
+
+    /**
      * Get the current data of the form
      * @return array 
      */
     public function getData(): array
     {
         return $this->data;
+    }
+
+    /**
+     * Return label of html element
+     */
+
+    private function createLabel($key): string
+    {
+        $label = $this->formParams[$key]['label'];
+
+        return  '<label for="' . $key . '" class="col-sm-2 form-label">' . $label . '</label>';
     }
 
     /**

@@ -3,12 +3,14 @@
 namespace App\Controller;
 
 use App\Entities\HidingsEntity;
+use App\Model\Attributes;
 use Core\Controller;
+use Core\Forms;
 use Core\Http;
 
 class HidingsController extends Controller
 {
-    private $Attributes;
+    private Attributes $Attributes;
 
     public function __construct()
     {
@@ -30,79 +32,98 @@ class HidingsController extends Controller
     function add()
     {
         $message = 'Test ajout hiding';
-        $hiding = new HidingsEntity();
 
-        $countries = $this->Attributes->findAll('country');
-        $hidingTypes = $this->Attributes->findAll('hiding');
+        $countries = $this->Attributes->findIdAndTitle('country');
+        $hidingTypes = $this->Attributes->findIdAndTitle('hiding');
 
+        $form = new Forms();
+        $form
+            ->addRow('code', '', 'Code', 'input:text', true, null, ['notBlank' => true])
+            ->addRow('address', '', 'Address', 'input:text', true, null, ['notBlank' => true])
+            ->addRow('typeId', '', 'Type', 'select', true, $hidingTypes, ['notBlank' => true])
+            ->addRow('countryId', '', 'Country', 'select', true, $countries, ['notBlank' => true]);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            foreach ($_POST as $key => $value) {
-                if ($value === '') {
-                    $message = 'Field "' . $key . '" is required';
-                    $isValid = false;
-                    break;
-                } else {
-                    $isValid = true;
-                }
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $response = $this->model->insert($data);
 
-                $data[$key] = $value;
-            }
+            if ($response) {
+                $message = 'Hiding saved in database';
 
-            if ($isValid !== false) {
-                $response = $this->model->insert($_POST);
+                $id = $this->model->lastInsertId();
 
-                if ($response) {
-                    $message = 'Hiding saved in database';
-                    $id = $this->model->lastInsertId();
-
-                    Http::redirect('hidings/edit/' . $id);
-                }
-
-                echo ' Formulaire valid';
-            } else {
-                echo 'Formulaire non valide';
+                $this->redirect('hidings/edit/' . $id);
             }
         }
 
+
         $pageTitle = 'Add an hiding';
-        $this->render('hidings/form', compact('pageTitle', 'hiding', 'countries', 'hidingTypes', 'message'));
+        $this->render('hidings/form', compact('pageTitle', 'message', 'form'));
     }
 
     public function edit($id)
     {
-        $message = null;
+        $message = '';
         $hiding = $this->model->findById($id);
-        $countries = $this->Attributes->findAll('country');
-        $hidingTypes = $this->Attributes->findAll('hiding');
+        $countries = $this->Attributes->findIdAndTitle('country');
+        $hidingTypes = $this->Attributes->findIdAndTitle('hiding');
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            var_dump($_POST);
-            foreach ($_POST as $key => $value) {
-                if ($value === '') {
-                    $message = 'Field "' . $key . '" is required';
-                    $isValid = false;
-                    break;
-                } else {
-                    $isValid = true;
-                }
+        $hiding = $this->model->findById($id);
+        if ($hiding === false) {
+            $message = 'Cet utilisateur n\'existe pas';
+            $this->notFound('attributes');
+        }
 
-                $data[$key] = $value;
-            }
+        $form = new Forms();
+        $form
+            ->addRow('code', $hiding->code, 'Code', 'input:text', true, null, ['notBlank' => true])
+            ->addRow('address', $hiding->address, 'Address', 'input:text', true, null, ['notBlank' => true])
+            ->addRow('typeId', $hiding->typeId, 'Type', 'select', true, $hidingTypes, ['notBlank' => true])
+            ->addRow('countryId', $hiding->countryId, 'Country', 'select', true, $countries, ['notBlank' => true]);
 
-            if ($isValid !== false) {
-                $response = $this->model->update($id, $_POST);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $response = $this->model->update($id, $data);
 
-                if ($response) {
-                    $message = 'Hiding saved in database';
-                    // $id = $this->model->lastInsertId();
-
-                    Http::redirect('hidings/edit/' . $id);
-                }
+            if ($response) {
+                $this->redirect('hidings/edit/' . $id);
             }
         }
 
         $pageTitle = 'Edit an hiding';
-        $this->render('hidings/form', compact('pageTitle', 'hiding', 'countries', 'hidingTypes', 'message'));
+
+        $this->render('hidings/form', compact('pageTitle', 'form', 'message'));
+    }
+
+    public function delete($id)
+    {
+
+        $message = '';
+        $hiding = $this->model->findById($id);
+        if (!$hiding) {
+            $message = 'This hiding doesn\'t exist';
+            $this->redirect('hidings');
+        };
+
+        $form = new Forms();
+
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+            if (isset($data['choice']) && $data['choice'] === 'yes') {
+                $response = $this->model->delete($id);
+
+                if ($response) {
+                    $message = 'Hiding deleted in database';
+                    $this->redirect('hidings');
+                }
+            } else {
+                $message = 'Hiding deleted in database';
+                $this->redirect('hidings');
+            }
+        }
+
+
+        $pageTitle = 'Delete an hiding';
+        $this->render('hidings/delete', compact('pageTitle', 'hiding', 'message'));
     }
 }

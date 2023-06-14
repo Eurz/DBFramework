@@ -54,9 +54,20 @@ class Controller
         return $model;
     }
 
+    /**
+     * Redirection to a specific url
+     */
+    protected function redirect($url)
+    {
+        Http::redirect($url);
+    }
+
+    /**
+     * Display page 404
+     */
     public function notFound()
     {
-        $pageTitle = 'Not found from controller';
+        $pageTitle = 'Page not found';
         $this->render('error', compact('pageTitle'));
     }
 

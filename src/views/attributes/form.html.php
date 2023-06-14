@@ -1,49 +1,26 @@
 <?php
-if ($attribute) :
+if ($form) :
 ?>
 
     <?php
-    if ($message) {
+    if ($form->errors()) {
     ?>
         <div class="alert alert-success">
-            <?= $message ?>
+            <?= $form->errors() ?>
         </div>
     <?php
     }
     ?>
 
+
     <div class="p-3 mb-3 bg-light"><a href="/attributes">Back to list</a></div>
 
     <form method="POST">
-
-
-        <div class="row mb-3">
-            <label for="title" class="col-sm-2 form-label">Title</label>
-            <div class="col-lg-6 col-sm-10 "> <input class="form-control" type="text" name="title" id="title" value="<?= $attribute->title ?>" /></div>
-        </div>
+        <?= $form->row('title'); ?>
+        <?= $form->row('type'); ?>
+        <?= $form->row('test'); ?>
 
         <div class="row mb-3">
-
-            <span class="col-sm-2 form-label">
-                Type
-            </span>
-            <div class="col-sm-6">
-
-                <?php
-                $first = array_key_first($types);
-
-                foreach ($types as $key => $name) : ?>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="type" id="type" value="<?= $key ?>" <?= $attribute->type === $key ? 'checked' : null; ?> />
-                        <label class="form-check-label" for="type">
-                            <?= $name ?>
-                        </label>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-        <div class="row mb-3">
-
             <span class="col-sm-2 form-label"></span>
             <div class="col-sm-6"><button type="submit" class="btn btn-primary">Save</button></div>
         </div>

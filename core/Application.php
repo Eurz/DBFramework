@@ -59,13 +59,13 @@ class Application
 
         // Attributes
         $router->get('/attributes', 'attributes.index');
-        $router->get('/attributes/add', 'attributes.addtest');
+        $router->get('/attributes/add', 'attributes.add');
         $router->get('/attributes/delete/:id', 'attributes.delete');
         $router->get('/attributes/edit/:id', 'attributes.edit');
         $router->get('/attributes/:id', 'attributes.view');
 
         $router->post('/attributes/delete/:id', 'attributes.delete');
-        $router->post('/attributes/add', 'attributes.addtest');
+        $router->post('/attributes/add', 'attributes.add');
         $router->post('/attributes/edit/:id', 'attributes.edit');
 
 
@@ -73,8 +73,10 @@ class Application
         $router->get('/hidings', 'hidings.index');
         $router->get('/hidings/add', 'hidings.add');
         $router->get('/hidings/edit/:id', 'hidings.edit');
+        $router->get('/hidings/delete/:id', 'hidings.delete');
 
         $router->post('/hidings/edit/:id', 'hidings.edit');
+        $router->post('/hidings/delete/:id', 'hidings.delete');
         $router->post('/hidings/add', 'hidings.add');
         // $router->get('/notFound', function () {
 
