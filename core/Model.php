@@ -103,6 +103,17 @@ class Model
         return $result;
     }
 
+
+    public function queryIndexed(string $query, $attributes): array
+    {
+
+        $result = $this->db->queryIndexed($query, $attributes);
+        $data = [];
+        foreach ($result as $value) {
+            $data[] = $value[0];
+        }
+        return $data;
+    }
     /**
      * @param array $data - Array of date from. For example from :  $_POST, 
      * @return string $queryMarkers - A string of markers for a prepared query (id = :id , title = :title, etc...)
@@ -121,14 +132,6 @@ class Model
     public function lastInsertId()
     {
         return  $this->db->lastInsertId();
-    }
-
-    /**
-     * 
-     */
-    private function setEntityName()
-    {
-        # code...
     }
 
     /**

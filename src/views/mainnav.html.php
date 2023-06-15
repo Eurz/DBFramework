@@ -4,7 +4,7 @@
             <a class="nav-link" aria-current="page" href="#">Missions</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href=" #">Users</a>
+            <a class="nav-link" href="/users">Users</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="/hidings">Hidings</a>

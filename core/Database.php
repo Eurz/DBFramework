@@ -91,6 +91,26 @@ class Database
             return false;
         }
     }
+    /**
+     * @param string $query - A sql query
+     * @param array $attributes - Parameters for prepared query
+     * @return 
+     */
+    public function queryIndexed(string $query, $attributes = []): array
+    {
+        $pdo = $this->getPdo();
+        $statement = $pdo->prepare($query);
+
+        $statement->setFetchMode(PDO::FETCH_NUM);
+        try {
+            $response = $statement->execute($attributes);
+            $result = $statement->fetchAll();
+            return $result;
+        } catch (PDOException $e) {
+            var_dump($e->getMessage());
+            return false;
+        }
+    }
 
     public function lastInsertId()
     {

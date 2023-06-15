@@ -3,6 +3,7 @@
 namespace Core;
 
 use Core\Router\Router;
+use Exception;
 
 class Application
 {
@@ -39,6 +40,11 @@ class Application
     {
         $modelName = ucfirst(strtolower($modelName));
         $fqn = '\\App\\Model\\' . $modelName;
+
+        // if (!class_exists($fqn, false)) {
+        //     throw new Exception("Cette classe nexiste pas", 1);
+        // }
+
         self::getDb();
 
         return new $fqn(self::getDb());
@@ -71,22 +77,24 @@ class Application
 
         // Hidings
         $router->get('/hidings', 'hidings.index');
-        $router->get('/hidings/add', 'hidings.add');
+        $router->get('/hidings/add/', 'hidings.add');
         $router->get('/hidings/edit/:id', 'hidings.edit');
         $router->get('/hidings/delete/:id', 'hidings.delete');
 
         $router->post('/hidings/edit/:id', 'hidings.edit');
         $router->post('/hidings/delete/:id', 'hidings.delete');
         $router->post('/hidings/add', 'hidings.add');
-        // $router->get('/notFound', function () {
 
-        //     echo 'oups';
-        // }, 'default.error');
+        // Users
+        $router->get('/users', 'users.index');
+        $router->get('/users/add/', 'users.add');
+        $router->get('/users/add/:userType', 'users.add');
+        $router->get('/users/edit/:id', 'users.edit');
 
+        $router->post('/users/add/', 'users.add');
+        $router->post('/users/add/:userType', 'users.add');
+        $router->post('/users/edit/:id', 'users.edit');
 
-        // $router->post('/attribute/:id', function ($id) {
-        //     echo "I'm adding attributes number $id";
-        // });
 
         $router->run();
     }

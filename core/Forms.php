@@ -63,7 +63,7 @@ class Forms
 
         if ($type === 'multiple') {
             $ext = '[]';
-            $typeSize = 'size="4"';
+            $typeSize = 'size="' . count($data) . '"';
         } else {
             $ext = null;
             $typeSize = null;
@@ -72,12 +72,11 @@ class Forms
         $html .= '<select name="' . $name . $ext . '"  id="' . $name . '" class="form-select form-select-sm" aria-label="Hiding type" ' . $type . ' ' . $typeSize . '>';
         foreach ($data as $k => $v) {
             if (is_array($v)) {
-                $test = array_keys($v);
+                $keys = array_keys($v);
 
-                $k = $v[$test[0]];
-                $v = $v[$test[1]];
+                $k = $v[$keys[0]];
+                $v = $v[$keys[1]];
             }
-
             if ($type) {
                 $selected = in_array($k, $this->getValue($name)) ? 'selected' : null;
             } else {
@@ -94,20 +93,24 @@ class Forms
     public function errors()
     {
         if (isset($this->message)) {
-            return $this->message;
+
+            return implode('<br/>', $this->message);
         }
+
         return false;
     }
-    private function extractSelectData($data)
+    public function extractSelectData(...$keys)
     {
-        $result = [];
-        foreach ($data as $item) {
-            $keys = array_keys($item);
-            $index = $item[$keys[0]];
-            $value = $item[$keys[1]];
-            $result[$index] = $value;
+        $data = [];
+        foreach ($this->getData() as  $key => $value) {
+            if (in_array($key, $keys)) {
+                $data[$key] = $this->getValue($key);
+            } else {
+
+                $data['default'][$key] = $this->getValue($key);
+            }
         }
-        return $result;
+        return $data;
     }
     /**
      * Define a form element with input parameters
@@ -154,9 +157,12 @@ class Forms
     public function render()
     {
         // $html = '<form method="POST">';
-        $html = $this->getHtml();
+        $html = '';
+        foreach ($this->formParams as $key => $value) {
+            $html .= $this->row($key);
+        }
         // $html .= '</form>';
-        return $this->getHtml();
+        return $html;
     }
 
     /**
@@ -178,18 +184,17 @@ class Forms
      */
     public function isValid(): bool
     {
+        $result = [];
         foreach ($this->data as $key => $value) {
-            if ($value === '') {
-                $this->message = 'Field "' . $key . '" is required';
-                $this->isValid = false;
-                break;
+            if ($value === '' || $value === null) {
+                $result[$key] = 'failed';
+                $this->message[] = 'Field "' . $key . '" is required';
             } else {
-                // $this->message = 'Formulaire valide';
+                $result[$key] = 'success';
                 $this->isValid = true;
             }
-
-            return $this->isValid;
         }
+        return !in_array('failed', $result);
 
         foreach ($_POST as $key => $value) {
             if ($value === '') {
@@ -225,15 +230,7 @@ class Forms
         return  '<label for="' . $key . '" class="col-sm-2 form-label">' . $label . '</label>';
     }
 
-    /**
-     * Generate the full form's html
-     * @return string $html 
-     */
-    private function getHtml(): string
-    {
-        $html = '';
-        return $html;
-    }
+
 
 
     /**

@@ -44,8 +44,8 @@ class HidingsController extends Controller
             ->addRow('countryId', '', 'Country', 'select', true, $countries, ['notBlank' => true]);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            $response = $this->model->insert($data);
+            $hiding = $form->getData();
+            $response = $this->model->insert($hiding);
 
             if ($response) {
                 $message = 'Hiding saved in database';
@@ -69,6 +69,7 @@ class HidingsController extends Controller
         $hidingTypes = $this->Attributes->findIdAndTitle('hiding');
 
         $hiding = $this->model->findById($id);
+
         if ($hiding === false) {
             $message = 'Cet utilisateur n\'existe pas';
             $this->notFound('attributes');
@@ -121,7 +122,6 @@ class HidingsController extends Controller
                 $this->redirect('hidings');
             }
         }
-
 
         $pageTitle = 'Delete an hiding';
         $this->render('hidings/delete', compact('pageTitle', 'hiding', 'message'));
