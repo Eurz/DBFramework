@@ -77,8 +77,13 @@ class Forms
                 $k = $v[$keys[0]];
                 $v = $v[$keys[1]];
             }
+            if (is_object($v)) {
+                $k = $v->id;
+                $v = $v->title;
+            }
+
             if ($type) {
-                $selected = in_array($k, $this->getValue($name)) ? 'selected' : null;
+                $selected = array_key_exists($k, $this->getValue($name)) ? 'selected' : null;
             } else {
                 $selected = $this->getValue($name) == $k ? 'selected' : null;
             }
@@ -89,7 +94,9 @@ class Forms
         return $html;
     }
 
-
+    /**
+     * Test: return message from Forms
+     */
     public function errors()
     {
         if (isset($this->message)) {
@@ -99,19 +106,7 @@ class Forms
 
         return false;
     }
-    public function extractSelectData(...$keys)
-    {
-        $data = [];
-        foreach ($this->getData() as  $key => $value) {
-            if (in_array($key, $keys)) {
-                $data[$key] = $this->getValue($key);
-            } else {
 
-                $data['default'][$key] = $this->getValue($key);
-            }
-        }
-        return $data;
-    }
     /**
      * Define a form element with input parameters
      */
@@ -156,6 +151,7 @@ class Forms
      */
     public function render()
     {
+
         // $html = '<form method="POST">';
         $html = '';
         foreach ($this->formParams as $key => $value) {

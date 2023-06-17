@@ -38,6 +38,19 @@ class Model
         return $data;
     }
 
+    /**
+     * A supprimer
+     */
+    public function findAllByIds($data)
+    {
+        $query = "SELECT * FROM $this->tableName" . SPACER;
+        if ($data) {
+            $query .= "WHERE id in $data" . SPACER;
+        }
+
+        $result = $this->query($query, null, $this->entityName);
+        return $result;
+    }
 
     /**
      * Find data by id
@@ -53,8 +66,9 @@ class Model
 
 
     /**
-     * Insert data
+     * Insert item in database
      * @param array $data - Data for new item in data base
+     * @return $response - False if failed otherwise true
      */
     public function insert($data)
     {
@@ -114,11 +128,30 @@ class Model
         }
         return $data;
     }
+
+    /**
+     * Load a model - Default name = name from called class
+     * @param string $modelName - Load a model from name $modelName. Default name is model for the current controller
+     * @return ?Model $model - Model to fetch data
+     */
+    public function getModel(string $modelName = null): ?Model
+    {
+        if ($modelName === null) {
+            $className = get_called_class();
+            $classNameParts = explode('\\', $className);
+            $modelName = end($classNameParts);
+            $modelName = str_replace('Controller', '', $modelName);
+        }
+        $app = Application::getInstance();
+        $model = $app::getModel($modelName);
+
+        return $model;
+    }
     /**
      * @param array $data - Array of date from. For example from :  $_POST, 
      * @return string $queryMarkers - A string of markers for a prepared query (id = :id , title = :title, etc...)
      */
-    private function makeMarkers($data)
+    protected function makeMarkers($data)
     {
 
         $markers = [];
@@ -129,6 +162,15 @@ class Model
         return $queryMarkers;
     }
 
+    /**
+     * Create a list of values such : (value1, value2, ... )
+     * @param array $data - List of value to convert into string
+     */
+    protected function makeMarkersList($data)
+    {
+        $result = '(' . implode(',', $data) . ')';
+        return $result;
+    }
     public function lastInsertId()
     {
         return  $this->db->lastInsertId();

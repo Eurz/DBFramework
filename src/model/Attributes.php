@@ -11,8 +11,9 @@ class Attributes extends AppModel
      */
     public function findAll($type = null)
     {
-        $data = null;
+        $data = [];
         $query = "SELECT * FROM $this->tableName" . SPACER;
+
         if (!is_null($type) && !empty($type)) {
             $query .=  "WHERE type = :type" . SPACER;
             $data = ['type' => $type];
@@ -23,8 +24,9 @@ class Attributes extends AppModel
         return $attributes;
     }
 
+
     /**
-     * Find attributes with Id and Title
+     * Find attributes in array with Id and Title
      **/
     public function findIdAndTitle($type = null)
     {
@@ -35,7 +37,7 @@ class Attributes extends AppModel
             $data = [':type' => $type];
         }
         $query .= "ORDER BY type ASC" . SPACER;
-        $attributes = $this->query($query, $data);
+        $attributes = $this->query($query, $data, $this->entityName);
         return $attributes;
     }
 }

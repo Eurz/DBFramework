@@ -14,7 +14,7 @@ class Http
      */
     public static function redirect(string $url)
     {
-        header($_SERVER["SERVER_PROTOCOL"] . SPACER . "200 OK");
+        // header($_SERVER["SERVER_PROTOCOL"] . SPACER . "200 OK");
         header('Location: /' . trim($url, '/'));
     }
 
@@ -25,6 +25,4 @@ class Http
         // header('Location: /notFound');
         self::redirect('notFound');
     }
-
-    
 }

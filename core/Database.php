@@ -57,7 +57,6 @@ class Database
     {
         $pdo = $this->getPdo();
         $statement = $pdo->prepare($query);
-
         if (!is_null($entity)) {
             $statement->setFetchMode(PDO::FETCH_CLASS, $entity);
         } else {

@@ -18,6 +18,15 @@ class Users extends AppModel
         return $users;
     }
 
+    public function findUser($id)
+    {
+        $query = "SELECT users.id,firstName , lastName , dateOfBirth , attributes.title AS nationality, userType as type, users.createdAt, email, password FROM $this->tableName" . SPACER;
+        $query .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+        $query .= "WHERE users.id = :id";
+        $users = $this->query($query, ['id' => $id], $this->entityName, true);
+        return $users;
+    }
+
     /**
      * Find data by id
      * @param int $id - Id of data to fetch
@@ -25,19 +34,39 @@ class Users extends AppModel
      */
     public function findUserById(int $id)
     {
-        $query = "SELECT * FROM $this->tableName WHERE id = :id";
+        $query = "SELECT users.id, firstName , lastName , dateOfBirth , nationalityId, /*attributes.title AS nationality,*/ userType, identificationCode, users.createdAt, codeName, email, password FROM $this->tableName" . SPACER;
+        // $query = "SELECT * FROM $this->tableName" . SPACER;
+        // $query .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+        $query .= "WHERE users.id = :id";
         $user = $this->query($query, ['id' => $id], $this->entityName, true);
 
-        if ($user) {
-            $specialitiesQuery = "SELECT specialityId FROM userspecialities WHERE userId = :id";
-            $specialities = $this->queryIndexed($specialitiesQuery, ['id' => $id]);
+        if ($user && $user->userType === 'agent') {
+            $specialitiesQuery = "SELECT specialityId, a.* FROM userspecialities" . SPACER;
+            $specialitiesQuery .= "LEFT JOIN attributes AS a ON a.id = specialityId" . SPACER;
+            $specialitiesQuery .= "WHERE userId = :id";
+            $specialities = $this->query($specialitiesQuery, ['id' => $id]);
 
-            $user->setSpecialities($specialities);
+            // $attributesModel = $this->getModel('attributes');
+            // $attributes = $attributesModel->findAll('speciality');
+            $user->setSpecialities($this->extractKeys('id', $specialities));
         }
         return $user;
     }
 
-
+    /** Extract from array of entities
+     * @param string $key - Name of the key to extract
+     * @param array $data - data from which to extract the keys
+     */
+    public function extractKeys($key, $data)
+    {
+        $result = [];
+        foreach ($data as $item) {
+            if (is_object($item)) {
+                $result[$item->$key] = $item;
+            }
+        }
+        return $result;
+    }
     public function insertUser($data, $userType)
     {
         $extractedData = $this->extractSelectData($data, 'specialities');
@@ -60,6 +89,7 @@ class Users extends AppModel
         }
         return false;
     }
+
 
     public function updateUser($id, $data)
     {
@@ -101,7 +131,11 @@ class Users extends AppModel
         $query = "DELETE FROM userspecialities WHERE userId = :id";
         return $this->query($query, ['id' => $id]);
     }
-
+    /**
+     * Extract data in an array with specific(s) key(s)
+     * @param array $data
+     * @params string $args - List of keys to extract from array
+     */
     public function extractSelectData($data, ...$keys)
     {
         $result = [];
@@ -115,12 +149,4 @@ class Users extends AppModel
         }
         return $result;
     }
-    // public function findAll()
-    // {
-    //     $query = "SELECT * FROM $this->tableName" . SPACER;
-    //     // $query .= " LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
-    //     var_dump($this->entityName);
-    //     $users = $this->query($query, null, $this->entityName);
-    //     return $users;
-    // }
 }

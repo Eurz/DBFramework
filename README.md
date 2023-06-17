@@ -21,18 +21,19 @@ Completed:
 -   mission type
 -   nationalities
 -   creation of the 'hidings' section
-
-In progress:
-
 -   implentation of form's submission
-
-To do:
-
 -   creation of the 'users' section
 -   Creation of the "users" section to manage:
     -   manager (ex: Peach )
     -   agents (ex: Mario)
     -   targets (ex: Bowser)
     -   contacts (ex: Todd)
+
+In progress:
+
+-   Creation of the "missions"
+
+To do:
+
 -   implementation of an authentication system
 -   Implementation of error handling and flash messages

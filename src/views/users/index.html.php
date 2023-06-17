@@ -31,7 +31,7 @@
                     <td><?= $user->type ?></td>
                     <td><?= $user->nationality ? $user->nationality : 'Unknown' ?></td>
                     <td><?= $user->createdAt ?></td>
-                    <td><a href="/users/view/<?= $user->id ?>" class="btn btn-primary btn-sm">View</a></td>
+                    <td><a href="/users/<?= $user->id ?>" class="btn btn-primary btn-sm">View</a></td>
                     <td class="text-end">
 
                         <a href="/users/edit/<?= $user->id ?>" class="btn btn-primary btn-sm">Edit</a>

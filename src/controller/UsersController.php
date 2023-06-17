@@ -17,6 +17,23 @@ class UsersController extends AppController
     }
 
     /**
+     * Display a user
+     * @param int $id - User's Id
+     */
+    public function view($id)
+    {
+
+        $user = $this->model->findUserById($id);
+        if (!$user) {
+            $this->redirect('/users');
+        }
+
+        $pageTitle = $user->fullName;
+
+        $this->render('users/view', compact('pageTitle', 'user'));
+    }
+
+    /**
      * Read all users
      */
     public function index()
@@ -28,6 +45,7 @@ class UsersController extends AppController
 
     /**
      * Create an user
+     * @param string $userType - Define ype of user to create
      */
     public function add($userType)
     {
@@ -82,22 +100,26 @@ class UsersController extends AppController
         $pageTitle .= $userType ? $this->getType($userType) : 'user';
         $this->render('users/form', compact('pageTitle', 'message', 'form'));
     }
+
     /**
      * Edit an user
+     * @param int $id - User's Id
      */
     public function edit($id)
     {
-        $message = 'sss';
+        $message = '';
         $nationalities = $this->Attributes->findIdAndTitle('nationality');
         $user = $this->model->findUserById($id);
         if (!$user) {
             $this->redirect('/users');
         }
+
         $form = new Forms();
 
         $form
             ->addRow('firstName', $user->firstName, 'First name', 'input:text', true, null, ['notBlank' => true])
             ->addRow('lastName', $user->lastName, 'Last name', 'input:text', true, null, ['notBlank' => true]);
+
         switch ($user->userType) {
             case 'agent':
                 $specialities = $this->Attributes->findIdAndTitle('speciality');
@@ -117,20 +139,20 @@ class UsersController extends AppController
             case 'manager':
                 $form
                     ->addRow('email', $user->email, 'Email', 'input:email', true, null, ['notBlank' => true])
-                    ->addRow('password', $user->password, 'Password', 'input:text', true, null, ['notBlank' => true]);
+                    ->addRow('password', $user->password, 'Password', 'input:password', true, null, ['notBlank' => true]);
 
                 break;
             default:
-                $form = null;
                 break;
         }
+
+
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $response = $this->model->updateUser($id, $data);
 
             if ($response) {
                 $message = 'User saved in database';
-                // $id = $this->model->lastInsertId();
 
                 $this->redirect('users/edit/' . $response);
             }
@@ -140,11 +162,12 @@ class UsersController extends AppController
         $pageTitle .= $user ? $this->getType($user->userType) : 'user';
 
 
-        $this->render('users/form', compact('pageTitle', 'message', 'form'));
+        $this->render('users/form', compact('pageTitle', 'message', 'form', 'user'));
     }
 
     /**
      * Delete a user
+     * @param int $id - User's ID
      */
     public function delete($id)
     {
@@ -173,15 +196,17 @@ class UsersController extends AppController
             }
         }
 
-        $pageTitle = 'Delete an hiding';
-        $this->render('users/delete', compact('pageTitle', 'users', 'message'));
+        $pageTitle = 'Delete a user';
+        $this->render('users/delete', compact('pageTitle', 'user', 'message'));
     }
+
     /**
      * Returns allowed types of user
      * @param string $key - Name of type
      */
     private function getType($key): string
     {
+
         return $this->types[$key];
     }
 }

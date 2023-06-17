@@ -87,13 +87,16 @@ class Application
 
         // Users
         $router->get('/users', 'users.index');
+        $router->get('/users/:id', 'users.view');
         $router->get('/users/add/', 'users.add');
         $router->get('/users/add/:userType', 'users.add');
         $router->get('/users/edit/:id', 'users.edit');
+        $router->get('/users/delete/:id', 'users.delete');
 
         $router->post('/users/add/', 'users.add');
         $router->post('/users/add/:userType', 'users.add');
         $router->post('/users/edit/:id', 'users.edit');
+        $router->post('/users/delete/:id', 'users.delete');
 
 
         $router->run();
