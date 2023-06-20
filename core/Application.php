@@ -62,6 +62,7 @@ class Application
         // Home
         $router->get('/', 'home.index');
         $router->get('/home', 'home.index');
+        $router->get('/404', 'app.notFound');
 
         // Attributes
         $router->get('/attributes', 'attributes.index');
@@ -87,17 +88,31 @@ class Application
 
         // Users
         $router->get('/users', 'users.index');
-        $router->get('/users/:id', 'users.view');
+        // $router->get('/users/:id', 'users.view');
         $router->get('/users/add/', 'users.add');
         $router->get('/users/add/:userType', 'users.add');
         $router->get('/users/edit/:id', 'users.edit');
         $router->get('/users/delete/:id', 'users.delete');
+        $router->get('/signin', 'users.signIn');
+        $router->get('/login', 'users.login');
+        $router->get('/logout', 'users.logout');
 
+        $router->post('/login', 'users.login');
         $router->post('/users/add/', 'users.add');
         $router->post('/users/add/:userType', 'users.add');
         $router->post('/users/edit/:id', 'users.edit');
         $router->post('/users/delete/:id', 'users.delete');
 
+        // Missions
+        $router->get('/missions', 'missions.index');
+        $router->get('/missions/edit/:id', 'missions.edit');
+        $router->get('/missions/add/', 'missions.add');
+        $router->get('/missions/add/:action', 'missions.add');
+
+        $router->post('/missions/add/', 'missions.add');
+        $router->post('/missions/add/:action', 'missions.add');
+
+        $router->post('/missions/edit/:id', 'missions.edit');
 
         $router->run();
     }

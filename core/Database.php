@@ -90,12 +90,13 @@ class Database
             return false;
         }
     }
+
     /**
      * @param string $query - A sql query
      * @param array $attributes - Parameters for prepared query
      * @return 
      */
-    public function queryIndexed(string $query, $attributes = []): array
+    public function queryIndexed(string $query, $attributes = [], $entity = null): array
     {
         $pdo = $this->getPdo();
         $statement = $pdo->prepare($query);
@@ -110,6 +111,7 @@ class Database
             return false;
         }
     }
+
 
     public function lastInsertId()
     {

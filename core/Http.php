@@ -15,7 +15,9 @@ class Http
     public static function redirect(string $url)
     {
         // header($_SERVER["SERVER_PROTOCOL"] . SPACER . "200 OK");
-        header('Location: /' . trim($url, '/'));
+        // $url = trim($url, '/');
+        // var_dump($url);
+        header('Location: /' . $url);
     }
 
     public static function notFound()

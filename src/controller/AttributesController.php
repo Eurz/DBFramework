@@ -21,6 +21,7 @@ class AttributesController extends AppController
 
     public function __construct()
     {
+        parent::__construct();
         $this->model = $this->getModel();
     }
 
@@ -92,7 +93,6 @@ class AttributesController extends AppController
             $message = 'Cet utilisateur n\'existe pas';
             $this->notFound('attributes');
         }
-        var_dump($attribute->type);
         $form = new Forms();
         $form
             ->addRow('title', $attribute->title, 'Title', 'input:text', true, null, ['notBlank' => true])
@@ -103,7 +103,7 @@ class AttributesController extends AppController
             $response = $this->model->update($id, $data);
 
             if ($response) {
-                $this->redirect('attributes/edit/' . $id);
+                $this->redirect('attributes');
             }
         }
 

@@ -10,11 +10,16 @@ class Users extends AppModel
     // protected $tableName = 'Users';
     // protected $entityPath = '\\App\\Entity\\User\\';
 
-    public function findAll()
+    public function findAll($type = null)
     {
+        $data = [];
         $query = "SELECT users.id,firstName , lastName , dateOfBirth , attributes.title AS nationality, userType as type, users.createdAt FROM $this->tableName" . SPACER;
         $query .= " LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
-        $users = $this->query($query, null, $this->entityName);
+        if (!is_null($type) && !empty($type)) {
+            $query .=  "WHERE userType = :type" . SPACER;
+            $data['type'] = $type;
+        }
+        $users = $this->query($query, $data, $this->entityName);
         return $users;
     }
 
@@ -34,12 +39,11 @@ class Users extends AppModel
      */
     public function findUserById(int $id)
     {
-        $query = "SELECT users.id, firstName , lastName , dateOfBirth , nationalityId, /*attributes.title AS nationality,*/ userType, identificationCode, users.createdAt, codeName, email, password FROM $this->tableName" . SPACER;
-        // $query = "SELECT * FROM $this->tableName" . SPACER;
-        // $query .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+        $query = "SELECT users.id, firstName , lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, users.createdAt, codeName, email, password FROM $this->tableName" . SPACER;
+        $query .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
         $query .= "WHERE users.id = :id";
         $user = $this->query($query, ['id' => $id], $this->entityName, true);
-
+        $nationality = '';
         if ($user && $user->userType === 'agent') {
             $specialitiesQuery = "SELECT specialityId, a.* FROM userspecialities" . SPACER;
             $specialitiesQuery .= "LEFT JOIN attributes AS a ON a.id = specialityId" . SPACER;
@@ -53,6 +57,10 @@ class Users extends AppModel
         return $user;
     }
 
+
+    public function findUserByEmail($email)
+    {
+    }
     /** Extract from array of entities
      * @param string $key - Name of the key to extract
      * @param array $data - data from which to extract the keys
@@ -96,17 +104,16 @@ class Users extends AppModel
         $extractedData = $this->extractSelectData($data, 'specialities');
         $user = $extractedData['user'];
         // $user['userType'] = $userType;
-        if (isset($extractedData['specialities'])) {
-            $specialities = $extractedData['specialities'];
-        }
-
-
         $userResponse = $this->update($id, $user);
 
-        if ($userResponse) {
+        if (isset($extractedData['specialities'])) {
+            $specialities = $extractedData['specialities'];
             $this->addSpecialities($id, $specialities);
+        }
+        if ($userResponse) {
             return $id;
         }
+        return false;
     }
 
 

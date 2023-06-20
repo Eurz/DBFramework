@@ -2,18 +2,16 @@
 
 namespace App\Controller;
 
-use App\Entities\HidingsEntity;
 use App\Model\Attributes;
-use Core\Controller;
 use Core\Forms;
-use Core\Http;
 
-class HidingsController extends Controller
+class HidingsController extends AppController
 {
     private Attributes $Attributes;
 
     public function __construct()
     {
+        parent::__construct();
         $this->model = $this->getModel();
         $this->Attributes = $this->getModel('Attributes');
     }
@@ -31,34 +29,37 @@ class HidingsController extends Controller
 
     function add()
     {
-        $message = 'Test ajout hiding';
-
-        $countries = $this->Attributes->findIdAndTitle('country');
-        $hidingTypes = $this->Attributes->findIdAndTitle('hiding');
-
-        $form = new Forms();
-        $form
-            ->addRow('code', '', 'Code', 'input:text', true, null, ['notBlank' => true])
-            ->addRow('address', '', 'Address', 'input:text', true, null, ['notBlank' => true])
-            ->addRow('typeId', '', 'Type', 'select', true, $hidingTypes, ['notBlank' => true])
-            ->addRow('countryId', '', 'Country', 'select', true, $countries, ['notBlank' => true]);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $hiding = $form->getData();
-            $response = $this->model->insert($hiding);
-
-            if ($response) {
-                $message = 'Hiding saved in database';
-
-                $id = $this->model->lastInsertId();
-
-                $this->redirect('hidings/edit/' . $id);
-            }
-        }
-
-
         $pageTitle = 'Add an hiding';
-        $this->render('hidings/form', compact('pageTitle', 'message', 'form'));
+        $message = '';
+
+        $countries = $this->Attributes->findKeyAndValue('id', 'title', 'country');
+        $hidingTypes = $this->Attributes->findKeyAndValue('id', 'title', 'hiding');
+        $form = null;
+
+        if (!$countries || !$hidingTypes) {
+            $message = 'Firstly, you must create attributes country and hiding';
+            $this->render('hidings/actions', compact('pageTitle', 'message'));
+        } else {
+            $form = new Forms();
+            $form
+                ->addRow('code', '', 'Code', 'input:text', true, null, ['notBlank' => true])
+                ->addRow('address', '', 'Address', 'input:text', true, null, ['notBlank' => true])
+                ->addRow('typeId', '', 'Type', 'select', true, $hidingTypes, ['notBlank' => true])
+                ->addRow('countryId', '', 'Country', 'select', true, $countries, ['notBlank' => true]);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $hiding = $form->getData();
+                $response = $this->model->insert($hiding);
+
+                if ($response) {
+                    $message = 'Hiding saved in database';
+
+                    $id = $this->model->lastInsertId();
+                    $this->redirect('hidings/edit/' . $id);
+                }
+            }
+            $this->render('hidings/form', compact('pageTitle', 'message', 'form'));
+        }
     }
 
     public function edit($id)

@@ -33,7 +33,7 @@ class Forms
      * @param string Input's label
      * @return string $html
      */
-    public function addInput($name, $type)
+    private function addInput($name, $type)
     {
         $params = $this->formParams[$name];
         $html = '<div class="row mb-3">';
@@ -45,7 +45,17 @@ class Forms
         return $html;
     }
 
-
+    private function addTextarea($name, $type): string
+    {
+        $params = $this->formParams[$name];
+        $html = '<div class="row mb-3">';
+        $html .= $this->createLabel($name);
+        $html .= '<div class="col-lg-6 col-sm-10 ">
+        <textarea class="form-control" name="' . $name . '" id="' . $name . '">' . $this->getValue($name) . '</textarea>
+        </div>';
+        $html .= '</div>';
+        return $html;
+    }
     /**
      * Generate html for an form select element
      * @param string $name Name for input's name attribute
@@ -53,7 +63,7 @@ class Forms
      * @param string $type Input's type
      * @param string Input's label
      */
-    public function addSelect($name, $type, $data): string
+    private function addSelect($name, $type, $data): string
     {
         $params = $this->formParams[$name];
 
@@ -68,8 +78,7 @@ class Forms
             $ext = null;
             $typeSize = null;
         }
-
-        $html .= '<select name="' . $name . $ext . '"  id="' . $name . '" class="form-select form-select-sm" aria-label="Hiding type" ' . $type . ' ' . $typeSize . '>';
+        $html .= '<select name="' . $name . $ext . '"  id="' . $name . '" class="form-select" aria-label="' . $name . '" ' . $type . ' ' . $typeSize . '>';
         foreach ($data as $k => $v) {
             if (is_array($v)) {
                 $keys = array_keys($v);
@@ -77,11 +86,11 @@ class Forms
                 $k = $v[$keys[0]];
                 $v = $v[$keys[1]];
             }
+
             if (is_object($v)) {
                 $k = $v->id;
                 $v = $v->title;
             }
-
             if ($type) {
                 $selected = array_key_exists($k, $this->getValue($name)) ? 'selected' : null;
             } else {
@@ -131,16 +140,19 @@ class Forms
 
         $rowType = $this->formParams[$key]['type'];
 
-        preg_match('#^(select|input):?([a-z)]+)?#', $rowType, $matches);
-        array_shift($matches);
+        $pregMatch = preg_match('#^(select|input|textarea):?([a-z)]+)?#', $rowType, $matches);
 
-        $inputType = $matches[0];
-        $type = isset($matches[1]) ? $matches[1] : null;
+        if ($pregMatch) {
+            array_shift($matches);
+            $inputType = $matches[0];
+            $type = isset($matches[1]) ? $matches[1] : null;
 
-        $methodName = 'add' . ucfirst($inputType);
-        // call_user_func(array($this, $methodName), [$key]);
-        $input = $this->$methodName($key, $type, $this->formParams[$key]['data']);
-        return $input;
+            $methodName = 'add' . ucfirst($inputType);
+            // call_user_func(array($this, $methodName), [$key]);
+            $input = $this->$methodName($key, $type, $this->formParams[$key]['data']);
+            return $input;
+        }
+        return null;
     }
 
 
@@ -151,7 +163,9 @@ class Forms
      */
     public function render()
     {
-
+        if (!$this->formParams) {
+            return 'No forms params';
+        }
         // $html = '<form method="POST">';
         $html = '';
         foreach ($this->formParams as $key => $value) {

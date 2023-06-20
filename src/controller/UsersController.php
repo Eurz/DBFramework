@@ -12,6 +12,7 @@ class UsersController extends AppController
 
     public function __construct()
     {
+        parent::__construct();
         $this->model = $this->getModel();
         $this->Attributes = $this->getModel('attributes');
     }
@@ -50,7 +51,7 @@ class UsersController extends AppController
     public function add($userType)
     {
         $message = 'sss';
-        $nationalities = $this->Attributes->findIdAndTitle('nationality');
+        $nationalities = $this->Attributes->findKeyAndValue('id', 'title', 'nationality');
         $types = $this->types;
         $form = new Forms();
 
@@ -60,7 +61,7 @@ class UsersController extends AppController
 
         switch ($userType) {
             case 'agent':
-                $specialities = $this->Attributes->findIdAndTitle('speciality');
+                $specialities = $this->Attributes->findKeyAndValue('id', 'title', 'speciality');
                 $form
                     ->addRow('identificationCode', '', 'Identification Code', 'input:text', true, null, ['notBlank' => true])
                     ->addRow('nationalityId', '', 'Nationality', 'select', true, $nationalities, ['notBlank' => true])
@@ -77,7 +78,7 @@ class UsersController extends AppController
             case 'manager':
                 $form
                     ->addRow('email', '', 'Email', 'input:email', true, null, ['notBlank' => true])
-                    ->addRow('password', '', 'Password', 'input:text', true, null, ['notBlank' => true]);
+                    ->addRow('password', '', 'Password', 'input:password', true, null, ['notBlank' => true]);
 
                 break;
             default:
@@ -87,6 +88,11 @@ class UsersController extends AppController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
+
+            if ($userType === 'manager') {
+                $data['password'] = $this->auth->hashPassword($data['password']);
+            }
+
             $response = $this->model->insertUser($data, $userType);
             if ($response) {
                 $message = 'User saved in database';
@@ -108,12 +114,11 @@ class UsersController extends AppController
     public function edit($id)
     {
         $message = '';
-        $nationalities = $this->Attributes->findIdAndTitle('nationality');
+        $nationalities = $this->Attributes->findKeyAndValue('id', 'title', 'country');
         $user = $this->model->findUserById($id);
         if (!$user) {
-            $this->redirect('/users');
+            $this->notFound();
         }
-
         $form = new Forms();
 
         $form
@@ -122,7 +127,7 @@ class UsersController extends AppController
 
         switch ($user->userType) {
             case 'agent':
-                $specialities = $this->Attributes->findIdAndTitle('speciality');
+                $specialities = $this->Attributes->findKeyAndValue('id', 'title', 'speciality');
                 $form
                     ->addRow('identificationCode', $user->identificationCode, 'Identification Code', 'input:text', true, null, ['notBlank' => true])
                     ->addRow('nationalityId', $user->nationalityId, 'Nationality', 'select', true, $nationalities, ['notBlank' => true])
@@ -149,12 +154,17 @@ class UsersController extends AppController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $response = $this->model->updateUser($id, $data);
 
+            if ($user->userType === 'manager') {
+                $data['password'] = $this->auth->hashPassword($data['password']);
+            }
+
+            $response = $this->model->updateUser($id, $data);
+            var_dump($response);
             if ($response) {
                 $message = 'User saved in database';
-
-                $this->redirect('users/edit/' . $response);
+                // var_dump($response);
+                $this->redirect('users');
             }
         }
 
@@ -198,6 +208,59 @@ class UsersController extends AppController
 
         $pageTitle = 'Delete a user';
         $this->render('users/delete', compact('pageTitle', 'user', 'message'));
+    }
+
+    public function login()
+    {
+        $message = '';
+
+        $form = new Forms();
+        $form->addRow('email', '', 'Email', 'input:email', true, null);
+        $form->addRow('password', '', 'Password', 'input:password', true, null);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $email = $data['email'];
+            $password = $data['password'];
+            if ($this->auth->login($email, $password)) {
+                $this->redirect('/');
+            }
+        }
+
+        $pageTitle = 'Login page';
+        $this->render('users/form', compact('pageTitle', 'form', 'message'));
+    }
+
+
+    public function signIn()
+    {
+        $message = 'sss';
+
+        $form = new Forms();
+        $form->addRow('email', '', 'Email', 'input:email', true, null);
+        $form->addRow('password', '', 'Password', 'input:password', true, null);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $response = $this->model->insertUser($data);
+
+            if ($response) {
+                $message = 'User saved in database';
+
+                $this->redirect('users/edit/' . $response);
+            }
+        }
+
+        $pageTitle = 'Signin page';
+        $this->render('users/form', compact('pageTitle', 'message', 'form'));
+    }
+
+    public function logout()
+    {
+        $message = 'You\ve been logout';
+        $this->auth->logout();
+        $pageTitle = 'Logout page';
+        $this->render('users/form', compact('pageTitle', 'message'));
     }
 
     /**

@@ -16,11 +16,12 @@ class Attributes extends AppModel
 
         if (!is_null($type) && !empty($type)) {
             $query .=  "WHERE type = :type" . SPACER;
-            $data = ['type' => $type];
+            $data['type'] = $type;
         }
         $query .= "ORDER BY type ASC" . SPACER;
 
         $attributes = $this->query($query, $data, $this->entityName);
+
         return $attributes;
     }
 

@@ -35,5 +35,8 @@ In progress:
 
 To do:
 
+-   Intregate a pagination in pages
+-   Add a system of filters and sorting on all the lists of the site
+-   Ajouter un champ de recherche pour une mission
 -   implementation of an authentication system
 -   Implementation of error handling and flash messages

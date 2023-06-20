@@ -129,6 +129,9 @@ class Model
         return $data;
     }
 
+
+    /* FIN TEST */
+
     /**
      * Load a model - Default name = name from called class
      * @param string $modelName - Load a model from name $modelName. Default name is model for the current controller

@@ -20,4 +20,18 @@ class Hidings extends AppModel
         $hidings = $this->query($query, null, $this->entityName);
         return $hidings;
     }
+
+    public function findBy($key, $value)
+    {
+        $query = 'SELECT code, hidings.id as id, a1.title as country , ' . $key . ' FROM' . SPACER;
+        $query .= $this->tableName . SPACER;
+        $query .= 'LEFT JOIN attributes a1 ON a1.id = hidings.countryId' . SPACER;
+        $query .= 'LEFT JOIN attributes a2 ON a2.id = hidings.typeId' . SPACER;
+        $query .= "WHERE hidings.$key = :$key";
+        var_dump($query);
+        // $entityName = $this->entityPath . substr(ucfirst($this->tableName), 0, -1) . 'Entity';
+
+        $hidings = $this->query($query, [$key => $value], $this->entityName);
+        return $hidings;
+    }
 }

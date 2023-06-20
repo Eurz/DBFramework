@@ -8,7 +8,6 @@ class Controller
 {
     protected $model;
 
-
     public function __construct()
     {
     }
@@ -59,6 +58,8 @@ class Controller
      */
     protected function redirect($url)
     {
+        // header("HTTP/1.1 301 Moved Permanently");
+
         Http::redirect($url);
     }
 
@@ -68,6 +69,7 @@ class Controller
     public function notFound()
     {
         $pageTitle = 'Page not found';
+        header("HTTP/1.1 404 Not Found");
         $this->render('error', compact('pageTitle'));
     }
 
