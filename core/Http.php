@@ -18,6 +18,7 @@ class Http
         // $url = trim($url, '/');
         // var_dump($url);
         header('Location: /' . $url);
+        exit();
     }
 
     public static function notFound()

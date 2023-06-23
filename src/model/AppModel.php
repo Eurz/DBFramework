@@ -11,8 +11,8 @@ class AppModel extends Model
      **/
     /* ex:
     $data = $this->findAll('nationality')
-    findKeyAndValue('id','title') */
-    public function findKeyAndValue($key, $value, $type = null)
+    findByKeys('id','title', 'agent') */
+    public function findByKeys($key, $value, $type = null)
     {
         $data = $this->findAll($type);
         $result = [];

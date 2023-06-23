@@ -23,14 +23,14 @@ class Users extends AppModel
         return $users;
     }
 
-    public function findUser($id)
-    {
-        $query = "SELECT users.id,firstName , lastName , dateOfBirth , attributes.title AS nationality, userType as type, users.createdAt, email, password FROM $this->tableName" . SPACER;
-        $query .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
-        $query .= "WHERE users.id = :id";
-        $users = $this->query($query, ['id' => $id], $this->entityName, true);
-        return $users;
-    }
+    // public function findUser($id)
+    // {
+    //     $query = "SELECT users.id,firstName , lastName , dateOfBirth , attributes.title AS nationality, userType as type, users.createdAt, email, password FROM $this->tableName" . SPACER;
+    //     $query .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+    //     $query .= "WHERE users.id = :id";
+    //     $users = $this->query($query, ['id' => $id], $this->entityName, true);
+    //     return $users;
+    // }
 
     /**
      * Find data by id
@@ -42,10 +42,12 @@ class Users extends AppModel
         $query = "SELECT users.id, firstName , lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, users.createdAt, codeName, email, password FROM $this->tableName" . SPACER;
         $query .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
         $query .= "WHERE users.id = :id";
+
         $user = $this->query($query, ['id' => $id], $this->entityName, true);
+
         $nationality = '';
         if ($user && $user->userType === 'agent') {
-            $specialitiesQuery = "SELECT specialityId, a.* FROM userspecialities" . SPACER;
+            $specialitiesQuery = "SELECT specialityId AS id FROM userspecialities" . SPACER;
             $specialitiesQuery .= "LEFT JOIN attributes AS a ON a.id = specialityId" . SPACER;
             $specialitiesQuery .= "WHERE userId = :id";
             $specialities = $this->query($specialitiesQuery, ['id' => $id]);
@@ -57,10 +59,43 @@ class Users extends AppModel
         return $user;
     }
 
+    public function findBy($key, $value, $type = null)
+    {
+        /*
+        SELECT * FROM (
+        SELECT users.id,firstName , lastName , dateOfBirth , attributes.title AS nationality, userType as type, users.createdAt FROM users
+        LEFT JOIN attributes ON attributes.id = users.nationalityId WHERE userType = 'contact' ) as allusers WHERE allusers.id = 44
+        */
+
+        $data = [$key => $value];
+        $query = "SELECT users.id,firstName , lastName , dateOfBirth , attributes.title AS nationality, userType as type, users.createdAt FROM $this->tableName" . SPACER;
+        $query .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+        $query .= "WHERE $key = :$key" . SPACER;
+        if (!is_null($type) && !empty($type)) {
+            $query .=  "AND  userType = :type" . SPACER;
+            $data['type'] = $type;
+        }
+        $users = $this->query($query, $data);
+        return $users;
+    }
+
 
     public function findUserByEmail($email)
     {
     }
+    public function findAttributes($type = null)
+    {
+        $data = null;
+        $query = "SELECT id, title FROM attributes" . SPACER;
+        // if (!is_null($type) && !empty($type)) {
+        $query .=  "WHERE type = :type" . SPACER;
+        $data = [':type' => $type];
+        // }
+        $query .= "ORDER BY title ASC" . SPACER;
+        $attributes = $this->query($query, $data);
+        return $attributes;
+    }
+
     /** Extract from array of entities
      * @param string $key - Name of the key to extract
      * @param array $data - data from which to extract the keys
@@ -71,6 +106,9 @@ class Users extends AppModel
         foreach ($data as $item) {
             if (is_object($item)) {
                 $result[$item->$key] = $item;
+            }
+            if (is_array($item)) {
+                $result[$item[$key]] = $item[$key];
             }
         }
         return $result;

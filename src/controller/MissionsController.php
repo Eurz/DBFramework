@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Model\Attributes;
 use App\Model\Hidings;
 use App\Model\Users;
-use App\Session;
+use Core\Session;
 use Core\Forms;
 
 class MissionsController extends AppController
@@ -31,7 +31,6 @@ class MissionsController extends AppController
     {
 
         // $session = new Session();
-        // $session->set('test', 'value test');
         $missions = $this->model->findAll();
         $pageTitle = 'Missions';
         $this->render('missions/index', compact('pageTitle', 'missions'));
@@ -42,25 +41,33 @@ class MissionsController extends AppController
 
         // $mission = $this->model->findById($id);
         $pageTitle = 'Missions';
-        $countries = $this->Attributes->findKeyAndValue('id', 'title', 'country');
+        $countries = $this->Attributes->findByKeys('id', 'title', 'country');
 
-        $status = $this->Attributes->findKeyAndValue('id', 'title', 'status');
-        $specialities = $this->Attributes->findKeyAndValue('id', 'title', 'speciality');
+        $status = $this->Attributes->findByKeys('id', 'title', 'status');
+        $specialities = $this->Attributes->findByKeys('id', 'title', 'speciality');
         // $this->session->set('missionAction', 'default');
         $form = new Forms();
-
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $this->session->merge($data);
             switch ($action) {
                 case 'hidings':
-                    $this->redirect('missions/add/end');
+                    $this->redirect('missions/add/agents');
                     break;
-                case 'agent':
+                case 'agents':
+                    $this->redirect('missions/add/contacts');
+                    break;
+                case 'contacts':
+                    $this->redirect('missions/add/targets');
+                    break;
+                case 'targets':
+                    $this->redirect('missions/add/end');
                     break;
                 case 'end':
                     break;
                 default:
+                    $this->session->reset();
+
                     $this->redirect('missions/add/hidings');
                     break;
             }
@@ -74,24 +81,47 @@ class MissionsController extends AppController
 
         }
 
-
+        var_dump($this->session->get('mission'));
         switch ($action) {
             case 'hidings':
-                $agents = $this->Users->findKeyAndValue('id', 'fullName', 'agent');
-                $contacts = $this->Users->findKeyAndValue('id', 'fullName', 'contact');
-                $targets = $this->Users->findKeyAndValue('id', 'fullName', 'target');
-                $hidings = $this->Hidings->findKeyAndValue('id', 'code');
+                $countryId = $this->session->getValue('countryId');
+                $hidings = $this->Hidings->findBy('countryId', $countryId);
 
                 $form
-                    ->addRow('agents', [], 'Agent(s)', 'select:multiple', true, $agents)
-                    ->addRow('contacts', [], 'Contact(s)', 'select:multiple', true, $contacts)
-                    ->addRow('hidings', [], 'Hiding', 'select', true, $hidings)
-                    ->addRow('targets', [], 'Target(s)', 'select:multiple', true, $targets);
-                $this->render('missions/addAgent', compact('pageTitle', 'form'));
+                    ->addRow('hidings', [], 'Hiding', 'select', true, $hidings);
+
+                $this->render('missions/addHiding', compact('pageTitle', 'form'));
 
                 break;
-            case 'agent':
-                var_dump('Ajout d\'agent');
+            case 'agents':
+                $message = 'Choose agent(s) for mission';
+                $agents = $this->Users->findByKeys('id', 'fullName', 'agent');
+
+                $form
+                    ->addRow('agents', [], 'Agent(s)', 'select:multiple', true, $agents);
+
+
+                $this->render('missions/addAgent', compact('pageTitle', 'form', 'message'));
+
+                break;
+            case 'contacts':
+                $countryId = $this->session->getValue('countryId');
+                $contacts = $this->model->findContacts($this->session->getValue('agents'));
+
+                $form
+                    ->addRow('contacts', [], 'Contact(s)', 'select:multiple', true, $contacts);
+
+                $this->render('missions/addContact', compact('pageTitle', 'form'));
+
+                break;
+            case 'targets':
+                $targets = $this->Users->findByKeys('id', 'fullName', 'target');
+
+                $form
+                    ->addRow('targets', [], 'Target(s)', 'select:multiple', true, $targets);
+
+                $this->render('missions/addAgent', compact('pageTitle', 'form'));
+
                 break;
             case 'end':
                 $this->session->delete('mission');
@@ -99,14 +129,16 @@ class MissionsController extends AppController
                 break;
             default:
                 $form
-                    ->addRow('status', '', 'Status', 'select', true, $status)
                     ->addRow('title', '', 'Title', 'input:text')
                     ->addRow('description', '', 'Description', 'textarea')
+                    ->addRow('status', '', 'Status', 'select', true, $status)
                     ->addRow('codeName', '', 'CodeName', 'input:text')
                     ->addRow('countryId', [], 'Country', 'select', true, $countries)
                     ->addRow('speciality', [], 'Required speciality', 'select', true, $specialities)
                     ->addRow('startDate', date('Y-m-d'), 'Start date', 'input:date')
                     ->addRow('endDate', date('Y-m-d'), 'End date', 'input:date');
+                $this->session->reset();
+
                 $this->render('missions/form', compact('pageTitle', 'form'));
                 break;
         }
@@ -115,12 +147,12 @@ class MissionsController extends AppController
     public function edit($id)
     {
         $mission = $this->model->findById($id);
-        $countries = $this->Attributes->findKeyAndValue('id', 'title', 'country');
-        $agents = $this->Users->findKeyAndValue('id', 'fullName', 'agent');
-        $contacts = $this->Users->findKeyAndValue('id', 'fullName', 'contact');
-        $targets = $this->Users->findKeyAndValue('id', 'fullName', 'target');
-        $status = $this->Attributes->findKeyAndValue('id', 'title', 'status');
-        $specialities = $this->Attributes->findKeyAndValue('id', 'title', 'speciality');
+        $countries = $this->Attributes->findByKeys('id', 'title', 'country');
+        $agents = $this->Users->findByKeys('id', 'fullName', 'agent');
+        $contacts = $this->Users->findByKeys('id', 'fullName', 'contact');
+        $targets = $this->Users->findByKeys('id', 'fullName', 'target');
+        $status = $this->Attributes->findByKeys('id', 'title', 'status');
+        $specialities = $this->Attributes->findByKeys('id', 'title', 'speciality');
 
         $form = new Forms();
 

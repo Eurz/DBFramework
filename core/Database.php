@@ -53,7 +53,7 @@ class Database
      * @param object $entity - Entity object to fetch data
      * @param boolean $isSingleData - True if fetching one data, or false for multiple data
      */
-    public function query(string $query, $attributes, $entity, $isSingleData): mixed
+    public function query(string $query, ?array $attributes, $entity, $isSingleData): mixed
     {
         $pdo = $this->getPdo();
         $statement = $pdo->prepare($query);
@@ -93,7 +93,7 @@ class Database
 
     /**
      * @param string $query - A sql query
-     * @param array $attributes - Parameters for prepared query
+     * @param  $attributes - Parameters for prepared query
      * @return 
      */
     public function queryIndexed(string $query, $attributes = [], $entity = null): array

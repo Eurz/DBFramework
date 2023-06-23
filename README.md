@@ -28,6 +28,8 @@ Completed:
     -   agents (ex: Mario)
     -   targets (ex: Bowser)
     -   contacts (ex: Todd)
+-   Basic class Sessions to manage Sesssion
+-   Messages flash for success or errors actions
 
 In progress:
 
@@ -37,6 +39,6 @@ To do:
 
 -   Intregate a pagination in pages
 -   Add a system of filters and sorting on all the lists of the site
--   Ajouter un champ de recherche pour une mission
+-   Add a search field for a mission
 -   implementation of an authentication system
 -   Implementation of error handling and flash messages

@@ -3,6 +3,7 @@
     <a href="/users/add/contact" class="btn btn-primary btn-sm">Add contact</a>
     <a href="/users/add/target" class="btn btn-primary btn-sm">Add target</a>
     <a href="/users/add/manager" class="btn btn-primary btn-sm">Add manager</a>
+    <a href="/users/add/manager" class="btn btn-primary btn-sm">Filter</a>
     <!-- <a href="/users/add" class="btn btn-primary btn-sm">Add user</a> -->
 </div>
 

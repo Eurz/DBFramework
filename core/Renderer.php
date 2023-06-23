@@ -17,6 +17,10 @@ class Renderer
         require(VIEW_PATH .  '/' . $path . '.html.php');
         $pageContent = ob_get_clean();
 
+        $messageManager = new Messages();
+        $messages = $messageManager->read();
+
+
         require_once(VIEW_PATH . '/layout.html.php');
     }
 }

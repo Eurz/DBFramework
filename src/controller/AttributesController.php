@@ -53,7 +53,6 @@ class AttributesController extends AppController
      */
     public function add()
     {
-        $message = '';
         $types = $this->types;
         $isValid = false;
 
@@ -67,7 +66,8 @@ class AttributesController extends AppController
             $response = $this->model->insert($data);
 
             if ($response) {
-                $message = 'Attribute saved in database';
+                $this->messages->set('Attribute saved in database', 'success');
+
 
                 $id = $this->model->lastInsertId();
 
@@ -76,7 +76,7 @@ class AttributesController extends AppController
         }
 
         $pageTitle = 'Add an attribute';
-        $this->render('attributes/form', compact('pageTitle', 'message', 'types', 'form'));
+        $this->render('attributes/form', compact('pageTitle', 'types', 'form'));
     }
 
     /**
@@ -85,14 +85,16 @@ class AttributesController extends AppController
      */
     public function edit($id)
     {
+
         $message = '';
         $types = $this->types;
         $attribute = $this->model->findById($id);
 
         if ($attribute === false) {
-            $message = 'Cet utilisateur n\'existe pas';
-            $this->notFound('attributes');
+            $this->messages->set('This user doesnt exist');
+            $this->redirect('attributes');
         }
+
         $form = new Forms();
         $form
             ->addRow('title', $attribute->title, 'Title', 'input:text', true, null, ['notBlank' => true])
@@ -103,13 +105,14 @@ class AttributesController extends AppController
             $response = $this->model->update($id, $data);
 
             if ($response) {
+                $this->messages->set('Attribute saved in database', 'success');
                 $this->redirect('attributes');
             }
         }
 
         $pageTitle = 'Edit an attribute';
 
-        $this->render('attributes/form', compact('pageTitle', 'form', 'message'));
+        $this->render('attributes/form', compact('pageTitle', 'form', 'message', 'attribute'));
     }
 
     /**
@@ -118,11 +121,10 @@ class AttributesController extends AppController
      */
     public function delete($id)
     {
-        $message = '';
         $attribute = $this->model->findById($id);
 
         if (!$attribute) {
-            $message = 'This attribute doesn\'t exist';
+            $this->messages->set('This attribute doesn\'t exist');
             $this->redirect('attributes');
         };
 
@@ -134,17 +136,16 @@ class AttributesController extends AppController
                 $response = $this->model->delete($id);
 
                 if ($response) {
-                    $message = 'Attribute deleted in database';
-                    $this->redirect('attributes');
+                    $this->messages->set('Attribute deleted in database');
                 }
             } else {
-                $message = 'Attribute deleted in database';
-                $this->redirect('attributes');
+                $this->messages->set('Attribute no deleted in database');
             }
+            $this->redirect('attributes');
         }
 
 
         $pageTitle = 'Delete an attribute';
-        $this->render('attributes/delete', compact('pageTitle', 'attribute', 'message'));
+        $this->render('attributes/delete', compact('pageTitle', 'attribute'));
     }
 }

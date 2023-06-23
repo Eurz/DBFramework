@@ -3,11 +3,13 @@
 namespace App\Controller;
 
 use App\Model\Attributes;
+use App\Model\Users;
 use Core\Forms;
 
 class UsersController extends AppController
 {
     private Attributes $Attributes;
+
     private array $types = ['agent' => 'Agent', 'contact' => 'Contact', 'target' => 'Target', 'manager' => 'Manager'];
 
     public function __construct()
@@ -51,7 +53,7 @@ class UsersController extends AppController
     public function add($userType)
     {
         $message = 'sss';
-        $nationalities = $this->Attributes->findKeyAndValue('id', 'title', 'nationality');
+        $nationalities = $this->Attributes->findByKeys('id', 'title', 'nationality');
         $types = $this->types;
         $form = new Forms();
 
@@ -61,7 +63,7 @@ class UsersController extends AppController
 
         switch ($userType) {
             case 'agent':
-                $specialities = $this->Attributes->findKeyAndValue('id', 'title', 'speciality');
+                $specialities = $this->Attributes->findByKeys('id', 'title', 'speciality');
                 $form
                     ->addRow('identificationCode', '', 'Identification Code', 'input:text', true, null, ['notBlank' => true])
                     ->addRow('nationalityId', '', 'Nationality', 'select', true, $nationalities, ['notBlank' => true])
@@ -114,8 +116,9 @@ class UsersController extends AppController
     public function edit($id)
     {
         $message = '';
-        $nationalities = $this->Attributes->findKeyAndValue('id', 'title', 'country');
+        $nationalities = $this->Attributes->findByKeys('id', 'title', 'country');
         $user = $this->model->findUserById($id);
+
         if (!$user) {
             $this->notFound();
         }
@@ -127,7 +130,7 @@ class UsersController extends AppController
 
         switch ($user->userType) {
             case 'agent':
-                $specialities = $this->Attributes->findKeyAndValue('id', 'title', 'speciality');
+                $specialities = $this->Attributes->findByKeys('id', 'title', 'speciality');
                 $form
                     ->addRow('identificationCode', $user->identificationCode, 'Identification Code', 'input:text', true, null, ['notBlank' => true])
                     ->addRow('nationalityId', $user->nationalityId, 'Nationality', 'select', true, $nationalities, ['notBlank' => true])

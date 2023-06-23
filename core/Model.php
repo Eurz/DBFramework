@@ -135,9 +135,8 @@ class Model
     /**
      * Load a model - Default name = name from called class
      * @param string $modelName - Load a model from name $modelName. Default name is model for the current controller
-     * @return ?Model $model - Model to fetch data
      */
-    public function getModel(string $modelName = null): ?Model
+    public function getModel(string $modelName = null)
     {
         if ($modelName === null) {
             $className = get_called_class();
@@ -174,6 +173,10 @@ class Model
         $result = '(' . implode(',', $data) . ')';
         return $result;
     }
+
+    /**
+     * Get the last inserted Id in data base
+     */
     public function lastInsertId()
     {
         return  $this->db->lastInsertId();

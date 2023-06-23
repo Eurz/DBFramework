@@ -73,11 +73,13 @@ class Forms
 
         if ($type === 'multiple') {
             $ext = '[]';
-            $typeSize = 'size="' . count($data) . '"';
+            // $typeSize = 'size="' . count($data) . '"';
+            $typeSize = 'size="4"';
         } else {
             $ext = null;
             $typeSize = null;
         }
+
         $html .= '<select name="' . $name . $ext . '"  id="' . $name . '" class="form-select" aria-label="' . $name . '" ' . $type . ' ' . $typeSize . '>';
         foreach ($data as $k => $v) {
             if (is_array($v)) {
@@ -91,7 +93,7 @@ class Forms
                 $k = $v->id;
                 $v = $v->title;
             }
-            if ($type) {
+            if ($type === 'multiple') {
                 $selected = array_key_exists($k, $this->getValue($name)) ? 'selected' : null;
             } else {
                 $selected = $this->getValue($name) == $k ? 'selected' : null;
@@ -103,18 +105,6 @@ class Forms
         return $html;
     }
 
-    /**
-     * Test: return message from Forms
-     */
-    public function errors()
-    {
-        if (isset($this->message)) {
-
-            return implode('<br/>', $this->message);
-        }
-
-        return false;
-    }
 
     /**
      * Define a form element with input parameters
@@ -148,7 +138,6 @@ class Forms
             $type = isset($matches[1]) ? $matches[1] : null;
 
             $methodName = 'add' . ucfirst($inputType);
-            // call_user_func(array($this, $methodName), [$key]);
             $input = $this->$methodName($key, $type, $this->formParams[$key]['data']);
             return $input;
         }
@@ -172,6 +161,7 @@ class Forms
             $html .= $this->row($key);
         }
         // $html .= '</form>';
+
         return $html;
     }
 
@@ -183,7 +173,7 @@ class Forms
     {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->data = $_POST;
+            // $this->data = $_POST;
             return true;
         }
         return false;
@@ -194,6 +184,7 @@ class Forms
      */
     public function isValid(): bool
     {
+
         $result = [];
         foreach ($this->data as $key => $value) {
             if ($value === '' || $value === null) {
@@ -202,6 +193,11 @@ class Forms
             } else {
                 $result[$key] = 'success';
                 $this->isValid = true;
+            }
+
+            if (isset($this->message)) {
+                $messageManager = new Messages();
+                $messageManager->set(implode('<br/>', $this->message), 'error');
             }
         }
         return !in_array('failed', $result);
@@ -217,6 +213,7 @@ class Forms
 
             $data[$key] = $value;
         }
+
         return false;
     }
 

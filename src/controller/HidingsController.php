@@ -32,8 +32,8 @@ class HidingsController extends AppController
         $pageTitle = 'Add an hiding';
         $message = '';
 
-        $countries = $this->Attributes->findKeyAndValue('id', 'title', 'country');
-        $hidingTypes = $this->Attributes->findKeyAndValue('id', 'title', 'hiding');
+        $countries = $this->Attributes->findByKeys('id', 'title', 'country');
+        $hidingTypes = $this->Attributes->findByKeys('id', 'title', 'hiding');
         $form = null;
 
         if (!$countries || !$hidingTypes) {
@@ -66,8 +66,8 @@ class HidingsController extends AppController
     {
         $message = '';
         $hiding = $this->model->findById($id);
-        $countries = $this->Attributes->findIdAndTitle('country');
-        $hidingTypes = $this->Attributes->findIdAndTitle('hiding');
+        $countries = $this->Attributes->findByKeys('id', 'title', 'country');
+        $hidingTypes = $this->Attributes->findByKeys('id', 'title', 'hiding');
 
         $hiding = $this->model->findById($id);
 
