@@ -21,23 +21,32 @@ class HidingsController extends AppController
      */
     public function index()
     {
-        $hidings = $this->model->findAll();
+        var_dump($_SESSION);
+        $field = filter_input(INPUT_GET, 'field', FILTER_DEFAULT);
+        $orderBy = filter_input(INPUT_GET, 'orderBy', FILTER_DEFAULT);
+        $filterByCountry = filter_input(INPUT_GET, 'filterByCountry', FILTER_VALIDATE_INT);
+
+        $hidings = $this->model->findWithFilters($field, $filterByCountry, $orderBy);
+        $hidingsTypes = $this->Attributes->findAll('hiding');
+        $countries = $this->Attributes->findAll('country');
 
         $pageTitle = 'Hidings';
-        $this->render('hidings/index', compact('pageTitle', 'hidings'));
+        $this->render('hidings/index', compact('pageTitle', 'hidings', 'countries', 'hidingsTypes'));
     }
+
+
 
     function add()
     {
         $pageTitle = 'Add an hiding';
-        $message = '';
 
         $countries = $this->Attributes->findByKeys('id', 'title', 'country');
         $hidingTypes = $this->Attributes->findByKeys('id', 'title', 'hiding');
         $form = null;
 
         if (!$countries || !$hidingTypes) {
-            $message = 'Firstly, you must create attributes country and hiding';
+            $this->messageManager->setError('Firstly, you must create attributes country and hiding', 'error');
+
             $this->render('hidings/actions', compact('pageTitle', 'message'));
         } else {
             $form = new Forms();
@@ -52,19 +61,17 @@ class HidingsController extends AppController
                 $response = $this->model->insert($hiding);
 
                 if ($response) {
-                    $message = 'Hiding saved in database';
-
                     $id = $this->model->lastInsertId();
+
                     $this->redirect('hidings/edit/' . $id);
                 }
             }
-            $this->render('hidings/form', compact('pageTitle', 'message', 'form'));
+            $this->render('hidings/form', compact('pageTitle', 'form'));
         }
     }
 
     public function edit($id)
     {
-        $message = '';
         $hiding = $this->model->findById($id);
         $countries = $this->Attributes->findByKeys('id', 'title', 'country');
         $hidingTypes = $this->Attributes->findByKeys('id', 'title', 'hiding');
@@ -72,8 +79,7 @@ class HidingsController extends AppController
         $hiding = $this->model->findById($id);
 
         if ($hiding === false) {
-            $message = 'Cet utilisateur n\'existe pas';
-            $this->notFound('attributes');
+            $this->redirect('hidings');
         }
 
         $form = new Forms();
@@ -94,7 +100,7 @@ class HidingsController extends AppController
 
         $pageTitle = 'Edit an hiding';
 
-        $this->render('hidings/form', compact('pageTitle', 'form', 'message'));
+        $this->render('hidings/form', compact('pageTitle', 'form'));
     }
 
     public function delete($id)

@@ -81,6 +81,7 @@ class Forms
         }
 
         $html .= '<select name="' . $name . $ext . '"  id="' . $name . '" class="form-select" aria-label="' . $name . '" ' . $type . ' ' . $typeSize . '>';
+        $html .= '<option>Default</option>';
         foreach ($data as $k => $v) {
             if (is_array($v)) {
                 $keys = array_keys($v);
@@ -118,7 +119,7 @@ class Forms
     }
 
     /**
-     * Display an form html element
+     * Display a form html element
      * @return string $html
      */
     public function row($key)
@@ -197,7 +198,7 @@ class Forms
 
             if (isset($this->message)) {
                 $messageManager = new Messages();
-                $messageManager->set(implode('<br/>', $this->message), 'error');
+                $messageManager->setError(implode('<br/>', $this->message));
             }
         }
         return !in_array('failed', $result);

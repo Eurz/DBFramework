@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entities\AttributesEntity;
 use Core\Forms;
 use Core\Http;
+use Core\Session;
 use Error;
+use stdClass;
 
 class AttributesController extends AppController
 {
@@ -30,11 +32,40 @@ class AttributesController extends AppController
      */
     public function index()
     {
-        $attributes = $this->model->findAll();
+        $filters = $this->formFilter();
+
+        $formFilter = $filters->formFilter;
+        $filter = $filters->filter;
+
+        $attributes = $this->model->findAll($filter);
 
         $types = $this->types;
         $pageTitle = 'Missions attributes';
-        $this->render('attributes/index', compact('pageTitle', 'attributes', 'types'));
+        $this->render('attributes/index', compact('pageTitle', 'attributes', 'types', 'formFilter'));
+    }
+
+    /**
+     * Return a std class with forms filter and current filter selected
+     * @return stdClass 
+     */
+    private function formFilter()
+    {
+        $filter = filter_input(INPUT_POST, 'filter', FILTER_DEFAULT);
+        
+        $session = new Session();
+        if ($filter) {
+            if (!array_key_exists($filter, $this->types)) {
+                $filter =  null;
+            }
+            $session->set('attributesFilter', $filter);
+            $this->redirect('attributes');
+        }
+        $formFilter = new Forms();
+
+        $formFilter
+            ->addRow('filter', $session->get('attributesFilter'), 'Filter by', 'select', false, $this->types);
+
+        return (object)['formFilter' => $formFilter, 'filter' => $session->get('attributesFilter')];
     }
 
     /**
@@ -66,8 +97,6 @@ class AttributesController extends AppController
             $response = $this->model->insert($data);
 
             if ($response) {
-                $this->messages->set('Attribute saved in database', 'success');
-
 
                 $id = $this->model->lastInsertId();
 
@@ -86,12 +115,10 @@ class AttributesController extends AppController
     public function edit($id)
     {
 
-        $message = '';
         $types = $this->types;
         $attribute = $this->model->findById($id);
 
         if ($attribute === false) {
-            $this->messages->set('This user doesnt exist');
             $this->redirect('attributes');
         }
 
@@ -105,14 +132,13 @@ class AttributesController extends AppController
             $response = $this->model->update($id, $data);
 
             if ($response) {
-                $this->messages->set('Attribute saved in database', 'success');
                 $this->redirect('attributes');
             }
         }
 
         $pageTitle = 'Edit an attribute';
 
-        $this->render('attributes/form', compact('pageTitle', 'form', 'message', 'attribute'));
+        $this->render('attributes/form', compact('pageTitle', 'form', 'attribute'));
     }
 
     /**
@@ -124,7 +150,6 @@ class AttributesController extends AppController
         $attribute = $this->model->findById($id);
 
         if (!$attribute) {
-            $this->messages->set('This attribute doesn\'t exist');
             $this->redirect('attributes');
         };
 
@@ -134,12 +159,8 @@ class AttributesController extends AppController
             $data = $form->getData();
             if (isset($data['choice']) && $data['choice'] === 'yes') {
                 $response = $this->model->delete($id);
-
-                if ($response) {
-                    $this->messages->set('Attribute deleted in database');
-                }
             } else {
-                $this->messages->set('Attribute no deleted in database');
+                $this->messageManager->setError('Attribute no deleted in database');
             }
             $this->redirect('attributes');
         }

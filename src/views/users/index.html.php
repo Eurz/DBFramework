@@ -1,9 +1,9 @@
 <div class="col bg-light p-3">
-    <a href="/users/add/agent" class="btn btn-primary btn-sm">Add agent</a>
-    <a href="/users/add/contact" class="btn btn-primary btn-sm">Add contact</a>
-    <a href="/users/add/target" class="btn btn-primary btn-sm">Add target</a>
+    <a href="/users/add/agent" class="btn btn-primary btn-sm"><i class="bi bi-person-fill"></i> Add agent</a>
+    <a href="/users/add/contact" class="btn btn-primary btn-sm"><i class="bi bi-person-lines-fill"></i> Add contact</a>
+    <a href="/users/add/target" class="btn btn-primary btn-sm"><i class="bi bi-bullseye"></i> Add target</a>
     <a href="/users/add/manager" class="btn btn-primary btn-sm">Add manager</a>
-    <a href="/users/add/manager" class="btn btn-primary btn-sm">Filter</a>
+    <a href="#" class="btn btn-primary btn-sm">Filter</a>
     <!-- <a href="/users/add" class="btn btn-primary btn-sm">Add user</a> -->
 </div>
 

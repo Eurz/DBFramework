@@ -52,8 +52,8 @@ class UsersController extends AppController
      */
     public function add($userType)
     {
-        $message = 'sss';
-        $nationalities = $this->Attributes->findByKeys('id', 'title', 'nationality');
+        $nationalities = $this->Attributes->findByKeys('id', 'title', 'country');
+
         $types = $this->types;
         $form = new Forms();
 
@@ -97,7 +97,6 @@ class UsersController extends AppController
 
             $response = $this->model->insertUser($data, $userType);
             if ($response) {
-                $message = 'User saved in database';
                 // $id = $this->model->lastInsertId();
 
                 $this->redirect('users/edit/' . $response);
@@ -106,7 +105,7 @@ class UsersController extends AppController
 
         $pageTitle = 'Add an ';
         $pageTitle .= $userType ? $this->getType($userType) : 'user';
-        $this->render('users/form', compact('pageTitle', 'message', 'form'));
+        $this->render('users/form', compact('pageTitle', 'form'));
     }
 
     /**
@@ -115,7 +114,6 @@ class UsersController extends AppController
      */
     public function edit($id)
     {
-        $message = '';
         $nationalities = $this->Attributes->findByKeys('id', 'title', 'country');
         $user = $this->model->findUserById($id);
 
@@ -163,10 +161,8 @@ class UsersController extends AppController
             }
 
             $response = $this->model->updateUser($id, $data);
-            var_dump($response);
+
             if ($response) {
-                $message = 'User saved in database';
-                // var_dump($response);
                 $this->redirect('users');
             }
         }
@@ -175,7 +171,7 @@ class UsersController extends AppController
         $pageTitle .= $user ? $this->getType($user->userType) : 'user';
 
 
-        $this->render('users/form', compact('pageTitle', 'message', 'form', 'user'));
+        $this->render('users/form', compact('pageTitle', 'form', 'user'));
     }
 
     /**
@@ -184,11 +180,9 @@ class UsersController extends AppController
      */
     public function delete($id)
     {
-        $message = '';
         $user = $this->model->findById($id);
 
         if (!$user) {
-            $message = 'This user doesn\'t exist';
             $this->redirect('users');
         };
 
@@ -198,24 +192,16 @@ class UsersController extends AppController
             $data = $form->getData();
             if (isset($data['choice']) && $data['choice'] === 'yes') {
                 $response = $this->model->delete($id);
-
-                if ($response) {
-                    $message = 'User deleted in database';
-                    $this->redirect('users');
-                }
-            } else {
-                $message = 'User deleted in database';
-                $this->redirect('users');
             }
+            $this->redirect('users');
         }
 
         $pageTitle = 'Delete a user';
-        $this->render('users/delete', compact('pageTitle', 'user', 'message'));
+        $this->render('users/delete', compact('pageTitle', 'user'));
     }
 
     public function login()
     {
-        $message = '';
 
         $form = new Forms();
         $form->addRow('email', '', 'Email', 'input:email', true, null);
@@ -231,13 +217,12 @@ class UsersController extends AppController
         }
 
         $pageTitle = 'Login page';
-        $this->render('users/form', compact('pageTitle', 'form', 'message'));
+        $this->render('users/form', compact('pageTitle', 'form'));
     }
 
 
     public function signIn()
     {
-        $message = 'sss';
 
         $form = new Forms();
         $form->addRow('email', '', 'Email', 'input:email', true, null);
@@ -248,7 +233,6 @@ class UsersController extends AppController
             $response = $this->model->insertUser($data);
 
             if ($response) {
-                $message = 'User saved in database';
 
                 $this->redirect('users/edit/' . $response);
             }
@@ -260,10 +244,10 @@ class UsersController extends AppController
 
     public function logout()
     {
-        $message = 'You\ve been logout';
+        $this->messageManager->setSuccess('You\ve been logout');
         $this->auth->logout();
         $pageTitle = 'Logout page';
-        $this->render('users/form', compact('pageTitle', 'message'));
+        $this->render('users/form', compact('pageTitle'));
     }
 
     /**

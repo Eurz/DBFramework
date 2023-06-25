@@ -17,7 +17,7 @@ class AppController extends Controller
 
     // protected $modelName;   
     protected $auth;
-    protected $messages;
+    protected $messageManager;
 
     public function __construct()
     {
@@ -29,7 +29,7 @@ class AppController extends Controller
         // }
 
         // $this->login();
-        $this->messages = new Messages();
+        $this->messageManager = new Messages();
     }
 
     public function login()

@@ -7,11 +7,13 @@ use Core\Model;
 class AppModel extends Model
 {
     /**
-     * Find attributes in array with Id and Title
-     **/
-    /* ex:
-    $data = $this->findAll('nationality')
-    findByKeys('id','title', 'agent') */
+     *  Return array [$key => $value] matching with optional $type
+     * Ex: findByKeys('id','title', 'agent') => [25 => 'James Bond']
+     * @param string|int $key 
+     * @param mixed $type
+     * @return array $result 
+     */
+
     public function findByKeys($key, $value, $type = null)
     {
         $data = $this->findAll($type);

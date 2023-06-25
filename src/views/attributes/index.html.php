@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-between">
     <div class="col bg-light p-3">
-        <a href="attributes/add" class="btn btn-primary btn-sm">Add an attribute</a>
+        <a href="/attributes/add" class="btn btn-primary btn-sm"><i class="bi bi-tag-fill"></i> Add an attribute</a>
         <!-- <a href="index.php?controller=attributes&task=add&type=country" class="btn btn-primary btn-sm">Add <?= $types['country'] ?></a>
         <a href="index.php?controller=attributes&task=add&type=nationality" class="btn btn-primary btn-sm">Add <?= $types['nationality'] ?></a>
         <a href="index.php?controller=attributes&task=add&type=status" class="btn btn-primary btn-sm">Add <?= $types['status'] ?></a>
@@ -8,7 +8,18 @@
         <a href="index.php?controller=attributes&task=add&type=speciality" class="btn btn-primary btn-sm">Add <?= $types['speciality'] ?></a>
         <a href="index.php?controller=attributes&task=add&type=type" class="btn btn-primary btn-sm">Add <?= $types['type'] ?></a>
         <a href="index.php?controller=attributes&task=add&type=userType" class="btn btn-primary btn-sm">Add <?= $types['userType'] ?></a> -->
+
     </div>
+
+    <form method="post" class="">
+        <!-- <select name="filter" class="form-select">
+            <option value="country">Country</option>
+            <option value="hiding">Hidings</option>
+        </select> -->
+        <?= $formFilter->render(); ?>
+        <button type="submit" class="btn btn-primary">Go</button>
+    </form>
+
 
 </div>
 

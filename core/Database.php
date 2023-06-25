@@ -12,6 +12,7 @@ class Database
     private string $dbUser;
     private string $dbPassword;
     private $pdo;
+    protected $messageManager;
 
     public function __construct($dbName, $dbHost, $dbUser, $dbPassword)
     {
@@ -19,6 +20,7 @@ class Database
         $this->dbHost = $dbHost;
         $this->dbUser = $dbUser;
         $this->dbPassword = $dbPassword;
+        $this->messageManager = new Messages();
     }
 
     /**
@@ -81,11 +83,13 @@ class Database
                 } else {
                     $result = $statement->fetchAll();
                 }
+
                 return $result;
             } else {
                 return false;
             }
         } catch (PDOException $e) {
+            $this->messageManager->setError('Something went wrong with your request. Please check it!');
             var_dump($e->getMessage());
             return false;
         }

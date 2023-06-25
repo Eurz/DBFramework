@@ -66,6 +66,7 @@ class Application
 
         // Attributes
         $router->get('/attributes', 'attributes.index');
+        $router->get('/attributes/:filter', 'attributes.index');
         $router->get('/attributes/add', 'attributes.add');
         $router->get('/attributes/delete/:id', 'attributes.delete');
         $router->get('/attributes/edit/:id', 'attributes.edit');

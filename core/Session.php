@@ -45,8 +45,8 @@ class Session
     public function get(string $key): mixed
     {
         if ($this->exist($key)) {
-            $message = $_SESSION[$key];
-            return $message;
+            $data = $_SESSION[$key];
+            return $data;
         }
         return null;
     }

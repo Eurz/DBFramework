@@ -2,17 +2,6 @@
 if (isset($form)) :
 ?>
 
-    <?php
-
-    if ($form->errors()) {
-    ?>
-        <div class="alert alert-success">
-            <?= $form->errors() ?>
-        </div>
-    <?php
-    }
-    ?>
-
 
     <div class="p-3 mb-3 bg-light"><a href="/users">Back to list</a></div>
 

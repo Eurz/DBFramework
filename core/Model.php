@@ -9,6 +9,7 @@ class Model
     protected $db;
     protected $tableName;
     protected $entityName;
+    protected $messageManager;
 
 
     /**
@@ -27,6 +28,7 @@ class Model
             $classNameParts = explode('\\', $className);
             $this->tableName = strtolower(end($classNameParts));
         }
+        $this->messageManager = new Messages();
     }
     /**
      * Get all data from default table named $tableName
@@ -61,6 +63,9 @@ class Model
     {
         $query = "SELECT * FROM $this->tableName WHERE id = :id";
         $data = $this->query($query, ['id' => $id], $this->entityName, true);
+        if (!$data) {
+            $this->messageManager->setError('Item not found');
+        }
         return $data;
     }
 
@@ -75,6 +80,12 @@ class Model
         $markers = $this->makeMarkers($data);
         $query = "INSERT INTO $this->tableName SET $markers";
         $response = $this->query($query, $data);
+        if ($response) {
+            $this->messageManager->setSuccess('Registered successfully');
+        } else {
+            $this->messageManager->setError('Failed to insert into database');
+        }
+
         return $response;
     }
 
@@ -89,7 +100,13 @@ class Model
         $markers = $this->makeMarkers($data);
         $query = "UPDATE $this->tableName SET $markers WHERE id = $id ";
 
-        return $this->query($query, $data);
+        $response = $this->query($query, $data);
+        if ($response) {
+            $this->messageManager->setSuccess('Successfully updated');
+        } else {
+            $this->messageManager->setError('Update failed');
+        }
+        return $response;
     }
 
     /**
@@ -101,7 +118,14 @@ class Model
     {
         if ($this->itemExist($id)) {
             $query = "DELETE FROM $this->tableName WHERE id = :id";
-            return $this->query($query, ['id' => $id]);
+            $response = $this->query($query, ['id' => $id]);
+
+            if ($response) {
+                $this->messageManager->setSuccess('Successfully deleted');
+            } else {
+                $this->messageManager->setError('Delete Failed');
+            }
+            return $response;
         }
 
         return false;

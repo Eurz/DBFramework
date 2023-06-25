@@ -2,7 +2,10 @@
 if ($form) :
 ?>
 
-    <div class="p-3 mb-3 bg-light"><a href="/attributes">Back to list</a></div>
+    <div class="p-3 mb-3 bg-light">
+        <a href="/attributes">Back to list</a>
+
+    </div>
 
     <form method="POST">
         <?= $form->row('title'); ?>
