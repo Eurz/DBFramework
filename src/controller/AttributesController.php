@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entities\AttributesEntity;
-use Core\Forms;
+use Core\Forms\Forms;
 use Core\Http;
 use Core\Session;
 use Error;
@@ -51,7 +51,7 @@ class AttributesController extends AppController
     private function formFilter()
     {
         $filter = filter_input(INPUT_POST, 'filter', FILTER_DEFAULT);
-        
+
         $session = new Session();
         if ($filter) {
             if (!array_key_exists($filter, $this->types)) {

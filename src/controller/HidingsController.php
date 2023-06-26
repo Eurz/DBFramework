@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Model\Attributes;
-use Core\Forms;
+use Core\Forms\Forms;
 
 class HidingsController extends AppController
 {
@@ -21,7 +21,6 @@ class HidingsController extends AppController
      */
     public function index()
     {
-        var_dump($_SESSION);
         $field = filter_input(INPUT_GET, 'field', FILTER_DEFAULT);
         $orderBy = filter_input(INPUT_GET, 'orderBy', FILTER_DEFAULT);
         $filterByCountry = filter_input(INPUT_GET, 'filterByCountry', FILTER_VALIDATE_INT);

@@ -6,7 +6,7 @@ use App\Model\Attributes;
 use App\Model\Hidings;
 use App\Model\Users;
 use Core\Session;
-use Core\Forms;
+use Core\Forms\Forms;
 
 class MissionsController extends AppController
 {
@@ -38,15 +38,19 @@ class MissionsController extends AppController
 
     public function add($action = 'default')
     {
-
+        // Initialisation
         // $mission = $this->model->findById($id);
         $pageTitle = 'Missions';
         $countries = $this->Attributes->findByKeys('id', 'title', 'country');
 
+        // Data's form
         $status = $this->Attributes->findByKeys('id', 'title', 'status');
         $specialities = $this->Attributes->findByKeys('id', 'title', 'speciality');
+
+        // Form
         // $this->session->set('missionAction', 'default');
         $form = new Forms();
+
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $this->session->merge($data);
@@ -81,9 +85,9 @@ class MissionsController extends AppController
 
         }
 
-        var_dump($this->session->get('mission'));
         switch ($action) {
             case 'hidings':
+                var_dump($this->session->get('mission'));
                 $countryId = $this->session->getValue('countryId');
                 $hidings = $this->Hidings->findBy('countryId', $countryId);
 

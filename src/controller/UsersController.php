@@ -3,8 +3,7 @@
 namespace App\Controller;
 
 use App\Model\Attributes;
-use App\Model\Users;
-use Core\Forms;
+use Core\Forms\Forms;
 
 class UsersController extends AppController
 {

@@ -24,7 +24,6 @@ class Hidings extends AppModel
 
     public function findWithFilters($field, $filterByCountry,  $orderBy = 'ASC',)
     {
-        // $query = 'SELECT * FROM ' . $this->tableName ;
         $query = 'SELECT code, hidings.id as id,t.id AS typeId, c.title as country , c.id AS countryId, address, t.title as type FROM' . SPACER;
         $query .= $this->tableName . SPACER;
         $query .= 'LEFT JOIN attributes c ON c.id = hidings.countryId' . SPACER;
@@ -34,18 +33,16 @@ class Hidings extends AppModel
         // Filter by
         if (!empty($filterByCountry)) {
             $query2 .= "WHERE first.countryId IN ($filterByCountry) " . SPACER;
-            // 
         }
         // Order by
         if (!empty($field)) {
             $query2 .= "ORDER BY first.$field" . SPACER . $orderBy . SPACER;
-            $test = "ORDER BY first.$field" . SPACER . $orderBy . SPACER;
         } else {
             $query2 .= "ORDER BY first.code" . SPACER . $orderBy . SPACER;
         }
         var_dump($query2);
-        // $entityName = $this->entityPath . substr(ucfirst($this->tableName), 0, -1) . 'Entity';
         $hidings = $this->query($query2, null, $this->entityName);
+
         return $hidings;
     }
     public function findBy($key, $value)

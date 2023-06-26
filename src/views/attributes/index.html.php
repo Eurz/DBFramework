@@ -49,8 +49,8 @@
                         <td><?= $attribute->title ?></td>
                         <td><?= $attribute->createdAt ?> </td>
                         <td class="text-end">
-                            <a href="attributes/edit/<?= $attribute->id ?>" class="btn btn-sm btn-primary">Edit</a>
-                            <a href="attributes/delete/<?= $attribute->id ?>" class="btn btn-sm btn-danger">Delete</a>
+                            <a href="/attributes/edit/<?= $attribute->id ?>" class="btn btn-sm btn-primary">Edit</a>
+                            <a href="/attributes/delete/<?= $attribute->id ?>" class="btn btn-sm btn-danger">Delete</a>
                         </td>
                     </tr>
 
