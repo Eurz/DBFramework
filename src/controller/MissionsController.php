@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entities\MissionsEntity;
 use App\Model\Attributes;
 use App\Model\Hidings;
 use App\Model\Users;
@@ -23,7 +24,9 @@ class MissionsController extends AppController
         $this->Hidings = $this->getModel('hidings');
 
         $this->session = new Session('mission');
-        // $this->session->delete('mission');
+
+        // var_dump($this->session->get('mission'));
+
         // $this->session->reset();
     }
 
@@ -36,16 +39,24 @@ class MissionsController extends AppController
         $this->render('missions/index', compact('pageTitle', 'missions'));
     }
 
+    public function view($id)
+    {
+        $mission = $this->model->findById($id);
+        $pageTitle = $mission->title;
+        $this->render('missions/view', compact('pageTitle', 'mission'));
+    }
+
+
     public function add($action = 'default')
     {
+
+        if (!$this->session->exist('mission')) {
+            $this->session->set('mission', [], $action);
+        }
         // Initialisation
         // $mission = $this->model->findById($id);
         $pageTitle = 'Missions';
         $countries = $this->Attributes->findByKeys('id', 'title', 'country');
-
-        // Data's form
-        $status = $this->Attributes->findByKeys('id', 'title', 'status');
-        $specialities = $this->Attributes->findByKeys('id', 'title', 'speciality');
 
         // Form
         // $this->session->set('missionAction', 'default');
@@ -53,7 +64,12 @@ class MissionsController extends AppController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $this->session->merge($data);
+            if ($action === 'default') {
+                $this->session->merge($data, $action);
+            } else {
+                $this->session->merge($data);
+            }
+
             switch ($action) {
                 case 'hidings':
                     $this->redirect('missions/add/agents');
@@ -67,12 +83,14 @@ class MissionsController extends AppController
                 case 'targets':
                     $this->redirect('missions/add/end');
                     break;
+
                 case 'end':
+
+                    $this->session->reset();
                     break;
                 default:
-                    $this->session->reset();
-
                     $this->redirect('missions/add/hidings');
+
                     break;
             }
 
@@ -85,19 +103,23 @@ class MissionsController extends AppController
 
         }
 
+        // Data's form
+
         switch ($action) {
             case 'hidings':
-                var_dump($this->session->get('mission'));
-                $countryId = $this->session->getValue('countryId');
+                $pageTitle = 'Mission : Add an hiding';
+                $countryId = $this->session->getValue('default', 'countryId');
                 $hidings = $this->Hidings->findBy('countryId', $countryId);
 
                 $form
-                    ->addRow('hidings', [], 'Hiding', 'select', true, $hidings);
-
+                    ->addRow('hidingId', [], 'Hiding', 'select', true, $hidings);
+                // var_dump($_SESSION);
                 $this->render('missions/addHiding', compact('pageTitle', 'form'));
 
                 break;
             case 'agents':
+                $pageTitle = 'Mission : Add agent(s)';
+
                 $message = 'Choose agent(s) for mission';
                 $agents = $this->Users->findByKeys('id', 'fullName', 'agent');
 
@@ -109,7 +131,8 @@ class MissionsController extends AppController
 
                 break;
             case 'contacts':
-                $countryId = $this->session->getValue('countryId');
+                $pageTitle = 'Mission : Add contact(s)';
+                $countryId = $this->session->getValue('default', 'countryId');
                 $contacts = $this->model->findContacts($this->session->getValue('agents'));
 
                 $form
@@ -120,25 +143,38 @@ class MissionsController extends AppController
                 break;
             case 'targets':
                 $targets = $this->Users->findByKeys('id', 'fullName', 'target');
-
+                $pageTitle = 'Mission : Add target(s)';
                 $form
                     ->addRow('targets', [], 'Target(s)', 'select:multiple', true, $targets);
 
                 $this->render('missions/addAgent', compact('pageTitle', 'form'));
 
                 break;
+
+
             case 'end':
-                $this->session->delete('mission');
+                $data = $this->session->get('mission');
+                $response = $this->model->insert($data);
+                if ($response) {
+
+                    $this->session->reset();
+                }
+
                 $this->redirect('missions');
                 break;
             default:
+
+                $status = $this->Attributes->findByKeys('id', 'title', 'status');
+                $specialities = $this->Attributes->findByKeys('id', 'title', 'speciality');
+                $missionTypes = $this->Attributes->findByKeys('id', 'title', 'missionType');
                 $form
+                    ->addRow('missionTypeId', [], 'Type', 'select', true, $missionTypes)
                     ->addRow('title', '', 'Title', 'input:text')
                     ->addRow('description', '', 'Description', 'textarea')
                     ->addRow('status', '', 'Status', 'select', true, $status)
                     ->addRow('codeName', '', 'CodeName', 'input:text')
                     ->addRow('countryId', [], 'Country', 'select', true, $countries)
-                    ->addRow('speciality', [], 'Required speciality', 'select', true, $specialities)
+                    ->addRow('specialityId', [], 'Required speciality', 'select', true, $specialities)
                     ->addRow('startDate', date('Y-m-d'), 'Start date', 'input:date')
                     ->addRow('endDate', date('Y-m-d'), 'End date', 'input:date');
                 $this->session->reset();
@@ -163,7 +199,7 @@ class MissionsController extends AppController
         $form
             ->addRow('status', $mission->status, 'Status', 'select', true, $status)
             ->addRow('title', $mission->title, 'Title', 'input:text')
-            ->addRow('description', $mission->description, 'Description', 'input:text')
+            ->addRow('description', $mission->description, 'Description', 'textarea')
             ->addRow('codeName', $mission->codeName, 'CodeName', 'input:text')
             ->addRow('countryId', $mission->countryId, 'Country', 'select', true, $countries)
             ->addRow('speciality', $mission->countryId, 'Speciality', 'select', true, $specialities)
@@ -176,5 +212,31 @@ class MissionsController extends AppController
 
         $pageTitle = 'Missions';
         $this->render('missions/form', compact('pageTitle', 'form'));
+    }
+
+    /**
+     * Delete a user
+     * @param int $id - User's ID
+     */
+    public function delete($id)
+    {
+        $mission = $this->model->findById($id);
+
+        if (!$mission) {
+            $this->redirect('missions');
+        };
+
+        $form = new Forms();
+
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+            if (isset($data['choice']) && $data['choice'] === 'yes') {
+                $response = $this->model->delete($id);
+            }
+            $this->redirect('missions');
+        }
+
+        $pageTitle = null;
+        $this->render('missions/delete', compact('pageTitle', 'mission'));
     }
 }

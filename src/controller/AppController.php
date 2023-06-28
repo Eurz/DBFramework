@@ -21,15 +21,15 @@ class AppController extends Controller
 
     public function __construct()
     {
-
         parent::__construct();
-        // $this->auth = new Authentication(Application::getDb());
+        $this->auth = new Authentication(Application::getDb());
         // if ($this->auth->isLogged()) {
+        //     $this->messageManager = new Messages('message');
         //     return;
         // }
 
         // $this->login();
-        $this->messageManager = new Messages();
+        // $this->redirect('login');
     }
 
     public function login()

@@ -8,10 +8,10 @@
 // var_dump($missions);
 ?>
 <?php if ($missions) : ?>
-    <table class="table">
+    <table class="table table-hover">
         <tr>
             <!-- <th>Title</th> -->
-            <th>Code name</th>
+            <th>Title</th>
             <th>Status</th>
             <th>Start</th>
             <th>End</th>
@@ -24,7 +24,7 @@
         <?php foreach ($missions as $mission) : ?>
             <tr>
                 <!-- <td><?= $mission->title ?></td> -->
-                <td><?= $mission->codeName ?></td>
+                <td><?= $mission->title ?></td>
                 <td><?= $mission->status ?></td>
                 <td><?= $mission->startDate ?></td>
                 <td><?= $mission->endDate ?></td>
@@ -33,6 +33,7 @@
                 <td><?= $mission->type ?></td>
                 <td><?= $mission->speciality ?></td> -->
                 <td class="text-end">
+                    <a href="/missions/view/<?= $mission->id ?>" class="btn btn-primary btn-sm">View</a>
                     <a href="/missions/edit/<?= $mission->id ?>" class="btn btn-primary btn-sm">Edit</a>
                     <a href="/missions/delete/<?= $mission->id ?>" class="btn btn-danger btn-sm">Delete</a>
                 </td>

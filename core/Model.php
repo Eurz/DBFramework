@@ -133,7 +133,10 @@ class Model
 
     /**
      * Querying from models
-     * 
+     * @param string $query - Sql query
+     * @param array $attributes - Attributes for prepared request
+     * @param $entity - Entity
+     * @param bool $isSingleData - If true, fetch single data otherwise fetch multiple data
      */
     public function query(string $query, array $attributes = null, $entity = null, bool $isSingleData = false): mixed
     {
@@ -154,8 +157,6 @@ class Model
     }
 
 
-    /* FIN TEST */
-
     /**
      * Load a model - Default name = name from called class
      * @param string $modelName - Load a model from name $modelName. Default name is model for the current controller
@@ -173,6 +174,7 @@ class Model
 
         return $model;
     }
+
     /**
      * @param array $data - Array of date from. For example from :  $_POST, 
      * @return string $queryMarkers - A string of markers for a prepared query (id = :id , title = :title, etc...)

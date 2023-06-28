@@ -41,6 +41,7 @@ class HidingsController extends AppController
 
         $countries = $this->Attributes->findByKeys('id', 'title', 'country');
         $hidingTypes = $this->Attributes->findByKeys('id', 'title', 'hiding');
+        var_dump($hidingTypes);
         $form = null;
 
         if (!$countries || !$hidingTypes) {
@@ -75,9 +76,8 @@ class HidingsController extends AppController
         $countries = $this->Attributes->findByKeys('id', 'title', 'country');
         $hidingTypes = $this->Attributes->findByKeys('id', 'title', 'hiding');
 
-        $hiding = $this->model->findById($id);
 
-        if ($hiding === false) {
+        if (!$hiding) {
             $this->redirect('hidings');
         }
 
@@ -99,7 +99,7 @@ class HidingsController extends AppController
 
         $pageTitle = 'Edit an hiding';
 
-        $this->render('hidings/form', compact('pageTitle', 'form'));
+        $this->render('hidings/form', compact('pageTitle', 'form', 'hiding'));
     }
 
     public function delete($id)

@@ -10,6 +10,10 @@ class Users extends AppModel
     // protected $tableName = 'Users';
     // protected $entityPath = '\\App\\Entity\\User\\';
 
+    /**
+     * Get all users, width optional type of user
+     * @param string $type - User's type
+     */
     public function findAll($type = null)
     {
         $data = [];
@@ -23,14 +27,6 @@ class Users extends AppModel
         return $users;
     }
 
-    // public function findUser($id)
-    // {
-    //     $query = "SELECT users.id,firstName , lastName , dateOfBirth , attributes.title AS nationality, userType as type, users.createdAt, email, password FROM $this->tableName" . SPACER;
-    //     $query .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
-    //     $query .= "WHERE users.id = :id";
-    //     $users = $this->query($query, ['id' => $id], $this->entityName, true);
-    //     return $users;
-    // }
 
     /**
      * Find data by id
@@ -45,32 +41,31 @@ class Users extends AppModel
 
         $user = $this->query($query, ['id' => $id], $this->entityName, true);
 
-        $nationality = '';
         if ($user && $user->userType === 'agent') {
             $specialitiesQuery = "SELECT specialityId AS id FROM userspecialities" . SPACER;
             $specialitiesQuery .= "LEFT JOIN attributes AS a ON a.id = specialityId" . SPACER;
             $specialitiesQuery .= "WHERE userId = :id";
             $specialities = $this->query($specialitiesQuery, ['id' => $id]);
 
-            // $attributesModel = $this->getModel('attributes');
-            // $attributes = $attributesModel->findAll('speciality');
             $user->setSpecialities($this->extractKeys('id', $specialities));
         }
         return $user;
     }
 
-    public function findBy($key, $value, $type = null)
+    /**
+     * Find user in database by dbField with value and optional type of user
+     * @param string $dbField
+     * @param mixed $value
+     * @param string $type
+     * @return $users
+     */
+    public function findBy($dbField, $value, $type = null)
     {
-        /*
-        SELECT * FROM (
-        SELECT users.id,firstName , lastName , dateOfBirth , attributes.title AS nationality, userType as type, users.createdAt FROM users
-        LEFT JOIN attributes ON attributes.id = users.nationalityId WHERE userType = 'contact' ) as allusers WHERE allusers.id = 44
-        */
 
-        $data = [$key => $value];
+        $data = [$dbField => $value];
         $query = "SELECT users.id,firstName , lastName , dateOfBirth , attributes.title AS nationality, userType as type, users.createdAt FROM $this->tableName" . SPACER;
         $query .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
-        $query .= "WHERE $key = :$key" . SPACER;
+        $query .= "WHERE $dbField = :$dbField" . SPACER;
         if (!is_null($type) && !empty($type)) {
             $query .=  "AND  userType = :type" . SPACER;
             $data['type'] = $type;
@@ -83,6 +78,11 @@ class Users extends AppModel
     public function findUserByEmail($email)
     {
     }
+
+    /**
+     * @param string $type - Type of attribute (Agent, Contact,Country ...)
+     * @return $attributes
+     */
     public function findAttributes($type = null)
     {
         $data = null;
@@ -113,14 +113,17 @@ class Users extends AppModel
         }
         return $result;
     }
+
+    /**
+     * Insert user in database
+     * @param array $data - User's data
+     * @param string $userType - User's type (Agent, Contact, Manager, Target)
+     */
     public function insertUser($data, $userType)
     {
         $extractedData = $this->extractSelectData($data, 'specialities');
         $user = $extractedData['user'];
         $user['userType'] = $userType;
-
-
-
 
         $userResponse = $this->insert($user);
 
@@ -136,7 +139,11 @@ class Users extends AppModel
         return false;
     }
 
-
+    /**
+     * Update user with id = $ids
+     * @param int $id
+     * @param array $data
+     */
     public function updateUser($id, $data)
     {
         $extractedData = $this->extractSelectData($data, 'specialities');
@@ -154,11 +161,17 @@ class Users extends AppModel
         return false;
     }
 
-
+    /**
+     * Add specialities from a user
+     * @param int $id - User's id
+     * @param array $specialities - User's specialites
+     */
     private function addSpecialities($id, $specialities)
     {
-
         $deleting = $this->deleteSpecialities($id);
+        if (!$deleting) {
+            throw new \Exception("Unable to delete old specialities", 1);
+        }
 
         $markers = '';
         foreach ($specialities as $key => $value) {
@@ -171,11 +184,16 @@ class Users extends AppModel
         return $result;
     }
 
+
+    /**
+     * @param int $id - User's id to delete specialities
+     */
     private function deleteSpecialities($id)
     {
         $query = "DELETE FROM userspecialities WHERE userId = :id";
         return $this->query($query, ['id' => $id]);
     }
+
     /**
      * Extract data in an array with specific(s) key(s)
      * @param array $data

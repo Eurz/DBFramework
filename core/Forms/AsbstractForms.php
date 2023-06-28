@@ -160,6 +160,7 @@ class AsbstractForms
         }
 
         $html .= '<select name="' . $name . $ext . '"  id="' . $name . '" class="form-select" aria-label="' . $name . '" ' . $type . ' ' . $typeSize . '>';
+        // $html .= '<option value="">Default</option>';
         foreach ($data as $k => $v) {
             if (is_array($v)) {
                 $keys = array_keys($v);
@@ -172,7 +173,7 @@ class AsbstractForms
                 $k = $v->id;
                 $v = $v->title;
             }
-            
+
             if ($type === 'multiple') {
                 $selected = array_key_exists($k, $this->getValue($name)) ? 'selected' : null;
             } else {

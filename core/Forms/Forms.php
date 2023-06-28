@@ -29,7 +29,6 @@ class Forms extends AsbstractForms
      */
     public function isValid(): bool
     {
-        var_dump($_POST);
         $result = [];
         foreach ($this->data as $key => $value) {
             if ($value === '' || $value === null) {
@@ -60,5 +59,9 @@ class Forms extends AsbstractForms
         }
 
         return false;
+    }
+
+    private function notBlank()
+    {
     }
 }

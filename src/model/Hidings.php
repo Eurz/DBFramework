@@ -40,11 +40,12 @@ class Hidings extends AppModel
         } else {
             $query2 .= "ORDER BY first.code" . SPACER . $orderBy . SPACER;
         }
-        var_dump($query2);
         $hidings = $this->query($query2, null, $this->entityName);
 
         return $hidings;
     }
+
+    
     public function findBy($key, $value)
     {
         $query = 'SELECT code AS title, hidings.id as id, a1.title as country , ' . $key . ' FROM' . SPACER;

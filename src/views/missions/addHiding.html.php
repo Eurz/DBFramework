@@ -1,9 +1,7 @@
-<h2>Choose an hiding</h2>
-
 <form method="POST">
     <?=
-    // var_dump($form);
-    $form->row('hidings');
+    $form->render();
+    // $form->row('hidings');
     ?>
 
 

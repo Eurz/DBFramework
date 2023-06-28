@@ -52,14 +52,15 @@ class AttributesController extends AppController
     {
         $filter = filter_input(INPUT_POST, 'filter', FILTER_DEFAULT);
 
-        $session = new Session();
-        if ($filter) {
+        $session = new Session('attributesFilter');
+        if ($filter !== null) {
             if (!array_key_exists($filter, $this->types)) {
                 $filter =  null;
             }
             $session->set('attributesFilter', $filter);
             $this->redirect('attributes');
         }
+
         $formFilter = new Forms();
 
         $formFilter
@@ -85,13 +86,12 @@ class AttributesController extends AppController
     public function add()
     {
         $types = $this->types;
-        $isValid = false;
 
         $form = new Forms();
         $form
             ->addRow('title', '', 'Title', 'input:text', true, null, ['notBlank' => true])
             ->addRow('type', 'country', 'Type', 'select', true, $types, ['notBlank' => true]);
-
+        var_dump($form);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $response = $this->model->insert($data);

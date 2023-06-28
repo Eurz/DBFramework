@@ -71,6 +71,8 @@ class Controller
         $pageTitle = 'Page not found';
         header("HTTP/1.1 404 Not Found");
         $this->render('error', compact('pageTitle'));
+        exit();
+        // $this->redirect('/404', compact('pageTitle'));
     }
 
     public function errorPage()

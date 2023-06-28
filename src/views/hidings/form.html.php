@@ -12,7 +12,13 @@ if ($form) :
 
         <div class="row mb-3">
             <span class="col-sm-2 form-label"></span>
-            <div class="col-sm-6"><button type="submit" class="btn btn-primary">Save</button></div>
+            <div class="col-sm-6">
+                <button type="submit" class="btn btn-primary">Save</button>
+
+                <?php if (isset($hiding)) : ?>
+                    <a class="btn btn-danger" href="/hidings/delete/<?= $hiding->id ?>">Delete</a>
+                <?php endif ?>
+            </div>
         </div>
     </form>
 

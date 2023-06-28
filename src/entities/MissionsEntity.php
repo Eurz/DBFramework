@@ -18,24 +18,25 @@ class MissionsEntity extends Entity
     // private int $missionTypeId;
     // private int $status;
     // private array $hidings;
-    // private int $requiredSpecialityId;
+    // private int $specialityId;
     // private string $startDate;
     // private string $endDate;
 
     protected  $id;
     protected  $title;
     protected  $description;
+    protected  $status;
     protected  $codeName;
     protected  $countryId;
-    protected  $contacts;
-    protected  $targets;
     protected  $missionTypeId;
-    protected  $agents;
-    protected  $status;
-    protected  $hidings;
-    protected  $requiredSpecialityId;
+    protected  $hidingId;
+    protected  $specialityId;
     protected  $startDate;
     protected  $endDate;
+
+    protected  $contacts;
+    protected  $targets;
+    protected  $agents;
 
     /**
      * Get the value of id
@@ -73,26 +74,6 @@ class MissionsEntity extends Entity
     public function setTitle($title)
     {
         $this->title = $title;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of description
-     */
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    /**
-     * Set the value of description
-     *
-     * @return  self
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
 
         return $this;
     }
@@ -158,6 +139,26 @@ class MissionsEntity extends Entity
     }
 
     /**
+     * Get the value of targets
+     */
+    public function getTargets()
+    {
+        return $this->targets;
+    }
+
+    /**
+     * Set the value of targets
+     *
+     * @return  self
+     */
+    public function setTargets($targets)
+    {
+        $this->targets = $targets;
+
+        return $this;
+    }
+
+    /**
      * Get the value of missionTypeId
      */
     public function getMissionTypeId()
@@ -178,21 +179,41 @@ class MissionsEntity extends Entity
     }
 
     /**
-     * Get the value of agents
+     * Get the value of description
      */
-    public function getAgents()
+    public function getDescription()
     {
-        return $this->agents;
+        return $this->description;
     }
 
     /**
-     * Set the value of agents
+     * Set the value of description
      *
      * @return  self
      */
-    public function setAgents($agents)
+    public function setDescription($description)
     {
-        $this->agents = $agents;
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of specialityId
+     */
+    public function getSpecialityId()
+    {
+        return $this->specialityId;
+    }
+
+    /**
+     * Set the value of specialityId
+     *
+     * @return  self
+     */
+    public function setSpecialityId($specialityId)
+    {
+        $this->specialityId = $specialityId;
 
         return $this;
     }
@@ -218,46 +239,6 @@ class MissionsEntity extends Entity
     }
 
     /**
-     * Get the value of hidings
-     */
-    public function getHidings()
-    {
-        return $this->hidings;
-    }
-
-    /**
-     * Set the value of hidings
-     *
-     * @return  self
-     */
-    public function setHidings($hidings)
-    {
-        $this->hidings = $hidings;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of requiredSpecialityId
-     */
-    public function getRequiredSpecialityId()
-    {
-        return $this->requiredSpecialityId;
-    }
-
-    /**
-     * Set the value of requiredSpecialityId
-     *
-     * @return  self
-     */
-    public function setRequiredSpecialityId($requiredSpecialityId)
-    {
-        $this->requiredSpecialityId = $requiredSpecialityId;
-
-        return $this;
-    }
-
-    /**
      * Get the value of startDate
      */
     public function getStartDate()
@@ -277,6 +258,8 @@ class MissionsEntity extends Entity
         return $this;
     }
 
+
+
     /**
      * Get the value of endDate
      */
@@ -293,6 +276,26 @@ class MissionsEntity extends Entity
     public function setEndDate($endDate)
     {
         $this->endDate = $endDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of hidingId
+     */
+    public function getHidingId()
+    {
+        return $this->hidingId;
+    }
+
+    /**
+     * Set the value of hidingId
+     *
+     * @return  self
+     */
+    public function setHidingId($hidingId)
+    {
+        $this->hidingId = $hidingId;
 
         return $this;
     }

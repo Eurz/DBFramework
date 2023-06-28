@@ -67,7 +67,7 @@ class UsersController extends AppController
                     ->addRow('identificationCode', '', 'Identification Code', 'input:text', true, null, ['notBlank' => true])
                     ->addRow('nationalityId', '', 'Nationality', 'select', true, $nationalities, ['notBlank' => true])
                     ->addRow('dateOfBirth', '', 'Date of birth', 'input:date', true, null, ['notBlank' => true])
-                    ->addRow('specialities', [], 'Specialities', 'select:multiple', true, $specialities, ['notBlank' => true]);
+                    ->addRow('specialities', [], 'Specialities', 'select:multiple', true, $specialities, ['notBlank' => true, 'min' => 1]);
                 break;
             case 'target';
             case 'contact':
@@ -113,12 +113,13 @@ class UsersController extends AppController
      */
     public function edit($id)
     {
-        $nationalities = $this->Attributes->findByKeys('id', 'title', 'country');
         $user = $this->model->findUserById($id);
+        $nationalities = $this->Attributes->findByKeys('id', 'title', 'country');
 
         if (!$user) {
             $this->notFound();
         }
+
         $form = new Forms();
 
         $form

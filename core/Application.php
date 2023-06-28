@@ -66,8 +66,8 @@ class Application
 
         // Attributes
         $router->get('/attributes', 'attributes.index');
-        $router->get('/attributes/:filter', 'attributes.index');
         $router->get('/attributes/add', 'attributes.add');
+        // $router->get('/attributes/:filter', 'attributes.index');
         $router->get('/attributes/delete/:id', 'attributes.delete');
         $router->get('/attributes/edit/:id', 'attributes.edit');
         $router->get('/attributes/:id', 'attributes.view');
@@ -108,14 +108,18 @@ class Application
 
         // Missions
         $router->get('/missions', 'missions.index');
+        $router->get('/missions/view/:id', 'missions.view');
         $router->get('/missions/edit/:id', 'missions.edit');
         $router->get('/missions/add/', 'missions.add');
         $router->get('/missions/add/:action', 'missions.add');
+        $router->get('/missions/delete/:id', 'missions.delete');
+
 
         $router->post('/missions/add/', 'missions.add');
         $router->post('/missions/add/:action', 'missions.add');
 
         $router->post('/missions/edit/:id', 'missions.edit');
+        $router->post('/missions/delete/:id', 'missions.delete');
 
         $router->run();
     }

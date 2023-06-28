@@ -1,12 +1,5 @@
-<h2>Add agent(s)</h2>
-
 <form method="POST">
     <?=
-    // var_dump($form);
-    // $form->row('agents');
-    // $form->row('targets');
-    // $form->row('contacts');
-
     $form->render();
     ?>
 
