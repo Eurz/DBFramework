@@ -91,9 +91,18 @@ class AttributesController extends AppController
         $form
             ->addRow('title', '', 'Title', 'input:text', true, null, ['notBlank' => true])
             ->addRow('type', 'country', 'Type', 'select', true, $types, ['notBlank' => true]);
-        var_dump($form);
+
+
+
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
+            var_dump($data);
+            die();
+
+            if ($data['type'] === 'na') {
+
+                var_dump('es');
+            }
             $response = $this->model->insert($data);
 
             if ($response) {

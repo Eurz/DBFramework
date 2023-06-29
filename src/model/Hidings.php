@@ -5,8 +5,9 @@ namespace App\Model;
 class Hidings extends AppModel
 {
 
-    // protected $tableName = 'hidings';
-
+    /**
+     * Get all hidings
+     */
     public function findAll()
     {
         // $query = 'SELECT * FROM ' . $this->tableName ;
@@ -45,23 +46,28 @@ class Hidings extends AppModel
         return $hidings;
     }
 
-    
-    public function findBy($key, $value)
+    /**
+     * Find user in database by dbField with value and optional type of user
+     * @param string $dbField
+     * @param mixed $value
+     * @return $hidings
+     */
+    public function findBy($dbField, $value)
     {
-        $query = 'SELECT code AS title, hidings.id as id, a1.title as country , ' . $key . ' FROM' . SPACER;
+        $query = 'SELECT code AS title, hidings.id as id, a1.title as country , ' . $dbField . ' FROM' . SPACER;
         $query .= $this->tableName . SPACER;
         $query .= 'LEFT JOIN attributes a1 ON a1.id = hidings.countryId' . SPACER;
         $query .= 'LEFT JOIN attributes a2 ON a2.id = hidings.typeId' . SPACER;
-        $query .= "WHERE hidings.$key = :$key";
-        // $entityName = $this->entityPath . substr(ucfirst($this->tableName), 0, -1) . 'Entity';
+        $query .= "WHERE hidings.$dbField = :$dbField";
 
-        $hidings = $this->query($query, [$key => $value], $this->entityName);
+        $hidings = $this->query($query, [$dbField => $value], $this->entityName);
         return $hidings;
     }
 
 
     /**
-     * Find attributes in array with Id and Title
+     * Get array of attributes with Id and Title
+     * @return array - $attributes
      **/
     public function findIdAndTitle()
     {

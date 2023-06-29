@@ -18,13 +18,14 @@ class AppController extends Controller
     // protected $modelName;   
     protected $auth;
     protected $messageManager;
+    protected $itemName = 'Test';
 
     public function __construct()
     {
         parent::__construct();
         $this->auth = new Authentication(Application::getDb());
+        $this->messageManager = new Messages();
         // if ($this->auth->isLogged()) {
-        //     $this->messageManager = new Messages('message');
         //     return;
         // }
 

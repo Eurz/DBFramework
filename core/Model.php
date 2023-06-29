@@ -10,6 +10,7 @@ class Model
     protected $tableName;
     protected $entityName;
     protected $messageManager;
+    protected $itemName = 'Item';
 
 
     /**
@@ -20,9 +21,9 @@ class Model
     {
         $this->db = $db;
         $parts = explode('\\', get_called_class());
+        $this->itemName = end($parts);
         $entityRoot = end($parts) . 'Entity';
         $this->entityName = "\\App\\Entities\\" . $entityRoot;
-
         if (is_null($this->tableName)) {
             $className = get_called_class();
             $classNameParts = explode('\\', $className);
@@ -81,9 +82,9 @@ class Model
         $query = "INSERT INTO $this->tableName SET $markers";
         $response = $this->query($query, $data);
         if ($response) {
-            $this->messageManager->setSuccess('Registered successfully');
+            $this->messageManager->setSuccess($this->itemName . ' registered successfully');
         } else {
-            $this->messageManager->setError('Failed to insert into database');
+            $this->messageManager->setError('Failed to insert ' . $this->itemName . ' into database');
         }
 
         return $response;
@@ -102,9 +103,9 @@ class Model
 
         $response = $this->query($query, $data);
         if ($response) {
-            $this->messageManager->setSuccess('Successfully updated');
+            $this->messageManager->setSuccess($this->itemName . SPACER .  'successfully updated');
         } else {
-            $this->messageManager->setError('Update failed');
+            $this->messageManager->setError('Failed to update ' . $this->itemName);
         }
         return $response;
     }
@@ -121,9 +122,9 @@ class Model
             $response = $this->query($query, ['id' => $id]);
 
             if ($response) {
-                $this->messageManager->setSuccess('Successfully deleted');
+                $this->messageManager->setSuccess($this->itemName . SPACER . 'successfully deleted');
             } else {
-                $this->messageManager->setError('Delete Failed');
+                $this->messageManager->setError('Failed to delete this' . SPACER . $this->itemName);
             }
             return $response;
         }

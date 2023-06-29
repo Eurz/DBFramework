@@ -10,6 +10,7 @@ class AttributesEntity extends Entity
     protected string $title = '';
     protected string $type = '';
     protected $createdAt;
+    protected $linkedAttribute;
 
     public function __construct()
     {
@@ -95,6 +96,26 @@ class AttributesEntity extends Entity
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of linkedAttribute
+     */
+    public function getLinkedAttribute()
+    {
+        return $this->linkedAttribute;
+    }
+
+    /**
+     * Set the value of linkedAttribute
+     *
+     * @return  self
+     */
+    public function setLinkedAttribute($linkedAttribute)
+    {
+        $this->linkedAttribute = $linkedAttribute;
 
         return $this;
     }

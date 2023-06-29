@@ -10,7 +10,7 @@ if ($form) :
     <form method="POST">
         <?= $form->row('title'); ?>
         <?= $form->row('type'); ?>
-        <?= $form->row('test'); ?>
+        <?= $form->row('linkedAttribute'); ?>
 
         <div class="row mb-3">
             <span class="col-sm-2 form-label"></span>

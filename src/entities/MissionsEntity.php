@@ -299,4 +299,25 @@ class MissionsEntity extends Entity
 
         return $this;
     }
+
+    
+    /**
+     * Get the value of agents
+     */ 
+    public function getAgents()
+    {
+        return $this->agents;
+    }
+
+    /**
+     * Set the value of agents
+     *
+     * @return  self
+     */ 
+    public function setAgents($agents)
+    {
+        $this->agents = $agents;
+
+        return $this;
+    }
 }

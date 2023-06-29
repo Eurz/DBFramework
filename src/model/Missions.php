@@ -13,13 +13,6 @@ class Missions extends AppModel
     public function findAll()
     {
 
-        /*
-        SELECT missions.id, missions.title, description, country.title AS country, missiontype.title AS type, spec.title AS speciality, startDate, endDate FROM `missions`
-        LEFT JOIN attributes missiontype ON missions.missionTypeId = missiontype.id
-        LEFT JOIN attributes country ON missions.countryId = country.id
-        LEFT JOIN attributes spec ON missions.countryId = spec.id
-        WHERE missions.id = 14
-        */
         $query = "SELECT missions.id, status.title AS status, missions.title, description, codeName, country.title AS country, missiontype.title AS type, spec.title AS speciality, startDate, endDate" . SPACER;
         $query .= "FROM $this->tableName" . SPACER;
         $query .= "LEFT JOIN attributes as missiontype ON missions.missionTypeId = missiontype.id" . SPACER;
@@ -40,12 +33,14 @@ class Missions extends AppModel
     //     return $agents;
     // }
 
+    /**
+     * Test
+     */
     public function findContacts($agentsIds)
     {
-
         $agentsCountriesIds = $this->findUsersCountries($agentsIds);
-        $query = "SELECT id,firstName,lastName FROM users WHERE nationalityId NOT IN $agentsCountriesIds";
-
+        $query = "SELECT id,firstName,lastName, userType FROM users WHERE nationalityId NOT IN $agentsCountriesIds HAVING userType = 'contact'";
+        var_dump($query);
         $userModel = $this->getModel('users');
         // $contactList = $userModel->query($query);
         // $contacts = $userModel->extractKeys('id', $contactList);
@@ -55,12 +50,12 @@ class Missions extends AppModel
     }
 
     /**
+     * Test
      * @param $agentsIds - List of Ids of agent to extract countries Ids
      * @return string 
      */
     public function findUsersCountries($agentsIds)
     {
-
         $query = "SELECT nationalityId FROM users" . SPACER;
         $markers = $this->makeMarkersList($agentsIds);
         $query .= "WHERE users.id IN $markers";
@@ -72,10 +67,12 @@ class Missions extends AppModel
         }
         return $this->makeMarkersList($result);
     }
+
+
     /**
      * Insert new mission in database
      * @param array $data - Data of mission
-     * @return bool $response - False if failed otherwise true
+     * @return bool $missionResponse - False if failed otherwise true
      */
     public function insert($data)
     {
@@ -99,7 +96,6 @@ class Missions extends AppModel
 
         if ($missionResponse) {
 
-            // Insert user's mission
             $id = $this->lastInsertId();
             $markersUsers = '';
             foreach ($users as $key => $value) {
@@ -139,9 +135,43 @@ class Missions extends AppModel
 
 
         $mission = $this->query($query, ['id' => $id], $this->entityName, true);
-
         if (!$mission) {
             $this->messageManager->setError('Item not found');
+        }
+
+        $Users = $this->getModel('users');
+
+        // Get agents
+        $agentsIdsQuery = "SELECT mission FROM missions_users" . SPACER;
+        $agentsIdsQuery .= " WHERE user = $id " . SPACER;
+
+        $agentsIds = $this->queryIndexed($agentsIdsQuery, null);
+
+        if ($agentsIds) {
+            $agents = $Users->findAgents($agentsIds);
+            $mission->setAgents($agents);
+        }
+
+        // Get contacts
+        $contactsIdsQuery = "SELECT mission FROM missions_users" . SPACER;
+        $contactsIdsQuery .= " WHERE user = $id " . SPACER;
+
+        $contactsIds = $this->queryIndexed($contactsIdsQuery, null);
+
+        if ($contactsIds) {
+            $contacts = $Users->findContacts($contactsIds);
+            $mission->setContacts($contacts);
+        }
+
+        // Get targets
+        $targetsIdsQuery = "SELECT mission FROM missions_users" . SPACER;
+        $targetsIdsQuery .= " WHERE user = $id " . SPACER;
+
+        $targetsIds = $this->queryIndexed($targetsIdsQuery, null);
+
+        if ($targetsIds) {
+            $targets = $Users->findTargets($targetsIds);
+            $mission->setTargets($targets);
         }
 
         return $mission;

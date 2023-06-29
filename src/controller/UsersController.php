@@ -26,6 +26,7 @@ class UsersController extends AppController
     {
 
         $user = $this->model->findUserById($id);
+
         if (!$user) {
             $this->redirect('/users');
         }

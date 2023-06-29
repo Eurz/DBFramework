@@ -23,6 +23,54 @@
             <td><?= $mission->hiding ?></td>
         </tr>
         <tr>
+            <th>Agents</th>
+            <td>
+                <?php if ($mission->getAgents()) : ?>
+                    <?php
+                    foreach ($mission->getAgents() as $agent) : ?>
+                        <div><?= $agent->fullName ?><d /iv>
+
+                            <?php endforeach ?>
+
+                        <?php else : ?>
+
+                            ---
+                        <?php endif ?>
+            </td>
+        </tr>
+        <tr>
+            <th>Contacts</th>
+            <td>
+                <?php if ($mission->getContacts()) : ?>
+
+                    <?php
+                    foreach ($mission->getContacts() as $contact) : ?>
+                        <div><?= $contact->fullName ?><d /iv>
+
+                            <?php endforeach ?>
+                        <?php else : ?>
+
+                            ---
+                        <?php endif ?>
+
+            </td>
+        </tr>
+        <tr>
+            <th>Targets</th>
+            <td> <?php if ($mission->getTargets()) : ?>
+
+                    <?php
+                        foreach ($mission->getTargets() as $contact) : ?>
+                        <div><?= $contact->fullName ?><d /iv>
+
+                            <?php endforeach ?>
+                        <?php else : ?>
+
+                            ---
+                        <?php endif ?>
+            </td>
+        </tr>
+        <tr>
             <th>Country</th>
             <td><?= $mission->country ?></td>
         </tr>

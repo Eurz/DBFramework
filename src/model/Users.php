@@ -53,6 +53,66 @@ class Users extends AppModel
     }
 
     /**
+     * Get a list of agents with specifics Ids
+     */
+    public function findAgents($ids)
+    {
+        $markersIds = $this->makeMarkersList($ids);
+
+        $queryUsers = "SELECT users.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, users.createdAt, codeName, email, password" . SPACER;
+        $queryUsers .= "FROM $this->tableName" . SPACER;
+        $queryUsers .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+        $queryUsers .= "WHERE userType = 'agent'" . SPACER;
+
+        $query = "SELECT * FROM ( $queryUsers ) AS agent" . SPACER;
+        $query .= "WHERE agent.id IN $markersIds";
+
+        $agents =  $this->query($query, null, $this->entityName);
+
+        return $agents;
+    }
+
+    /**
+     * Get a list of contacts with specifics Ids
+     */
+    public function findContacts($ids)
+    {
+        $markersIds = $this->makeMarkersList($ids);
+
+        $queryUsers = "SELECT users.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, users.createdAt, codeName, email, password" . SPACER;
+        $queryUsers .= "FROM $this->tableName" . SPACER;
+        $queryUsers .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+        $queryUsers .= "WHERE userType = 'contact'" . SPACER;
+
+        $query = "SELECT * FROM ( $queryUsers ) AS contact" . SPACER;
+        $query .= "WHERE contact.id IN $markersIds";
+
+        $agents =  $this->query($query, null, $this->entityName);
+
+        return $agents;
+    }
+
+    /**
+     * Get a list of target with specifics Ids
+     */
+    public function findTargets($ids)
+    {
+        $markersIds = $this->makeMarkersList($ids);
+
+        $queryUsers = "SELECT users.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, users.createdAt, codeName, email, password" . SPACER;
+        $queryUsers .= "FROM $this->tableName" . SPACER;
+        $queryUsers .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+        $queryUsers .= "WHERE userType = 'target'" . SPACER;
+
+        $query = "SELECT * FROM ( $queryUsers ) AS target" . SPACER;
+        $query .= "WHERE target.id IN $markersIds";
+
+        $targets =  $this->query($query, null, $this->entityName);
+
+        return $targets;
+    }
+
+    /**
      * Find user in database by dbField with value and optional type of user
      * @param string $dbField
      * @param mixed $value
