@@ -21,10 +21,13 @@ class AttributesController extends AppController
         'userType' => 'User type'
     ];
 
+    private Session $session;
+
     public function __construct()
     {
         parent::__construct();
         $this->model = $this->getModel();
+        $this->session = new Session('attributesForm');
     }
 
     /**
@@ -51,12 +54,12 @@ class AttributesController extends AppController
     private function formFilter()
     {
         $filter = filter_input(INPUT_POST, 'filter', FILTER_DEFAULT);
-
         $session = new Session('attributesFilter');
-        if ($filter !== null) {
+        if ($filter) {
             if (!array_key_exists($filter, $this->types)) {
                 $filter =  null;
             }
+
             $session->set('attributesFilter', $filter);
             $this->redirect('attributes');
         }
@@ -82,27 +85,38 @@ class AttributesController extends AppController
 
     /**
      * Create an attribute
+     * @param string $type
      */
-    public function add()
+    public function add($type)
     {
+
+        if (!$this->typeExist($type)) {
+            $this->messageManager->setError('Please select a valid type of attribute');
+            $this->redirect('attributes');
+        }
+
         $types = $this->types;
+        $pageTitle = 'Add an attribute : ' . $type;
 
         $form = new Forms();
         $form
-            ->addRow('title', '', 'Title', 'input:text', true, null, ['notBlank' => true])
-            ->addRow('type', 'country', 'Type', 'select', true, $types, ['notBlank' => true]);
+            ->addRow('title', '', 'Title', 'input:text', true, null, ['notBlank' => true]);
 
+        if ($type === 'nationality') {
+            $attributesCountries = $this->model->findAll('country');
 
+            if (!$attributesCountries) {
+                $this->messageManager->setSuccess('You must create countries to be able to add a nationality');
+            } else {
+                $form
+                    ->addRow('attribute', null, 'Linked country', 'select', true, $attributesCountries, ['notBlank' => true]);
+            }
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            var_dump($data);
-            die();
+            $data['type'] = $type;
 
-            if ($data['type'] === 'na') {
-
-                var_dump('es');
-            }
             $response = $this->model->insert($data);
 
             if ($response) {
@@ -113,7 +127,6 @@ class AttributesController extends AppController
             }
         }
 
-        $pageTitle = 'Add an attribute';
         $this->render('attributes/form', compact('pageTitle', 'types', 'form'));
     }
 
@@ -126,6 +139,7 @@ class AttributesController extends AppController
 
         $types = $this->types;
         $attribute = $this->model->findById($id);
+        // $attributes = $this->model->findAll();
 
         if ($attribute === false) {
             $this->redirect('attributes');
@@ -133,8 +147,15 @@ class AttributesController extends AppController
 
         $form = new Forms();
         $form
-            ->addRow('title', $attribute->title, 'Title', 'input:text', true, null, ['notBlank' => true])
-            ->addRow('type', $attribute->type, 'Type', 'select', true, $types, ['notBlank' => true]);
+            ->addRow('title', $attribute->title, 'Title', 'input:text', true, null, ['notBlank' => true]);
+        // ->addRow('attribute', $attribute->attribute, 'Linked to', 'select', true, $attributes, ['notBlank' => true]);
+
+        if ($attribute->type === 'nationality') {
+            $attributesCountries = $this->model->findAll('country');
+            $form
+                ->addRow('attribute', $attribute->attribute, 'Linked country', 'select', true, $attributesCountries, ['notBlank' => true]);
+        }
+
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -177,5 +198,10 @@ class AttributesController extends AppController
 
         $pageTitle = 'Delete an attribute';
         $this->render('attributes/delete', compact('pageTitle', 'attribute'));
+    }
+
+    private function typeExist($key): bool
+    {
+        return array_key_exists($key, $this->types);
     }
 }

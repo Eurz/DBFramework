@@ -65,8 +65,6 @@ class Session
      */
     public function exist($key): bool
     {
-        // var_dump(isset($_SESSION[$key]));
-        // return array_key_exists($key, $_SESSION);
         return isset($_SESSION[$key]);
     }
 
@@ -88,8 +86,6 @@ class Session
      */
     public function merge($data, $key = null)
     {
-        // var_dump($this->sessionName);
-        // die();
 
         if ($key) {
             $this->set($this->sessionName, $data, $key);
@@ -110,7 +106,7 @@ class Session
     }
 
     /**
-     * Get value $_SESSION[$key]
+     * Get value $_SESSION[$key]?[$subkey]
      * @param mixed $key
      */
 

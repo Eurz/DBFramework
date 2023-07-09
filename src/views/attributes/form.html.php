@@ -1,5 +1,5 @@
 <?php
-if ($form) :
+if (isset($form)) :
 ?>
 
     <div class="p-3 mb-3 bg-light">
@@ -8,9 +8,10 @@ if ($form) :
     </div>
 
     <form method="POST">
+        <!-- <?= $form->render(); ?> -->
         <?= $form->row('title'); ?>
-        <?= $form->row('type'); ?>
-        <?= $form->row('linkedAttribute'); ?>
+        <?= $form->row('attribute'); ?>
+
 
         <div class="row mb-3">
             <span class="col-sm-2 form-label"></span>
@@ -23,7 +24,5 @@ if ($form) :
         </div>
     </form>
 
-<?php else : ?>
-    <div class="alert alert-success"><?= $message ?></div>
 
 <?php endif; ?>

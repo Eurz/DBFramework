@@ -66,7 +66,7 @@ class Application
 
         // Attributes
         $router->get('/attributes', 'attributes.index');
-        $router->get('/attributes/add', 'attributes.add');
+        $router->get('/attributes/add/:type', 'attributes.add');
         // $router->get('/attributes/:filter', 'attributes.index');
         $router->get('/attributes/delete/:id', 'attributes.delete');
         $router->get('/attributes/edit/:id', 'attributes.edit');
@@ -74,7 +74,7 @@ class Application
 
         $router->post('/attributes', 'attributes.index');
         $router->post('/attributes/delete/:id', 'attributes.delete');
-        $router->post('/attributes/add', 'attributes.add');
+        $router->post('/attributes/add/:type', 'attributes.add');
         $router->post('/attributes/edit/:id', 'attributes.edit');
 
 

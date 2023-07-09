@@ -84,9 +84,9 @@
             ?>
                     <tr>
                         <td><?= $hiding->code ?></td>
-                        <td><?= $hiding->country ?> </td>
+                        <td><?= $hiding->country ?? '---' ?> </td>
                         <td><?= $hiding->address ?> </td>
-                        <td><?= $hiding->type ?> </td>
+                        <td><?= $hiding->type ?? '---' ?> </td>
                         <td class="text-end">
                             <a href="hidings/edit/<?= $hiding->id ?>" class="btn btn-sm btn-primary">Edit</a>
                             <a href="hidings/delete/<?= $hiding->id ?>" class="btn btn-sm btn-danger">Delete</a>

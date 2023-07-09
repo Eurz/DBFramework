@@ -177,7 +177,7 @@ class Model
     }
 
     /**
-     * @param array $data - Array of date from. For example from :  $_POST, 
+     * @param array $data - Array of data from form. For example from :  $_POST, 
      * @return string $queryMarkers - A string of markers for a prepared query (id = :id , title = :title, etc...)
      */
     protected function makeMarkers($data)
@@ -222,5 +222,25 @@ class Model
         }
 
         return true;
+    }
+
+    /**
+     * Extract specific data in an array with specific(s) key(s)
+     * @param array $data
+     * @params string $args - List of keys to extract from array
+     */
+    public function extractFromData($data, ...$keys)
+    {
+        $result = [];
+        foreach ($data as  $key => $value) {
+            if (in_array($key, $keys)) {
+                $result[$key] = $value;
+            } else {
+
+                $result['user'][$key] = $value;
+            }
+        }
+
+        return $result;
     }
 }

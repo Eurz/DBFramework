@@ -4,17 +4,15 @@
     </div>
 
 </div>
-<?php
-// var_dump($missions);
-?>
 <?php if ($missions) : ?>
     <table class="table table-hover">
         <tr>
             <!-- <th>Title</th> -->
             <th>Title</th>
             <th>Status</th>
-            <th>Start</th>
-            <th>End</th>
+            <th>Country</th>
+            <!-- <th>Start</th>
+            <th>End</th> -->
             <!--
             <th>Country</th>
             <th>Type</th>
@@ -26,10 +24,10 @@
                 <!-- <td><?= $mission->title ?></td> -->
                 <td><?= $mission->title ?></td>
                 <td><?= $mission->status ?></td>
+                <td><?= $mission->country ?></td>
+                <!--
                 <td><?= $mission->startDate ?></td>
                 <td><?= $mission->endDate ?></td>
-                <!--
-                <td><?= $mission->country ?></td>
                 <td><?= $mission->type ?></td>
                 <td><?= $mission->speciality ?></td> -->
                 <td class="text-end">

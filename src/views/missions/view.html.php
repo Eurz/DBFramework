@@ -5,6 +5,10 @@
             <th>Type</th>
             <td><?= $mission->missionType ?></td>
         </tr>
+        <tr>
+            <th>CodeName</th>
+            <td><?= $mission->codeName ?></td>
+        </tr>
 
         <tr>
             <th>Description</th>
@@ -15,64 +19,13 @@
             <td><?= $mission->status ?></td>
         </tr>
         <tr>
-            <th>CodeName</th>
-            <td><?= $mission->codeName ?></td>
+            <th>Country</th>
+            <td><?= $mission->country ?></td>
         </tr>
+
         <tr>
             <th>Hiding</th>
             <td><?= $mission->hiding ?></td>
-        </tr>
-        <tr>
-            <th>Agents</th>
-            <td>
-                <?php if ($mission->getAgents()) : ?>
-                    <?php
-                    foreach ($mission->getAgents() as $agent) : ?>
-                        <div><?= $agent->fullName ?><d /iv>
-
-                            <?php endforeach ?>
-
-                        <?php else : ?>
-
-                            ---
-                        <?php endif ?>
-            </td>
-        </tr>
-        <tr>
-            <th>Contacts</th>
-            <td>
-                <?php if ($mission->getContacts()) : ?>
-
-                    <?php
-                    foreach ($mission->getContacts() as $contact) : ?>
-                        <div><?= $contact->fullName ?><d /iv>
-
-                            <?php endforeach ?>
-                        <?php else : ?>
-
-                            ---
-                        <?php endif ?>
-
-            </td>
-        </tr>
-        <tr>
-            <th>Targets</th>
-            <td> <?php if ($mission->getTargets()) : ?>
-
-                    <?php
-                        foreach ($mission->getTargets() as $contact) : ?>
-                        <div><?= $contact->fullName ?><d /iv>
-
-                            <?php endforeach ?>
-                        <?php else : ?>
-
-                            ---
-                        <?php endif ?>
-            </td>
-        </tr>
-        <tr>
-            <th>Country</th>
-            <td><?= $mission->country ?></td>
         </tr>
         <tr>
             <th>Required speciality</th>
@@ -86,6 +39,56 @@
             <th>End</th>
             <td><?= $mission->endDate ?></td>
         </tr>
+
+        <tr>
+            <th>Contacts</th>
+            <td>
+                <?php if ($mission->getContacts()) : ?>
+
+                    <?php
+                    foreach ($mission->getContacts() as $contact) : ?>
+                        <div><?= $contact->fullName ?> ( <?= $contact->nationality ?> )</div>
+
+                    <?php endforeach ?>
+                <?php else : ?>
+
+                    ---
+                <?php endif ?>
+
+            </td>
+        </tr>
+        <tr>
+            <th>Agents</th>
+            <td>
+                <?php if ($mission->getAgents()) : ?>
+                    <?php
+                    foreach ($mission->getAgents() as $agent) : ?>
+                        <div><?= $agent->fullName ?> ( <?= $agent->nationality ?> )</div>
+
+                    <?php endforeach ?>
+
+                <?php else : ?>
+
+                    ---
+                <?php endif ?>
+            </td>
+        </tr>
+        <tr>
+            <th>Targets</th>
+            <td> <?php if ($mission->getTargets()) : ?>
+
+                    <?php
+                        foreach ($mission->getTargets() as $target) : ?>
+                        <div><?= $target->fullName ?> ( <?= $target->nationality ?> )</div>
+
+                    <?php endforeach ?>
+                <?php else : ?>
+
+                    ---
+                <?php endif ?>
+            </td>
+        </tr>
+
     </table>
     <div>
         <a href="/missions/edit/<?= $mission->id ?>" class="btn btn-primary">Edit mission</a>

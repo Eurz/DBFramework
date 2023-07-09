@@ -9,11 +9,12 @@ class AsbstractForms
     /**
      * Parameters to create form
      */
-    private $formParams;
+    protected $formParams;
     /**
      * Message from form submission
      */
     protected $message;
+
 
     /**
      * Define a form element with input parameters
@@ -160,7 +161,6 @@ class AsbstractForms
         }
 
         $html .= '<select name="' . $name . $ext . '"  id="' . $name . '" class="form-select" aria-label="' . $name . '" ' . $type . ' ' . $typeSize . '>';
-        // $html .= '<option value="">Default</option>';
         foreach ($data as $k => $v) {
             if (is_array($v)) {
                 $keys = array_keys($v);

@@ -59,9 +59,9 @@ class Users extends AppModel
     {
         $markersIds = $this->makeMarkersList($ids);
 
-        $queryUsers = "SELECT users.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, users.createdAt, codeName, email, password" . SPACER;
-        $queryUsers .= "FROM $this->tableName" . SPACER;
-        $queryUsers .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+        $queryUsers = "SELECT u.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, u.createdAt, codeName, email, password" . SPACER;
+        $queryUsers .= "FROM $this->tableName AS u" . SPACER;
+        $queryUsers .= "LEFT JOIN attributes ON attributes.id = u.nationalityId" . SPACER;
         $queryUsers .= "WHERE userType = 'agent'" . SPACER;
 
         $query = "SELECT * FROM ( $queryUsers ) AS agent" . SPACER;
@@ -72,6 +72,7 @@ class Users extends AppModel
         return $agents;
     }
 
+
     /**
      * Get a list of contacts with specifics Ids
      */
@@ -79,9 +80,9 @@ class Users extends AppModel
     {
         $markersIds = $this->makeMarkersList($ids);
 
-        $queryUsers = "SELECT users.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, users.createdAt, codeName, email, password" . SPACER;
-        $queryUsers .= "FROM $this->tableName" . SPACER;
-        $queryUsers .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+        $queryUsers = "SELECT u.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, u.createdAt, codeName, email, password" . SPACER;
+        $queryUsers .= "FROM $this->tableName AS u" . SPACER;
+        $queryUsers .= "LEFT JOIN attributes ON attributes.id = u.nationalityId" . SPACER;
         $queryUsers .= "WHERE userType = 'contact'" . SPACER;
 
         $query = "SELECT * FROM ( $queryUsers ) AS contact" . SPACER;
@@ -93,24 +94,44 @@ class Users extends AppModel
     }
 
     /**
-     * Get a list of target with specifics Ids
+     * Test
      */
+
     public function findTargets($ids)
     {
         $markersIds = $this->makeMarkersList($ids);
 
-        $queryUsers = "SELECT users.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, users.createdAt, codeName, email, password" . SPACER;
-        $queryUsers .= "FROM $this->tableName" . SPACER;
-        $queryUsers .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+        $queryUsers = "SELECT u.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, u.createdAt, codeName, email, password" . SPACER;
+        $queryUsers .= "FROM $this->tableName AS u" . SPACER;
+        $queryUsers .= "LEFT JOIN attributes ON attributes.id = u.nationalityId" . SPACER;
         $queryUsers .= "WHERE userType = 'target'" . SPACER;
 
-        $query = "SELECT * FROM ( $queryUsers ) AS target" . SPACER;
-        $query .= "WHERE target.id IN $markersIds";
+        $query = "SELECT * FROM ( $queryUsers ) AS contact" . SPACER;
+        $query .= "WHERE contact.id IN $markersIds";
 
         $targets =  $this->query($query, null, $this->entityName);
 
         return $targets;
     }
+    public function findUsersByIds($ids, $userType)
+    {
+        $markersIds = $this->makeMarkersList($ids);
+
+        $queryUsers = "SELECT u.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, u.createdAt, codeName, email, password" . SPACER;
+        $queryUsers .= "FROM $this->tableName AS u" . SPACER;
+        $queryUsers .= "LEFT JOIN attributes ON attributes.id = u.nationalityId" . SPACER;
+        $queryUsers .= "WHERE userType = :userType" . SPACER;
+
+        $query = "SELECT * FROM ( $queryUsers ) AS contact" . SPACER;
+        $query .= "WHERE contact.id IN $markersIds";
+
+        $users =  $this->query($query, ['userType' => $userType], $this->entityName);
+
+        return $users;
+    }
+
+
+
 
     /**
      * Find user in database by dbField with value and optional type of user
@@ -181,7 +202,7 @@ class Users extends AppModel
      */
     public function insertUser($data, $userType)
     {
-        $extractedData = $this->extractSelectData($data, 'specialities');
+        $extractedData = $this->extractFromData($data, 'specialities');
         $user = $extractedData['user'];
         $user['userType'] = $userType;
 
@@ -191,7 +212,9 @@ class Users extends AppModel
             $id = $this->lastInsertId();
             if ($userType === 'agent') {
                 $specialities = $extractedData['specialities'];
-                $this->addSpecialities($id, $specialities);
+                if ($specialities) {
+                    $this->addSpecialities($id, $specialities);
+                }
             }
 
             return $id;
@@ -206,7 +229,7 @@ class Users extends AppModel
      */
     public function updateUser($id, $data)
     {
-        $extractedData = $this->extractSelectData($data, 'specialities');
+        $extractedData = $this->extractFromData($data, 'specialities');
         $user = $extractedData['user'];
         // $user['userType'] = $userType;
         $userResponse = $this->update($id, $user);
@@ -222,6 +245,21 @@ class Users extends AppModel
     }
 
     /**
+     * Find agents having speciality with id = $specialityId
+     * @param array $agentsIds - Ids of agents to check speciality
+     * @param int $specialityId - Id of the specific speciality
+     * @return array $agents
+     */
+    public function findAgentsWithSpecialtities($agentIds, $specialityId)
+    {
+        $query = "SELECT * FROM userspecialities" . SPACER;
+        $query .= "WHERE userId IN {$this->makeMarkersList($agentIds)}" . SPACER;
+        $query .= "AND specialityId = :specialityId" . SPACER;
+        $agents = $this->query($query, ['specialityId' => $specialityId]);
+
+        return $agents;
+    }
+    /**
      * Add specialities from a user
      * @param int $id - User's id
      * @param array $specialities - User's specialites
@@ -229,6 +267,7 @@ class Users extends AppModel
     private function addSpecialities($id, $specialities)
     {
         $deleting = $this->deleteSpecialities($id);
+
         if (!$deleting) {
             throw new \Exception("Unable to delete old specialities", 1);
         }
@@ -252,24 +291,5 @@ class Users extends AppModel
     {
         $query = "DELETE FROM userspecialities WHERE userId = :id";
         return $this->query($query, ['id' => $id]);
-    }
-
-    /**
-     * Extract data in an array with specific(s) key(s)
-     * @param array $data
-     * @params string $args - List of keys to extract from array
-     */
-    public function extractSelectData($data, ...$keys)
-    {
-        $result = [];
-        foreach ($data as  $key => $value) {
-            if (in_array($key, $keys)) {
-                $result[$key] = $value;
-            } else {
-
-                $result['user'][$key] = $value;
-            }
-        }
-        return $result;
     }
 }

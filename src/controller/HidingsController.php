@@ -21,11 +21,12 @@ class HidingsController extends AppController
      */
     public function index()
     {
-        $field = filter_input(INPUT_GET, 'field', FILTER_DEFAULT);
-        $orderBy = filter_input(INPUT_GET, 'orderBy', FILTER_DEFAULT);
-        $filterByCountry = filter_input(INPUT_GET, 'filterByCountry', FILTER_VALIDATE_INT);
+        // $field = filter_input(INPUT_GET, 'field', FILTER_DEFAULT);
+        // $orderBy = filter_input(INPUT_GET, 'orderBy', FILTER_DEFAULT);
+        // $filterByCountry = filter_input(INPUT_GET, 'filterByCountry', FILTER_VALIDATE_INT);
 
-        $hidings = $this->model->findWithFilters($field, $filterByCountry, $orderBy);
+        // $hidings = $this->model->findWithFilters($field, $filterByCountry, $orderBy);
+        $hidings = $this->model->findAll();
         $hidingsTypes = $this->Attributes->findAll('hiding');
         $countries = $this->Attributes->findAll('country');
 
@@ -41,7 +42,6 @@ class HidingsController extends AppController
 
         $countries = $this->Attributes->findByKeys('id', 'title', 'country');
         $hidingTypes = $this->Attributes->findByKeys('id', 'title', 'hiding');
-        var_dump($hidingTypes);
         $form = null;
 
         if (!$countries || !$hidingTypes) {
@@ -51,7 +51,7 @@ class HidingsController extends AppController
         } else {
             $form = new Forms();
             $form
-                ->addRow('code', '', 'Code', 'input:text', true, null, ['notBlank' => true])
+                ->addRow('code', '', 'Code', 'input:text', true, null, ['notBlank' => false])
                 ->addRow('address', '', 'Address', 'input:text', true, null, ['notBlank' => true])
                 ->addRow('typeId', '', 'Type', 'select', true, $hidingTypes, ['notBlank' => true])
                 ->addRow('countryId', '', 'Country', 'select', true, $countries, ['notBlank' => true]);

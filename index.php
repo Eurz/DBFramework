@@ -1,5 +1,6 @@
 <?php
 session_start();
+// header("Content-Type: text/plain");
 // use Core\Application;
 
 use Core\Application;

@@ -2,7 +2,6 @@
 
 namespace App\Model;
 
-use Core\Model;
 
 class Missions extends AppModel
 {
@@ -36,18 +35,48 @@ class Missions extends AppModel
     /**
      * Test
      */
-    public function findContacts($agentsIds)
+    public function findContactsForMission($countryId)
     {
-        $agentsCountriesIds = $this->findUsersCountries($agentsIds);
-        $query = "SELECT id,firstName,lastName, userType FROM users WHERE nationalityId NOT IN $agentsCountriesIds HAVING userType = 'contact'";
-        var_dump($query);
-        $userModel = $this->getModel('users');
-        // $contactList = $userModel->query($query);
-        // $contacts = $userModel->extractKeys('id', $contactList);
-        $contacts = $this->query($query);
+        $query = "SELECT u.id AS id, firstName, lastName, userType" . SPACER;
+        $query .= "FROM users AS u" . SPACER;
+        $query .= "LEFT JOIN attributes n ON n.id = u.nationalityId" . SPACER;
+        $query .= "WHERE n.attribute = :countryId" . SPACER;
+        $query .= "AND u.userType = 'contact'";
+
+        $contacts = $this->query($query, [':countryId' => $countryId]);
 
         return $contacts;
     }
+
+    /**
+     *  Find targets which have not same nationality of agents in $agentsIds
+     * @param array $agentsIds
+     * @return ?array $targets
+     */
+    public function findTargetsForMission($agentsIds)
+    {
+        $markersAgents = $this->makeMarkersList($agentsIds);
+
+        // $queryUsers = "SELECT u.id, CONCAT(firstName, ' ',  lastName) AS title " . SPACER;
+        // $queryUsers .= "FROM users AS u" . SPACER;
+        // $queryUsers .= "WHERE u.userType = 'target' AND u.nationalityId NOT IN $nationalitiesIds" . SPACER;
+        $queryAgents = "SELECT * FROM users" . SPACER;
+        $queryAgents .= "WHERE id IN $markersAgents" . SPACER;
+        $agents = $this->query($queryAgents, null, '\\App\\Entities\\UsersEntity');
+
+        $nationalitiesIds = [];
+        foreach ($agents as $agent) {
+            $nationalitiesIds[] = $agent->nationalityId;
+        }
+        $markers = $this->makeMarkersList($nationalitiesIds);
+
+        $query = "SELECT id, firstName FROM users WHERE userType = 'target' AND nationalityid NOT IN $markers ";
+
+        $targets =  $this->query($query);
+
+        return $targets;
+    }
+
 
     /**
      * Test
@@ -89,24 +118,27 @@ class Missions extends AppModel
         $users = array_merge($agents, $contacts, $targets);
 
         // Insert mission
-        $markers = $this->makeMarkers($mission);
-        $markers = trim($markers, ',');
-        $query = "INSERT INTO $this->tableName SET $markers";
+        $missionMarkers = $this->makeMarkers($mission);
+        $missionMarkers = trim($missionMarkers, ',');
+        $query = "INSERT INTO $this->tableName SET $missionMarkers";
+
         $missionResponse = $this->query($query, $mission);
 
         if ($missionResponse) {
 
             $id = $this->lastInsertId();
             $markersUsers = '';
-            foreach ($users as $key => $value) {
-                $markersUsers .= '(' . $id . ', ' . $value . '),';
+            foreach ($users as $userId) {
+                $markersUsers .= '(' . $userId . ', ' . $id . '),';
             }
+
             $markersUsers = trim($markersUsers, ',');
             $usersQuery = "INSERT INTO missions_users VALUES $markersUsers" . SPACER;
-            $usersResult = $this->query($usersQuery);
 
-            if (!$usersResult) {
-                throw new \Exception("Error Processing Request users request", 1);
+            $usersInsertion = $this->query($usersQuery);
+            if (!$usersInsertion) {
+                $this->messageManager->setError('Troubles with adding users in mission');
+                throw new \Exception("Erreur dans la requete dajout utilisateur", 1);
             }
             $this->messageManager->setSuccess('Registered successfully');
         } else {
@@ -125,55 +157,61 @@ class Missions extends AppModel
      */
     public function findById(int $id)
     {
-        $query = "SELECT m.id AS id, m.title AS title, description, s.title AS status, codeName, c.title AS country, t.title AS missionType, h.code AS hiding, spe.title AS speciality, m.startDate, m.endDate FROM $this->tableName AS m" . SPACER;
+        // $query = "SELECT * FROM $this->tableName as m" . SPACER;
+        $query = "SELECT m.id AS id, m.title AS title, description, s.title AS status, codeName, c.title AS country, t.title AS missionType, h.code AS hiding, spe.title AS speciality, m.startDate, m.endDate" . SPACER;
+        $query .= "FROM $this->tableName AS m" . SPACER;
         $query .= "LEFT JOIN attributes c ON c.id = m.countryId" . SPACER;
         $query .= "LEFT JOIN attributes s ON s.id = m.status" . SPACER;
         $query .= "LEFT JOIN attributes t ON t.id = m.missionTypeId" . SPACER;
         $query .= "LEFT JOIN hidings h ON h.id = m.hidingId" . SPACER;
         $query .= "LEFT JOIN attributes spe ON spe.id = m.specialityId" . SPACER;
         $query .= "WHERE m.id = :id";
-
-
         $mission = $this->query($query, ['id' => $id], $this->entityName, true);
+
         if (!$mission) {
             $this->messageManager->setError('Item not found');
         }
 
         $Users = $this->getModel('users');
 
-        // Get agents
-        $agentsIdsQuery = "SELECT mission FROM missions_users" . SPACER;
-        $agentsIdsQuery .= " WHERE user = $id " . SPACER;
+        // Get Users Ids
+        $usersIdsQuery = "SELECT user FROM missions_users" . SPACER;
+        $usersIdsQuery .= " WHERE mission = $id " . SPACER;
 
-        $agentsIds = $this->queryIndexed($agentsIdsQuery, null);
+        $usersIds = $this->queryIndexed($usersIdsQuery, null);
 
-        if ($agentsIds) {
-            $agents = $Users->findAgents($agentsIds);
+        if ($usersIds) {
+            $agents = $Users->findAgents($usersIds, 'agent');
             $mission->setAgents($agents);
-        }
 
-        // Get contacts
-        $contactsIdsQuery = "SELECT mission FROM missions_users" . SPACER;
-        $contactsIdsQuery .= " WHERE user = $id " . SPACER;
-
-        $contactsIds = $this->queryIndexed($contactsIdsQuery, null);
-
-        if ($contactsIds) {
-            $contacts = $Users->findContacts($contactsIds);
+            $contacts = $Users->findContacts($usersIds, 'contact');
             $mission->setContacts($contacts);
-        }
 
-        // Get targets
-        $targetsIdsQuery = "SELECT mission FROM missions_users" . SPACER;
-        $targetsIdsQuery .= " WHERE user = $id " . SPACER;
-
-        $targetsIds = $this->queryIndexed($targetsIdsQuery, null);
-
-        if ($targetsIds) {
-            $targets = $Users->findTargets($targetsIds);
+            $targets = $Users->findTargets($usersIds, 'target');
             $mission->setTargets($targets);
+
+            // $users = $Users->findUsersByIds($usersIds, 'agent');
         }
 
         return $mission;
+    }
+
+    public function deleteMission($id)
+    {
+        $this->delete($id);
+
+        $query = "DELETE FROM missions_users WHERE mission = :id";
+
+        $deleteUsers =  $this->query($query, ['id' => $id]);
+    }
+
+    public function checkAgentsSpecialityForMission()
+    {
+        $query = "SELECT missions.id, status.title AS status, missions.title, description, codeName, country.title AS country, missiontype.title AS type, spec.title AS speciality, startDate, endDate" . SPACER;
+        $query .= "FROM $this->tableName" . SPACER;
+        $query .= "LEFT JOIN attributes as missiontype ON missions.missionTypeId = missiontype.id" . SPACER;
+        $query .= "LEFT JOIN attributes as country ON missions.countryId = country.id" . SPACER;
+        $query .= "LEFT JOIN attributes as spec ON missions.specialityId = spec.id" . SPACER;
+        $query .= "LEFT JOIN attributes as status ON missions.status = status.id" . SPACER;
     }
 }

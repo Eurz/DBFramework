@@ -52,7 +52,7 @@ class UsersController extends AppController
      */
     public function add($userType)
     {
-        $nationalities = $this->Attributes->findByKeys('id', 'title', 'country');
+        $nationalities = $this->Attributes->findByKeys('id', 'title', 'nationality');
 
         $types = $this->types;
         $form = new Forms();
@@ -68,7 +68,7 @@ class UsersController extends AppController
                     ->addRow('identificationCode', '', 'Identification Code', 'input:text', true, null, ['notBlank' => true])
                     ->addRow('nationalityId', '', 'Nationality', 'select', true, $nationalities, ['notBlank' => true])
                     ->addRow('dateOfBirth', '', 'Date of birth', 'input:date', true, null, ['notBlank' => true])
-                    ->addRow('specialities', [], 'Specialities', 'select:multiple', true, $specialities, ['notBlank' => true, 'min' => 1]);
+                    ->addRow('specialities', [], 'Specialities', 'select:multiple', true, $specialities, ['notBlank' => true, 'minValue' => 1]);
                 break;
             case 'target';
             case 'contact':
@@ -97,7 +97,6 @@ class UsersController extends AppController
 
             $response = $this->model->insertUser($data, $userType);
             if ($response) {
-                // $id = $this->model->lastInsertId();
 
                 $this->redirect('users/edit/' . $response);
             }
@@ -115,7 +114,7 @@ class UsersController extends AppController
     public function edit($id)
     {
         $user = $this->model->findUserById($id);
-        $nationalities = $this->Attributes->findByKeys('id', 'title', 'country');
+        $nationalities = $this->Attributes->findByKeys('id', 'title', 'nationality');
 
         if (!$user) {
             $this->notFound();
