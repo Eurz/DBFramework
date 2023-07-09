@@ -25,16 +25,14 @@ class AppController extends Controller
         parent::__construct();
         $this->auth = new Authentication(Application::getDb());
         $this->messageManager = new Messages();
-        // if ($this->auth->isLogged()) {
-        //     return;
-        // }
-
-        // $this->login();
-        // $this->redirect('login');
+        // var_dump($this->auth->isLogged());
+        // die();
+        if (!$this->auth->isLogged()) {
+            // $this->redirect('login');
+        }
     }
 
-    public function login()
+    public function test()
     {
-        $this->redirect('login');
     }
 }

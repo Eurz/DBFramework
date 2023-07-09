@@ -20,7 +20,8 @@ if (isset($form)) :
     </form>
 
 <?php else : ?>
+    <p>Please add a new <?= $action ?> to create this mission </p>
 
-    <p>Please add a new agent to create this mission </p>
-    <a href="/users/add/agent" target="_blank" class="btn btn-primary">Add a agent</a>
+
+    <a href="/users/add/<?= $action ?>" target="_blank" class="btn btn-primary">Add a <?= $action ?></a>
 <?php endif ?>

@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use stdClass;
 
 class Missions extends AppModel
 {
@@ -57,26 +58,42 @@ class Missions extends AppModel
     {
         $markersAgents = $this->makeMarkersList($agentsIds);
 
-        // $queryUsers = "SELECT u.id, CONCAT(firstName, ' ',  lastName) AS title " . SPACER;
-        // $queryUsers .= "FROM users AS u" . SPACER;
-        // $queryUsers .= "WHERE u.userType = 'target' AND u.nationalityId NOT IN $nationalitiesIds" . SPACER;
         $queryAgents = "SELECT * FROM users" . SPACER;
         $queryAgents .= "WHERE id IN $markersAgents" . SPACER;
         $agents = $this->query($queryAgents, null, '\\App\\Entities\\UsersEntity');
+
 
         $nationalitiesIds = [];
         foreach ($agents as $agent) {
             $nationalitiesIds[] = $agent->nationalityId;
         }
+
+        // Nationalities
+        $attributesModel = $this->findNationalitiesFromUsers($agentsIds);
+        $markersNationalities = $this->makeMarkersList($nationalitiesIds);
+
+        $queryNationalities = "SELECT * FROM attributes" . SPACER;
+        $queryNationalities .= "WHERE id IN $markersNationalities" . SPACER;
+        $nationalities = $this->query($queryNationalities, null, '\\App\\Entities\\AttributesEntity');
+
+        // Targets
         $markers = $this->makeMarkersList($nationalitiesIds);
 
         $query = "SELECT id, firstName FROM users WHERE userType = 'target' AND nationalityid NOT IN $markers ";
 
         $targets =  $this->query($query);
 
-        return $targets;
+        $result = new stdClass();
+        $result->targets = $targets;
+        $result->nationalities = $nationalities;
+        return $result;
     }
 
+    private function findNationalitiesFromUsers($usersId)
+    {
+
+        $query = "SELECT * ";
+    }
 
     /**
      * Test
@@ -150,15 +167,73 @@ class Missions extends AppModel
         return $missionResponse;
     }
 
+
+    /**
+     * Insert new mission in database
+     * @param array $data - Data of mission
+     * @return bool $missionResponse - False if failed otherwise true
+     */
+    public function update($id, $data)
+    {
+        // Mission default data
+        $mission = $data['default'];
+        $hidingId = $data['hidingId'];
+        $mission['hidingId'] = $hidingId;
+        // Mission's users
+        $agents = $data['agents'];
+        $contacts = $data['contacts'];
+        $targets = $data['targets'];
+
+        $users = array_merge($agents, $contacts, $targets);
+
+        // Insert mission
+        $missionMarkers = $this->makeMarkers($mission);
+        $missionMarkers = trim($missionMarkers, ',');
+        $query = "INSERT INTO $this->tableName SET $missionMarkers";
+
+        $missionResponse = $this->query($query, $mission);
+        // var_dump($missionResponse);
+        // die();
+
+        if ($missionResponse) {
+
+            $queryDelete = "DELETE from missions_users" . SPACER;
+            $queryDelete .= "WHERE user = :id " . SPACER;
+            $this->query($queryDelete, ['id' => $id]);
+
+            $markersUsers = '';
+            foreach ($users as $userId) {
+                $markersUsers .= '(' . $userId . ', ' . $id . '),';
+            }
+
+            $markersUsers = trim($markersUsers, ',');
+            $usersQuery = "INSERT INTO missions_users VALUES $markersUsers" . SPACER;
+
+            $usersInsertion = $this->query($usersQuery);
+
+            if (!$usersInsertion) {
+                $this->messageManager->setError('Troubles with adding specialities in mission');
+                throw new \Exception("Erreur dans la requete dajout utilisateur", 1);
+            }
+            $this->messageManager->setSuccess('Registered successfully');
+        } else {
+            throw new \Exception("Error Processing Request mission request", 1);
+
+            $this->messageManager->setError('Failed to insert into database');
+        }
+
+        return $missionResponse;
+    }
+
     /**
      * Find data by id
-     * @param int $id - Id of data to fetch
+     * @param array|int $id - Id of data to fetch
      * @return Entity|false $mission - False or an entity if data exist
      */
-    public function findById(int $id)
+    public function findById($id)
     {
         // $query = "SELECT * FROM $this->tableName as m" . SPACER;
-        $query = "SELECT m.id AS id, m.title AS title, description, s.title AS status, codeName, c.title AS country, t.title AS missionType, h.code AS hiding, spe.title AS speciality, m.startDate, m.endDate" . SPACER;
+        $query = "SELECT m.id AS id, m.title AS title, description, s.title AS status, m.status AS statusId, codeName, c.title AS country, m.countryId, m.missionTypeId,m.specialityId,m.hidingId, t.title AS missionType, h.code AS hiding, spe.title AS speciality, m.startDate, m.endDate" . SPACER;
         $query .= "FROM $this->tableName AS m" . SPACER;
         $query .= "LEFT JOIN attributes c ON c.id = m.countryId" . SPACER;
         $query .= "LEFT JOIN attributes s ON s.id = m.status" . SPACER;

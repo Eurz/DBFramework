@@ -110,6 +110,7 @@ class Application
         $router->get('/missions', 'missions.index');
         $router->get('/missions/view/:id', 'missions.view');
         $router->get('/missions/edit/:id', 'missions.edit');
+        $router->get('/missions/edit/:id/:action', 'missions.edit');
         $router->get('/missions/add/', 'missions.add');
         $router->get('/missions/add/:action', 'missions.add');
         $router->get('/missions/delete/:id', 'missions.delete');
@@ -119,6 +120,7 @@ class Application
         $router->post('/missions/add/:action', 'missions.add');
 
         $router->post('/missions/edit/:id', 'missions.edit');
+        $router->post('/missions/edit/:id/:action', 'missions.edit');
         $router->post('/missions/delete/:id', 'missions.delete');
 
         $router->run();

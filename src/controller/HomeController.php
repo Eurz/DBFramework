@@ -19,11 +19,12 @@ class HomeController extends AppController
 
         $pageTitle = "Your dashboard";
 
-        // $userId = $this->auth->getUserId();
+        $userId = $this->auth->getUserId();
+
         $usersModel = $this->getModel('users');
 
-        // $user = $usersModel->findById($userId);
+        $user = $usersModel->findById($userId);
 
-        $this->render('home/index', compact('pageTitle', /*'user'*/));
+        $this->render('home/index', compact('pageTitle', 'user'));
     }
 }

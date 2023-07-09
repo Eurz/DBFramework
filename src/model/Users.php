@@ -17,13 +17,17 @@ class Users extends AppModel
     public function findAll($type = null)
     {
         $data = [];
-        $query = "SELECT users.id,firstName , lastName , dateOfBirth , attributes.title AS nationality, userType as type, users.createdAt FROM $this->tableName" . SPACER;
-        $query .= " LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+        $query = "SELECT users.id,firstName , lastName , dateOfBirth , n.title AS nationality, userType as type, users.createdAt  FROM $this->tableName" . SPACER;
+        $query .= "LEFT JOIN attributes n ON n.id = users.nationalityId" . SPACER;
         if (!is_null($type) && !empty($type)) {
             $query .=  "WHERE userType = :type" . SPACER;
             $data['type'] = $type;
         }
         $users = $this->query($query, $data, $this->entityName);
+        foreach ($users as $user) {
+            $specialities = $this->findUserSpecialities($user->id);
+            $user->setSpecialities($specialities);
+        }
         return $users;
     }
 
@@ -258,6 +262,15 @@ class Users extends AppModel
         $agents = $this->query($query, ['specialityId' => $specialityId]);
 
         return $agents;
+    }
+
+    private function findUserSpecialities($userId)
+    {
+        $query = "SELECT s.id AS id, s.title, s.type FROM userspecialities u" . SPACER;
+        $query .= "LEFT JOIN attributes s ON s.id = u.specialityId" . SPACER;
+        $query .= "WHERE userId = :userId" . SPACER;
+        $specialities = $this->query($query, ['userId' => $userId], '\\App\\Entities\\AttributesEntity');
+        return $specialities;
     }
     /**
      * Add specialities from a user

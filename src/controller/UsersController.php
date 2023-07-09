@@ -212,7 +212,7 @@ class UsersController extends AppController
             $email = $data['email'];
             $password = $data['password'];
             if ($this->auth->login($email, $password)) {
-                $this->redirect('/');
+                $this->redirect('home');
             }
         }
 

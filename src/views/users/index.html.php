@@ -15,6 +15,7 @@
             <th scope="col">Date of birth</th>
             <th scope="col">Type</th>
             <th scope="col">Nationality</th>
+            <th scope="col">Speciality</th>
             <th scope="col">Created at</th>
             <th scope="col">Missions</th>
             <th scope="col"></th>
@@ -31,6 +32,18 @@
                     <td><?= $user->dateOfBirth ?></td>
                     <td><?= $user->type ?></td>
                     <td><?= $user->nationality ? $user->nationality : 'Unknown' ?></td>
+                    <td>
+                        <?php if ($user->type === 'agent') : ?>
+                            <?php foreach ($user->specialities as $speciality) : ?>
+                                <?= $speciality->title ?> ,
+                            <?php endforeach ?>
+                        <?php else : ?>
+                            ---
+                        <?php endif ?>
+
+
+                    </td>
+
                     <td><?= $user->createdAt ?></td>
                     <td><a href="/users/<?= $user->id ?>" class="btn btn-primary btn-sm">View</a></td>
                     <td class="text-end">

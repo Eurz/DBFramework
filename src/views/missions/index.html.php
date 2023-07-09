@@ -11,11 +11,11 @@
             <th>Title</th>
             <th>Status</th>
             <th>Country</th>
+            <th>Type</th>
             <!-- <th>Start</th>
             <th>End</th> -->
             <!--
             <th>Country</th>
-            <th>Type</th>
             <th>Required</th> -->
             <th>Actions</th>
         </tr>
@@ -25,10 +25,10 @@
                 <td><?= $mission->title ?></td>
                 <td><?= $mission->status ?></td>
                 <td><?= $mission->country ?></td>
+                <td><?= $mission->type ?></td>
                 <!--
                 <td><?= $mission->startDate ?></td>
                 <td><?= $mission->endDate ?></td>
-                <td><?= $mission->type ?></td>
                 <td><?= $mission->speciality ?></td> -->
                 <td class="text-end">
                     <a href="/missions/view/<?= $mission->id ?>" class="btn btn-primary btn-sm">View</a>

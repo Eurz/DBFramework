@@ -137,7 +137,7 @@ class Forms extends AsbstractForms
 
         if ($inputParam > 0) {
             if ($input === null) {
-                $this->message[$inputKey] = 'Choose at least ' . $inputParam . ' ' . $inputKey . ' item';
+                $this->message[$inputKey] = 'Choose at least ' . $inputParam . ' "' . $inputKey . '"';
                 return false;
             } elseif (count($input) < $inputParam) {
                 $this->message[$inputKey] = 'Champs ' . $inputKey . ' requiert au moins ' . $inputParam . ' item';
