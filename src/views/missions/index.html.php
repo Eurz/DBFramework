@@ -42,5 +42,5 @@
     </table>
 
 <?php else : ?>
-    <div class="alert alert-success">No missions</div>
+    <p class="p-3">Actually, there is no missions</p>
 <?php endif ?>

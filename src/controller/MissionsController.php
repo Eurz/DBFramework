@@ -159,9 +159,9 @@ class MissionsController extends AppController
                 $missionTypes = $this->Attributes->findByKeys('id', 'title', 'missionType');
                 $form
                     ->addRow('missionTypeId', [], 'Type', 'select', true, $missionTypes, ['notBlank' => true])
+                    ->addRow('status', '', 'Status', 'select', true, $status)
                     ->addRow('title', '', 'Title', 'input:text', true, null, ['notBlank' => true])
                     ->addRow('description', '', 'Description', 'textarea')
-                    ->addRow('status', '', 'Status', 'select', true, $status)
                     ->addRow('codeName', '', 'CodeName', 'input:text', true, null, ['notBlank' => true])
                     ->addRow('countryId', [], 'Country', 'select', true, $countries)
                     ->addRow('specialityId', [], 'Required speciality', 'select', true, $specialities)
@@ -270,8 +270,9 @@ class MissionsController extends AppController
                     $this->messageManager->setError('There \'s no contact(s) available(s) for this mission');
                     $options = compact('pageTitle', 'action');
                 } else {
+                    $contactsMission = $this->model->findByKeys('id', 'fullName', $mission->contacts);
                     $form
-                        ->addRow('contacts', $mission->contacts, 'Contact(s)', 'select:multiple', true, $contacts, ['minValue' => 1]);
+                        ->addRow('contacts', $contactsMission, 'Contact(s)', 'select:multiple', true, $contacts, ['minValue' => 1]);
 
                     $options = compact('pageTitle', 'form');
                 }
@@ -288,8 +289,9 @@ class MissionsController extends AppController
                     $this->messageManager->setError('There \'s no agent(s) available(s) in your database for this mission');
                     $options = compact('pageTitle', 'action');
                 } else {
+                    $agentsMission = $this->model->findByKeys('id', 'firstName', $mission->agents);
                     $form
-                        ->addRow('agents', $mission->agents, 'Agent(s)', 'select:multiple', true, $agents, ['minValue' => 1]);
+                        ->addRow('agents', $agentsMission, 'Agent(s)', 'select:multiple', true, $agents, ['minValue' => 1]);
                     $options = compact('pageTitle', 'form', 'message');
                 }
                 $view = 'missions/addUsers';
@@ -302,14 +304,17 @@ class MissionsController extends AppController
 
                 $agentsIds = $this->session->getValue('agents');
                 $data = $this->model->findTargetsForMission($agentsIds);
-                var_dump($data);
+
                 if ($data->targets === false) {
 
                     $this->messageManager->setError('There \'s no target(s) available(s) in your database for this mission');
                     $options = compact('pageTitle', 'action');
                 } else {
+                    $targetsMission = $this->model->findByKeys('id', 'firstName', $mission->targets);
+                    var_dump($targetsMission);
+
                     $form
-                        ->addRow('targets', $mission->targets, 'Target(s)', 'select:multiple', true, $targets, ['minValue' => 1]);
+                        ->addRow('targets', $targetsMission, 'Target(s)', 'select:multiple', true, $targets, ['minValue' => 1]);
                     $options = compact('pageTitle', 'form');
                 }
 

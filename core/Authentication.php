@@ -72,6 +72,6 @@ class Authentication
         if ($this->isLogged()) {
             return $_SESSION['user'];
         }
-        return;
+        return null;
     }
 }

@@ -6,7 +6,55 @@
     <a href="#" class="btn btn-primary btn-sm">Filter</a>
     <!-- <a href="/users/add" class="btn btn-primary btn-sm">Add user</a> -->
 </div>
+<form class="row g-3 p-3" method="GET" action="">
+    <!-- <select name="country">
+        <option value="france">France</option>
+        <option value="japon">Japon</option>
+    </select>
+    <label>Type de planque </label>
+    <select name="hidingType">
+        <option value="maison">Maison</option>
+        <option value="Villa">Villa</option>
+    </select> -->
 
+    <div class="col-sm-12 col-md-3 mb-3">
+        <label for="userType" class="form-label">Filter by type</label>
+        <select class="form-select form-select-sm" name="userType" id="userType" aria-label="Par champs">
+
+            <option value="">Choose a field</option>
+            <option value="agent" <?= !empty($_GET['userType']) && $_GET['userType'] === 'agent' ? 'selected="selected"' : null; ?>>Agent</option>
+            <option value="contact" <?= !empty($_GET['userType']) && $_GET['userType'] === 'contact' ? 'selected="selected"' : null; ?>>Contact</option>
+            <option value="target" <?= !empty($_GET['userType']) && $_GET['userType'] === 'target' ? 'selected="selected"' : null; ?>>Target</option>
+            <option value="manager" <?= !empty($_GET['userType']) && $_GET['userType'] === 'manager' ? 'selected="selected"' : null; ?>>Manager</option>
+        </select>
+    </div>
+
+
+    <div class="col-sm-12 col-md-3 mb-3">
+        <label for="sortBy" class="form-label">Sort by</label>
+        <select class="form-select form-select-sm" name="sortBy" id="sortBy" aria-label="Par champs">
+            <option value="">Choose a field</option>
+            <option value="type" <?= !empty($_GET['sortBy']) && $_GET['sortBy'] === 'type' ? 'selected="selected"' : null; ?>>User type</option>
+            <option value="nationality" <?= !empty($_GET['sortBy']) && $_GET['sortBy'] === 'nationality' ? 'selected="selected"' : null; ?>>Nationality</option>
+            <option value="createdAt" <?= !empty($_GET['sortBy']) && $_GET['sortBy'] === 'createdAt' ? 'selected="selected"' : null; ?>>Created at</option>
+            <option value="firstName" <?= !empty($_GET['sortBy']) && $_GET['sortBy'] === 'firstName' ? 'selected="selected"' : null; ?>>First Name</option>
+        </select>
+    </div>
+
+    <div class="col-sm-12 col-md-3 mb-3">
+        <label class="form-label" for="orderBy">Order </label>
+        <select class="form-select form-select-sm" name="orderBy" aria-label="Par champs">
+            <option value="ASC" <?= isset($_GET['orderBy']) && $_GET['orderBy'] === "ASC" ? 'selected' : null ?>> Growing</option>
+            <option value="DESC" <?= isset($_GET['orderBy']) && $_GET['orderBy'] === 'DESC' ? 'selected' : null ?>> Decrease</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <span class="form-label"><br /></span>
+        <div class="">
+            <button class="btn btn-sm btn-primary">Go</button>
+        </div>
+    </div>
+</form>
 <table class="table">
     <thead>
         <tr>
@@ -34,8 +82,17 @@
                     <td><?= $user->nationality ? $user->nationality : 'Unknown' ?></td>
                     <td>
                         <?php if ($user->type === 'agent') : ?>
-                            <?php foreach ($user->specialities as $speciality) : ?>
-                                <?= $speciality->title ?> ,
+
+                            <?php foreach ($user->specialities as $key => $speciality) : ?>
+                                <?= $speciality->title ?>
+
+                                <?php
+                                if (count($user->specialities) !== $key + 1) {
+                                    echo ',';
+                                }
+                                ?>
+
+
                             <?php endforeach ?>
                         <?php else : ?>
                             ---

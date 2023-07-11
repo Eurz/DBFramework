@@ -54,6 +54,7 @@ class AttributesController extends AppController
     private function formFilter()
     {
         $filter = filter_input(INPUT_POST, 'filter', FILTER_DEFAULT);
+
         $session = new Session('attributesFilter');
         if ($filter) {
             if (!array_key_exists($filter, $this->types)) {
@@ -104,12 +105,13 @@ class AttributesController extends AppController
 
         if ($type === 'nationality') {
             $attributesCountries = $this->model->findAll('country');
+            $countries = $this->model->findByKeys('id', 'title', $attributesCountries);
 
             if (!$attributesCountries) {
                 $this->messageManager->setSuccess('You must create countries to be able to add a nationality');
             } else {
                 $form
-                    ->addRow('attribute', null, 'Linked country', 'select', true, $attributesCountries, ['notBlank' => true]);
+                    ->addRow('attribute', null, 'Linked country', 'select', true, $countries, ['notBlank' => true]);
             }
         }
 

@@ -8,6 +8,7 @@ class AppModel extends Model
 {
 
     private $message = '';
+
     /**
      *  Return array [$key => $value] matching with optional $type
      * Ex: findByKeys('id','title', 'agent') => [25 => 'James Bond']
@@ -18,13 +19,21 @@ class AppModel extends Model
 
     public function findByKeys($key, $value, $type = null)
     {
-        $data = $this->findAll($type);
+        if (is_array($type)) {
+            $data = $type;
+        } else {
+            $data = $this->findAll($type);
+        }
+
         if ($data === false) {
             return $data;
         }
 
         $result = [];
         foreach ($data as $item) {
+            if (is_object($item)) {
+                // $result
+            }
             $result[$item->$key] = $item->$value;
         }
 

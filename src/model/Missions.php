@@ -189,15 +189,15 @@ class Missions extends AppModel
         // Insert mission
         $missionMarkers = $this->makeMarkers($mission);
         $missionMarkers = trim($missionMarkers, ',');
-        $query = "INSERT INTO $this->tableName SET $missionMarkers";
+        $query = "UPDATE $this->tableName SET $missionMarkers WHERE id = $id";
 
         $missionResponse = $this->query($query, $mission);
-        // var_dump($missionResponse);
+        // var_dump($query);
         // die();
 
         if ($missionResponse) {
 
-            $queryDelete = "DELETE from missions_users" . SPACER;
+            $queryDelete = "DELETE FROM missions_users" . SPACER;
             $queryDelete .= "WHERE user = :id " . SPACER;
             $this->query($queryDelete, ['id' => $id]);
 
@@ -209,11 +209,10 @@ class Missions extends AppModel
             $markersUsers = trim($markersUsers, ',');
             $usersQuery = "INSERT INTO missions_users VALUES $markersUsers" . SPACER;
 
-            $usersInsertion = $this->query($usersQuery);
-
-            if (!$usersInsertion) {
+            $usersUpdate = $this->query($usersQuery);
+            if (!$usersUpdate) {
                 $this->messageManager->setError('Troubles with adding specialities in mission');
-                throw new \Exception("Erreur dans la requete dajout utilisateur", 1);
+                throw new \Exception("Erreur dans la requete d\'update utilisateur", 1);
             }
             $this->messageManager->setSuccess('Registered successfully');
         } else {
@@ -247,7 +246,10 @@ class Missions extends AppModel
             $this->messageManager->setError('Item not found');
         }
 
-        $Users = $this->getModel('users');
+        $hidingModel = $this->getModel('hidings');
+        $hiding = $hidingModel->findById($mission->hidingId);
+        $mission->hiding = $hiding;
+        $usersModel = $this->getModel('users');
 
         // Get Users Ids
         $usersIdsQuery = "SELECT user FROM missions_users" . SPACER;
@@ -256,13 +258,13 @@ class Missions extends AppModel
         $usersIds = $this->queryIndexed($usersIdsQuery, null);
 
         if ($usersIds) {
-            $agents = $Users->findAgents($usersIds, 'agent');
+            $agents = $usersModel->findAgents($usersIds, 'agent');
             $mission->setAgents($agents);
 
-            $contacts = $Users->findContacts($usersIds, 'contact');
+            $contacts = $usersModel->findContacts($usersIds, 'contact');
             $mission->setContacts($contacts);
 
-            $targets = $Users->findTargets($usersIds, 'target');
+            $targets = $usersModel->findTargets($usersIds, 'target');
             $mission->setTargets($targets);
 
             // $users = $Users->findUsersByIds($usersIds, 'agent');

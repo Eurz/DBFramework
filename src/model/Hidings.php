@@ -47,7 +47,7 @@ class Hidings extends AppModel
     }
 
     /**
-     * Find user in database by dbField with value and optional type of user
+     * Find user in database by dbField with value
      * @param string $dbField
      * @param mixed $value
      * @return $hidings
@@ -63,8 +63,20 @@ class Hidings extends AppModel
         $hidings = $this->query($query, [$dbField => $value], $this->entityName);
         return $hidings;
     }
+    /**
+     * Find hiding by Id
+     */
+    public function findById($hidingId)
+    {
 
+        $query = "SELECT *, c.title AS country" . SPACER;
+        $query .= "FROM $this->tableName AS h" . SPACER;
+        $query .= "LEFT JOIN attributes c ON c.id = h.countryId " . SPACER;
+        $query .= "WHERE h.id = ?" . SPACER;
 
+        $hiding = $this->query($query, [$hidingId], $this->entityName, true);
+        return $hiding;
+    }
     /**
      * Get array of attributes with Id and Title
      * @return array - $attributes

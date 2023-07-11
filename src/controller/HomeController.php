@@ -14,7 +14,7 @@ class HomeController extends AppController
         // $this->model = $this->getModel();
     }
 
-    function index(): void
+    function index()
     {
 
         $pageTitle = "Your dashboard";
@@ -22,7 +22,7 @@ class HomeController extends AppController
         $userId = $this->auth->getUserId();
 
         $usersModel = $this->getModel('users');
-
+        var_dump($userId);
         $user = $usersModel->findById($userId);
 
         $this->render('home/index', compact('pageTitle', 'user'));

@@ -25,7 +25,7 @@
 
         <tr>
             <th>Hiding</th>
-            <td><?= $mission->hiding ?></td>
+            <td><?= $mission->hiding->code ?> ( <?= $mission->hiding->country ?> )</td>
         </tr>
         <tr>
             <th>Required speciality</th>

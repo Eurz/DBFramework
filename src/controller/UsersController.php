@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Model\Attributes;
 use Core\Forms\Forms;
+use Core\Session;
 
 class UsersController extends AppController
 {
@@ -41,8 +42,10 @@ class UsersController extends AppController
      */
     public function index()
     {
-        $users = $this->model->findAll();
+        $users = $this->formFiltersUsers();
+
         $pageTitle = 'Users';
+
         $this->render('users/index', compact('pageTitle', 'users'));
     }
 
@@ -204,8 +207,10 @@ class UsersController extends AppController
     {
 
         $form = new Forms();
-        $form->addRow('email', '', 'Email', 'input:email', true, null);
-        $form->addRow('password', '', 'Password', 'input:password', true, null);
+        $form
+            ->addRow('email', '', 'Email', 'input:email', true, null)
+            ->addRow('password', '', 'Password', 'input:password', true, null);
+
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -246,8 +251,9 @@ class UsersController extends AppController
     {
         $this->messageManager->setSuccess('You\ve been logout');
         $this->auth->logout();
-        $pageTitle = 'Logout page';
-        $this->render('users/form', compact('pageTitle'));
+        $this->redirect('login');
+        // $pageTitle = 'Logout page';
+        // $this->render('users/form', compact('pageTitle'));
     }
 
     /**
@@ -258,5 +264,18 @@ class UsersController extends AppController
     {
 
         return $this->types[$key];
+    }
+    private function formFiltersUsers()
+    {
+        $orderBy = filter_input(INPUT_GET, 'orderBy', FILTER_DEFAULT);
+        $sortBy = filter_input(INPUT_GET, 'sortBy', FILTER_DEFAULT);
+        $userType = filter_input(INPUT_GET, 'userType', FILTER_DEFAULT);
+        $session = new Session('usersFilters');
+        $session->set('usersFilters', $orderBy, 'orderBy');
+        $session->set('usersFilters', $sortBy, 'sortBy');
+        $session->set('usersFilters', $userType, 'userType');
+
+        $users = $this->model->findAll(null, ['sortBy' => $sortBy, 'orderby' => $orderBy, 'userType' => $userType]);
+        return $users;
     }
 }

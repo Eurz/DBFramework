@@ -5,7 +5,7 @@ namespace App\Controller;
 use Core\Application;
 use Core\Authentication;
 use Core\Controller;
-use Core\Forms;
+use Core\Forms\Forms;
 use Core\Http;
 use Core\Messages;
 
@@ -25,14 +25,29 @@ class AppController extends Controller
         parent::__construct();
         $this->auth = new Authentication(Application::getDb());
         $this->messageManager = new Messages();
-        // var_dump($this->auth->isLogged());
-        // die();
         if (!$this->auth->isLogged()) {
+            // $this->login();
             // $this->redirect('login');
         }
     }
 
-    public function test()
+    public function login()
     {
+
+        $form = new Forms();
+        $form->addRow('email', '', 'Email', 'input:email', true, null, ['notBlank' => true]);
+        $form->addRow('password', '', 'Password', 'input:password', true, null, ['notBlank' => true]);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $email = $data['email'];
+            $password = $data['password'];
+            if ($this->auth->login($email, $password)) {
+                $this->redirect('home');
+            }
+        }
+
+        $pageTitle = 'Login page';
+        $this->render('users/form', compact('pageTitle', 'form'));
     }
 }

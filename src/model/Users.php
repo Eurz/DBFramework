@@ -14,18 +14,33 @@ class Users extends AppModel
      * Get all users, width optional type of user
      * @param string $type - User's type
      */
-    public function findAll($type = null)
+    public function findAll($type = null, $filters = [])
     {
+        $sortBy = isset($filters['sortBy']) && !empty($filters['sortBy']) ? $filters['sortBy'] : 'u.createdAt';
+        $orderBy = isset($filters['orderBy']) && !empty($filters['orderBy']) ? $filters['orderBy'] : 'ASC';
+        $userType = isset($filters['userType']) && !empty($filters['userType']) ? $filters['userType'] : null;
+
         $data = [];
-        $query = "SELECT users.id,firstName , lastName , dateOfBirth , n.title AS nationality, userType as type, users.createdAt  FROM $this->tableName" . SPACER;
-        $query .= "LEFT JOIN attributes n ON n.id = users.nationalityId" . SPACER;
+        $query = "SELECT u.id,firstName , lastName , dateOfBirth , n.title AS nationality, userType as type, u.createdAt" . SPACER;
+        $query .= "FROM $this->tableName AS u" . SPACER;
+        $query .= "LEFT JOIN attributes n ON n.id = u.nationalityId" . SPACER;
+
         if (!is_null($type) && !empty($type)) {
             $query .=  "WHERE userType = :type" . SPACER;
             $data['type'] = $type;
         }
+
+        if ($userType) {
+            $query .=  "WHERE userType = :type" . SPACER;
+            $data['type'] = $userType;
+        }
+
+        // $query .= "ORDER BY u.createdAt ASC";
+        $query .= "ORDER BY $sortBy $orderBy" . SPACER;
         $users = $this->query($query, $data, $this->entityName);
         foreach ($users as $user) {
             $specialities = $this->findUserSpecialities($user->id);
+
             $user->setSpecialities($specialities);
         }
         return $users;
@@ -98,7 +113,7 @@ class Users extends AppModel
     }
 
     /**
-     * Test
+     * Find targets from a list of targets Ids
      */
 
     public function findTargets($ids)
@@ -117,6 +132,10 @@ class Users extends AppModel
 
         return $targets;
     }
+
+    /**
+     * 
+     */
     public function findUsersByIds($ids, $userType)
     {
         $markersIds = $this->makeMarkersList($ids);
@@ -269,7 +288,9 @@ class Users extends AppModel
         $query = "SELECT s.id AS id, s.title, s.type FROM userspecialities u" . SPACER;
         $query .= "LEFT JOIN attributes s ON s.id = u.specialityId" . SPACER;
         $query .= "WHERE userId = :userId" . SPACER;
+
         $specialities = $this->query($query, ['userId' => $userId], '\\App\\Entities\\AttributesEntity');
+
         return $specialities;
     }
     /**
@@ -285,12 +306,12 @@ class Users extends AppModel
             throw new \Exception("Unable to delete old specialities", 1);
         }
 
-        $markers = '';
+        $markers = [];
         foreach ($specialities as $key => $value) {
-            $markers .= '(' . $id . ', ' . $value . '),';
+            $markers[] = '(' . $id . ', ' . $value . ')';
         }
 
-        $markers = trim($markers, ',');
+        $markers = implode(',', $markers);
         $query = "INSERT INTO userspecialities VALUES $markers";
         $result = $this->query($query);
         return $result;
