@@ -108,16 +108,20 @@ class Session
     /**
      * Get value $_SESSION[$key]?[$subkey]
      * @param mixed $key
+     * @param $subKey - Key of the value in sub array of session
+     * @return $targetValue - Value with specific key and subkey
      */
 
     public function getValue($key, $subkey = null)
     {
-        if ($subkey) {
-            $target = $this->get($this->sessionName)[$key];
-            return $target[$subkey];
-        }
+        $targetSession = $this->get($this->sessionName);
 
-        return $this->get($this->sessionName)[$key];
+        if ($subkey) {
+            $targetValue = $targetSession[$key][$subkey];
+        } else {
+            $targetValue = $targetSession[$key];
+        }
+        return $targetValue;
     }
 
 

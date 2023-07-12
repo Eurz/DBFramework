@@ -11,17 +11,17 @@
 
     </div>
 
-    <form method="post" class="">
-        <!-- <select name="filter" class="form-select">
-            <option value="country">Country</option>
-            <option value="hiding">Hidings</option>
-        </select> -->
-        <?= $formFilter->render(); ?>
-        <button type="submit" class="btn btn-primary">Go</button>
-    </form>
 
 
 </div>
+<form method="post" class="py-3">
+    <!-- <select name="filter" class="form-select">
+        <option value="country">Country</option>
+        <option value="hiding">Hidings</option>
+    </select> -->
+    <?= $formFilter->render(); ?>
+    <button type="submit" class="btn btn-primary">Go</button>
+</form>
 
 <div>
 

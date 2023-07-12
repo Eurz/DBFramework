@@ -28,9 +28,14 @@ class MissionsController extends AppController
     public function index()
     {
 
-        $missions = $this->model->findAll();
+        $filtersOptions = $this->formFiltersMissions();
+
+        $missions = $this->model->findAll($filtersOptions);
+        $countries = $this->Attributes->findAll('country');
+        $status = $this->Attributes->findAll('status');
+
         $pageTitle = 'Missions';
-        $this->render('missions/index', compact('pageTitle', 'missions'));
+        $this->render('missions/index', compact('pageTitle', 'missions', 'countries', 'status', 'filtersOptions'));
     }
     /**
      * View mission details
@@ -50,7 +55,7 @@ class MissionsController extends AppController
     {
 
         if (!$this->session->exist('mission')) {
-            $this->session->set('mission', [], $action);
+            // $this->session->set('mission', [], $action);
         }
 
         // Initialisation
@@ -160,6 +165,7 @@ class MissionsController extends AppController
                 $status = $this->Attributes->findByKeys('id', 'title', 'status');
                 $specialities = $this->Attributes->findByKeys('id', 'title', 'speciality');
                 $missionTypes = $this->Attributes->findByKeys('id', 'title', 'missionType');
+
                 $form
                     ->addRow('missionTypeId', [], 'Type', 'select', true, $missionTypes, ['notBlank' => true])
                     ->addRow('status', '', 'Status', 'select', true, $status)
@@ -266,9 +272,9 @@ class MissionsController extends AppController
                 $pageTitle = 'Mission : Add contact(s)';
                 $countryId = $this->session->getValue('default', 'countryId');
                 $contacts = $this->model->findContactsForMission($countryId);
-                // var_dump($mission->contacts);
-                // die();
+
                 $view = 'missions/addUsers';
+
                 if (!$contacts) {
                     $this->messageManager->setError('There \'s no contact(s) available(s) for this mission');
                     $options = compact('pageTitle', 'action');
@@ -341,8 +347,7 @@ class MissionsController extends AppController
                 $status = $this->Attributes->findByKeys('id', 'title', 'status');
                 $specialities = $this->Attributes->findByKeys('id', 'title', 'speciality');
                 $missionTypes = $this->Attributes->findByKeys('id', 'title', 'missionType');
-                // var_dump($mission->missionTypeId);
-                // die();
+
                 $form
 
                     ->addRow('missionTypeId', $mission->missionTypeId, 'Type', 'select', true, $missionTypes, ['notBlank' => true])
@@ -386,7 +391,6 @@ class MissionsController extends AppController
                     $agents = $this->session->getValue('agents');
                     $agentsWithSameSpeciality = $this->Users->findAgentsWithSpecialtities($agents, $specialityId);
                     $missionSpeciality = $this->Attributes->findById($specialityId);
-
 
                     if (empty($agentsWithSameSpeciality)) {
                         $this->messageManager->setError('One or more agent should have the speciality "' . $missionSpeciality->title . '"');
@@ -436,5 +440,36 @@ class MissionsController extends AppController
 
         $pageTitle = 'Delete a mission';
         $this->render('missions/delete', compact('pageTitle', 'mission'));
+    }
+
+    /**
+     * Form filters for missions
+     */
+    private function formFiltersMissions()
+    {
+
+
+        $args = array(
+            'country' => FILTER_VALIDATE_INT,
+            'status' => FILTER_VALIDATE_INT,
+            'sortBy' => array(
+                'filter' => FILTER_VALIDATE_REGEXP,
+                'flags' => FILTER_DEFAULT,
+                'options' => array(
+                    'regexp' => '#[\w]#'
+                ),
+            ),
+            'orderBy' => array(
+                'filter' => FILTER_VALIDATE_REGEXP,
+                'flags' => FILTER_DEFAULT,
+                'options' => array(
+                    'regexp' => '#^ASC|DESC$#'
+                ),
+            ),
+
+        );
+
+
+        return filter_input_array(INPUT_GET, $args);
     }
 }

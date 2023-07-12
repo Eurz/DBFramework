@@ -6,15 +6,6 @@
 </div>
 
 <form class="row p-3" method="GET" action="">
-    <!-- <select name="country">
-        <option value="france">France</option>
-        <option value="japon">Japon</option>
-    </select>
-    <label>Type de planque </label>
-    <select name="hidingType">
-        <option value="maison">Maison</option>
-        <option value="Villa">Villa</option>
-    </select> -->
 
     <div class="col">
         <label for="country" class="form-label">Filter by</label>

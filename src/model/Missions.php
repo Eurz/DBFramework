@@ -11,31 +11,50 @@ class Missions extends AppModel
     /**
      * Get all data
      */
-    public function findAll()
+    public function findAll($filtersOptions = [])
     {
 
-        $query = "SELECT missions.id, status.title AS status, missions.title, description, codeName, country.title AS country, missiontype.title AS type, spec.title AS speciality, startDate, endDate" . SPACER;
-        $query .= "FROM $this->tableName" . SPACER;
-        $query .= "LEFT JOIN attributes as missiontype ON missions.missionTypeId = missiontype.id" . SPACER;
-        $query .= "LEFT JOIN attributes as country ON missions.countryId = country.id" . SPACER;
-        $query .= "LEFT JOIN attributes as spec ON missions.specialityId = spec.id" . SPACER;
-        $query .= "LEFT JOIN attributes as status ON missions.status = status.id" . SPACER;
+        $query = "SELECT m.id, status.title AS status, m.title, description, codeName, c.title AS country, mt.title AS type, spec.title AS speciality, startDate, endDate" . SPACER;
+        $query .= "FROM $this->tableName m" . SPACER;
+        $query .= "LEFT JOIN attributes as mt ON m.missionTypeId = mt.id" . SPACER;
+        $query .= "LEFT JOIN attributes as c ON m.countryId = c.id" . SPACER;
+        $query .= "LEFT JOIN attributes as spec ON m.specialityId = spec.id" . SPACER;
+        $query .= "LEFT JOIN attributes as status ON m.status = status.id" . SPACER;
+
+        $orderBy = isset($filtersOptions['orderBy']) && !empty($filtersOptions['orderBy']) ? $filtersOptions['orderBy'] : 'ASC';
+        $sortBy = isset($filtersOptions['sortBy']) && !empty($filtersOptions['sortBy']) ? $filtersOptions['sortBy'] : 'startDate';
+        $country = isset($filtersOptions['country']) ? $filtersOptions['country'] : null;
+        $status = isset($filtersOptions['status']) ? $filtersOptions['status'] : null;
+
+        $filter = [];
+        if ($country) {
+            $filter[] = "c.id = $country" . SPACER;
+        }
+
+        if ($status) {
+            $filter[] = "status.id = $status" . SPACER;
+        }
+
+        if (!empty($filter)) {
+            $query .= "WHERE" . SPACER;
+            $separator = '';
+            if (count($filter) > 1) {
+                $separator = 'AND ' . SPACER;
+            }
+            $query .= implode($separator, $filter) . SPACER;
+            $query .= "ORDER BY $sortBy $orderBy" . SPACER;
+        }
 
         $missions = $this->query($query, null, $this->entityName);
+
         return $missions;
     }
 
-    // public function findAgents()
-    // {
-    // $userModel = $this->getModel('users');
-    //     $allAgents = $userModel->findAll('agent');
-    //     $agents = $userModel->findBy('id', 'firstName', $allAgents);
-    //     $query = "SELECT * FROM users WHERE";
-    //     return $agents;
-    // }
 
     /**
-     * Test
+     *  Find contacts which have nationality of missions's country by its Id
+     * @param int $countryId
+     * @return array
      */
     public function findContactsForMission($countryId)
     {
@@ -46,15 +65,14 @@ class Missions extends AppModel
         $query .= "AND u.userType = 'contact'";
 
         $contacts = $this->query($query, [':countryId' => $countryId], '\\App\\Entities\\UsersEntity');
-        // var_dump($contacts);
-        // die();
+
         return $this->findByKeys('id', 'fullName', $contacts);
     }
 
     /**
      *  Find targets which have not same nationality of agents in $agentsIds
      * @param array $agentsIds
-     * @return ?array $targets
+     * @return ?array $result
      */
     public function findTargetsForMission($agentsIds)
     {
@@ -94,6 +112,7 @@ class Missions extends AppModel
         $result = new stdClass();
         $result->targets = $targets;
         $result->nationalities = $nationalities;
+
         return $result;
     }
 
@@ -201,14 +220,18 @@ class Missions extends AppModel
         $query = "UPDATE $this->tableName SET $missionMarkers WHERE id = $id";
 
         $missionResponse = $this->query($query, $mission);
-        // var_dump($query);
-        // die();
 
         if ($missionResponse) {
 
             $queryDelete = "DELETE FROM missions_users" . SPACER;
-            $queryDelete .= "WHERE user = :id " . SPACER;
-            $this->query($queryDelete, ['id' => $id]);
+            $queryDelete .= "WHERE mission = :id " . SPACER;
+
+            $deleteUsers = $this->query($queryDelete, ['id' => $id]);
+
+            if (!$deleteUsers) {
+                var_dump('bouh');
+                die();
+            }
 
             $markersUsers = '';
             foreach ($users as $userId) {

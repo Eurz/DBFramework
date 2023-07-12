@@ -14,7 +14,7 @@ class AsbstractForms
      * Message from form submission
      */
     protected $message;
-
+    protected $rowStyle = 'row mb-3';
 
     /**
      * Define a form element with input parameters
@@ -102,16 +102,14 @@ class AsbstractForms
      */
     private function addInput($name, $type)
     {
-        $html = '<div class="row mb-3">';
-        $html .= $this->createLabel($name);
+        $html = $this->createLabel($name);
         $html .= '
             <div class="col-lg-6 col-sm-10 ">
             <input class="form-control" type="' . $type . '" name="' . $name . '" id="' . $name . '" value="' . $this->getValue($name) . '" />
             </div>
             ';
-        $html .= '</div>';
 
-        return $html;
+        return $this->wrapInput($html);
     }
 
     /**
@@ -128,14 +126,12 @@ class AsbstractForms
      */
     private function addTextarea($name): string
     {
-        $html = '<div class="row mb-3">';
-        $html .= $this->createLabel($name);
+        $html = $this->createLabel($name);
         $html .= '<div class="col-lg-6 col-sm-10 ">
         <textarea class="form-control" name="' . $name . '" id="' . $name . '">' . $this->getValue($name) . '</textarea>
         </div>';
-        $html .= '</div>';
 
-        return $html;
+        return $this->wrapInput($html);
     }
     /**
      * Generate html for an form select element
@@ -147,8 +143,7 @@ class AsbstractForms
     {
         $params = $this->formParams[$name];
 
-        $html = '<div class="row mb-3">';
-        $html .= '<label for="' . $name . '" class="col-sm-2 form-label">' . $params['label'] . '</label>';
+        $html = '<label for="' . $name . '" class="col-sm-2 form-label">' . $params['label'] . '</label>';
         $html .= '<div class="col-lg-6 col-sm-10 ">';
 
         if ($type === 'multiple') {
@@ -182,8 +177,8 @@ class AsbstractForms
             $html .= '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
         }
         $html .= '</select>';
-        $html .= '</div></div>';
-        return $html;
+        $html .= '</div>';
+        return $this->wrapInput($html);
     }
 
     /**
@@ -215,5 +210,11 @@ class AsbstractForms
             return true;
         }
         return false;
+    }
+
+    private function wrapInput($input)
+    {
+        $html = '<div class="' . $this->rowStyle . '">' . $input . '</div>';
+        return $html;
     }
 }

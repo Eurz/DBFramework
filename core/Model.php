@@ -60,7 +60,7 @@ class Model
      * @param int $id - Id of data to fetch
      * @return Entity|false $data - False or an entity if data exist
      */
-    public function findById(int $id)
+    public function findById($id)
     {
         $query = "SELECT * FROM $this->tableName WHERE id = :id";
         $data = $this->query($query, ['id' => $id], $this->entityName, true);

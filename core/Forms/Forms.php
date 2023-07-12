@@ -14,9 +14,12 @@ class Forms extends AsbstractForms
 
 
 
-    public function __construct()
+    public function __construct($options = [])
     {
         $this->data = $_POST;
+        if (isset($options['rowStyle'])) {
+            $this->rowStyle = $options['rowStyle'];
+        }
     }
 
     private $isValid = false;
