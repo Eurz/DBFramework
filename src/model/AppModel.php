@@ -31,8 +31,7 @@ class AppModel extends Model
 
         $result = [];
         foreach ($data as $item) {
-            if (is_object($item)) {
-                // $result
+            if (is_array($item)) {
             }
             $result[$item->$key] = $item->$value;
         }

@@ -65,7 +65,6 @@
             <th scope="col">Nationality</th>
             <th scope="col">Speciality</th>
             <th scope="col">Created at</th>
-            <th scope="col">Missions</th>
             <th scope="col"></th>
 
         </tr>
@@ -102,7 +101,6 @@
                     </td>
 
                     <td><?= $user->createdAt ?></td>
-                    <td><a href="/users/<?= $user->id ?>" class="btn btn-primary btn-sm">View</a></td>
                     <td class="text-end">
 
                         <a href="/users/edit/<?= $user->id ?>" class="btn btn-primary btn-sm">Edit</a>

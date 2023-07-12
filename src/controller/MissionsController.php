@@ -125,13 +125,16 @@ class MissionsController extends AppController
                 $agentsIds = $this->session->getValue('agents');
                 $targetsMission = $this->model->findTargetsForMission($agentsIds);
 
+                $targets = $this->Users->findByKeys('id', 'fullName', $targetsMission->targets);
+
+
 
                 if ($targetsMission->targets === false) {
                     $this->messageManager->setError('There \'s no target(s) available(s) in your database for this mission');
                     $options = compact('pageTitle', 'action');
                 } else {
                     $form
-                        ->addRow('targets', [], 'Target(s)', 'select:multiple', true, $targetsMission->targets, ['minValue' => 1]);
+                        ->addRow('targets', [], 'Target(s)', 'select:multiple', true, $targets, ['minValue' => 1]);
                     $options = compact('pageTitle', 'form');
                 }
 
@@ -311,7 +314,6 @@ class MissionsController extends AppController
                     $options = compact('pageTitle', 'action');
                 } else {
                     $targetsMission = $this->model->findByKeys('id', 'firstName', $mission->targets);
-                    var_dump($targetsMission);
 
                     $form
                         ->addRow('targets', $targetsMission, 'Target(s)', 'select:multiple', true, $targets, ['minValue' => 1]);
@@ -411,8 +413,8 @@ class MissionsController extends AppController
     }
 
     /**
-     * Delete a user
-     * @param int $id - User's ID
+     * Delete a mission
+     * @param int $id - Mission's ID
      */
     public function delete($id)
     {

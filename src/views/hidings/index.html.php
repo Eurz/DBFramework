@@ -17,13 +17,13 @@
     </select> -->
 
     <div class="col">
-        <label for="filterByCountry" class="form-label">Filter by</label>
-        <select class="form-select form-select-sm" name="filterByCountry" id="filterByCountry" aria-label="Par champs">
+        <label for="country" class="form-label">Filter by</label>
+        <select class="form-select form-select-sm" name="country" id="country" aria-label="Par champs">
 
             <option value="">Choose a country</option>
             <?php foreach ($countries as $country) : ?>
                 <?php
-                if (!empty($_GET['filterByCountry']) && $_GET['filterByCountry'] === (string)$country->id) {
+                if (!empty($_GET['country']) && $_GET['country'] === (string)$country->id) {
                     $selected = 'selected';
                 } else {
 
@@ -37,12 +37,12 @@
 
 
     <div class="col">
-        <label for="field" class="form-label">Sort by</label>
-        <select class="form-select form-select-sm" name="field" id="field" aria-label="Par champs">
+        <label for="sortBy" class="form-label">Sort by</label>
+        <select class="form-select form-select-sm" name="sortBy" id="sortBy" aria-label="Par champs">
             <option value="">Choose a field</option>
-            <option value="code" <?= !empty($_GET['field']) && $_GET['field'] === 'code' ? 'selected="selected"' : null; ?>>Code name</option>
-            <option value="country" <?= !empty($_GET['field']) && $_GET['field'] === 'country' ? 'selected="selected"' : null; ?>>Country</option>
-            <option value="type" <?= !empty($_GET['field']) && $_GET['field'] === 'type' ? 'selected="selected"' : null; ?>>Hiding type</option>
+            <option value="code" <?= $filtersOptions['sortBy'] === 'code' ? 'selected="selected"' : null; ?>>Code name</option>
+            <option value="country" <?= $filtersOptions['sortBy'] === 'country' ? 'selected="selected"' : null; ?>>Country</option>
+            <option value="type" <?= $filtersOptions['sortBy'] === 'type' ? 'selected="selected"' : null; ?>>Hiding type</option>
         </select>
     </div>
 
@@ -57,7 +57,6 @@
         <span class="form-label"><br /></span>
         <div class="">
             <button class="btn btn-primary">Go</button>
-            <a href="/hidings" class="btn btn-primary">Reset</a>
         </div>
     </div>
 </form>

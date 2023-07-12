@@ -8,15 +8,22 @@ class Hidings extends AppModel
     /**
      * Get all hidings
      */
-    public function findAll()
+    public function findAll($filtersOptions = [])
     {
         // $query = 'SELECT * FROM ' . $this->tableName ;
-        $query = 'SELECT code, hidings.id as id, c.title as country , address, t.title as type  FROM' . SPACER;
-        $query .= $this->tableName . SPACER;
-        $query .= 'LEFT JOIN attributes c ON c.id = hidings.countryId' . SPACER;
-        $query .= 'LEFT JOIN attributes t ON t.id = hidings.typeId' . SPACER;
+        $query = "SELECT code, h.id as id, c.title as country , address, t.title as type" . SPACER;
+        $query .= "FROM $this->tableName AS h" . SPACER;
+        $query .= 'LEFT JOIN attributes c ON c.id = h.countryId' . SPACER;
+        $query .= 'LEFT JOIN attributes t ON t.id = h.typeId' . SPACER;
 
-        // $entityName = $this->entityPath . substr(ucfirst($this->tableName), 0, -1) . 'Entity';
+        $orderBy = isset($filtersOptions['orderBy']) && !empty($filtersOptions['orderBy']) ? $filtersOptions['orderBy'] : 'ASC';
+        $sortBy = isset($filtersOptions['sortBy']) && !empty($filtersOptions['sortBy']) ? $filtersOptions['sortBy'] : 'code';
+        $country = isset($filtersOptions['country']) ? $filtersOptions['country'] : null;
+
+        if ($country) {
+            $query .= "WHERE c.id = $country" . SPACER;
+        }
+        $query .= "ORDER BY $sortBy $orderBy" . SPACER;
 
         $hidings = $this->query($query, null, $this->entityName);
         return $hidings;

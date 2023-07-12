@@ -194,7 +194,7 @@ class UsersController extends AppController
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if (isset($data['choice']) && $data['choice'] === 'yes') {
-                $response = $this->model->delete($id);
+                $response = $this->model->deleteUser($id);
             }
             $this->redirect('users');
         }
@@ -265,15 +265,15 @@ class UsersController extends AppController
 
         return $this->types[$key];
     }
+
+    /**
+     * Form filters for users
+     */
     private function formFiltersUsers()
     {
         $orderBy = filter_input(INPUT_GET, 'orderBy', FILTER_DEFAULT);
         $sortBy = filter_input(INPUT_GET, 'sortBy', FILTER_DEFAULT);
         $userType = filter_input(INPUT_GET, 'userType', FILTER_DEFAULT);
-        $session = new Session('usersFilters');
-        $session->set('usersFilters', $orderBy, 'orderBy');
-        $session->set('usersFilters', $sortBy, 'sortBy');
-        $session->set('usersFilters', $userType, 'userType');
 
         $users = $this->model->findAll(null, ['sortBy' => $sortBy, 'orderby' => $orderBy, 'userType' => $userType]);
         return $users;

@@ -1,6 +1,6 @@
 <footer class="bg-light py-4 footer mt-auto">
-    <div class="container">
-        Mon footer
+    <div class="container text-center">
+        Spion.com &copy; 2023 - Fictive project
     </div>
 </footer>
 

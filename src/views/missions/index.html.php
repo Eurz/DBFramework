@@ -17,7 +17,7 @@
             <!--
             <th>Country</th>
             <th>Required</th> -->
-            <th>Actions</th>
+            <th></th>
         </tr>
         <?php foreach ($missions as $mission) : ?>
             <tr>

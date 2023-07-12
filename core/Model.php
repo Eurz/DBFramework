@@ -124,6 +124,7 @@ class Model
             if ($response) {
                 $this->messageManager->setSuccess($this->itemName . SPACER . 'successfully deleted');
             } else {
+
                 $this->messageManager->setError('Failed to delete this' . SPACER . $this->itemName);
             }
             return $response;

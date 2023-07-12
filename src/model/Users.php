@@ -267,6 +267,21 @@ class Users extends AppModel
         return false;
     }
 
+    public function deleteUser($id)
+    {
+
+        $user = $this->findById($id);
+
+        if (!$user) {
+            $this->messageManager->setError('No such a user in database');
+            return false;
+        };
+
+
+        $this->delete($id);
+        $this->deleteSpecialities($id);
+    }
+
     /**
      * Find agents having speciality with id = $specialityId
      * @param array $agentsIds - Ids of agents to check speciality

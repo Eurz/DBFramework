@@ -21,17 +21,15 @@ class HidingsController extends AppController
      */
     public function index()
     {
-        $field = filter_input(INPUT_GET, 'field', FILTER_DEFAULT);
-        $orderBy = filter_input(INPUT_GET, 'orderBy', FILTER_DEFAULT);
-        $filterByCountry = filter_input(INPUT_GET, 'filterByCountry', FILTER_VALIDATE_INT);
+        $filtersOptions = $this->formFiltersUsers();
 
         // $hidings = $this->model->findWithFilters($field, $filterByCountry, $orderBy);
-        $hidings = $this->model->findAll();
+        $hidings = $this->model->findAll($filtersOptions);
         $hidingsTypes = $this->Attributes->findAll('hiding');
         $countries = $this->Attributes->findAll('country');
 
         $pageTitle = 'Hidings';
-        $this->render('hidings/index', compact('pageTitle', 'hidings', 'countries', 'hidingsTypes'));
+        $this->render('hidings/index', compact('pageTitle', 'hidings', 'countries', 'hidingsTypes', 'filtersOptions'));
     }
 
 
@@ -132,5 +130,38 @@ class HidingsController extends AppController
 
         $pageTitle = 'Delete an hiding';
         $this->render('hidings/delete', compact('pageTitle', 'hiding', 'message'));
+    }
+
+    /**
+     * Form filters for hidings
+     */
+    private function formFiltersUsers()
+    {
+        $sortBy = filter_input(INPUT_GET, 'sortBy', FILTER_DEFAULT);
+        $orderBy = filter_input(INPUT_GET, 'orderBy', FILTER_DEFAULT);
+        $country = filter_input(INPUT_GET, 'country', FILTER_VALIDATE_INT);
+
+
+        $args = array(
+            'country' => FILTER_VALIDATE_INT,
+            'sortBy' => array(
+                'filter' => FILTER_VALIDATE_REGEXP,
+                'flags' => FILTER_DEFAULT,
+                'options' => array(
+                    'regexp' => '#[\w]#'
+                ),
+            ),
+            'orderBy' => array(
+                'filter' => FILTER_VALIDATE_REGEXP,
+                'flags' => FILTER_DEFAULT,
+                'options' => array(
+                    'regexp' => '#^ASC|DESC$#'
+                ),
+            ),
+
+        );
+
+
+        return filter_input_array(INPUT_GET, $args);
     }
 }

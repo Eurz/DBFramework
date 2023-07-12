@@ -7,6 +7,7 @@ use stdClass;
 class Missions extends AppModel
 {
 
+
     /**
      * Get all data
      */
@@ -44,9 +45,10 @@ class Missions extends AppModel
         $query .= "WHERE n.attribute = :countryId" . SPACER;
         $query .= "AND u.userType = 'contact'";
 
-        $contacts = $this->query($query, [':countryId' => $countryId]);
-
-        return $contacts;
+        $contacts = $this->query($query, [':countryId' => $countryId], '\\App\\Entities\\UsersEntity');
+        // var_dump($contacts);
+        // die();
+        return $this->findByKeys('id', 'fullName', $contacts);
     }
 
     /**
@@ -56,6 +58,9 @@ class Missions extends AppModel
      */
     public function findTargetsForMission($agentsIds)
     {
+
+        $usersModel = $this->getModel('users');
+
         $markersAgents = $this->makeMarkersList($agentsIds);
 
         $queryAgents = "SELECT * FROM users" . SPACER;
@@ -74,14 +79,17 @@ class Missions extends AppModel
 
         $queryNationalities = "SELECT * FROM attributes" . SPACER;
         $queryNationalities .= "WHERE id IN $markersNationalities" . SPACER;
-        $nationalities = $this->query($queryNationalities, null, '\\App\\Entities\\AttributesEntity');
+        // $nationalities = $attributesModel->query($queryNationalities, null, '\\App\\Entities\\AttributesEntity');
+        $attributesModel = $this->getModel('attributes');
+        $nationalities = $attributesModel->query($queryNationalities);
 
         // Targets
         $markers = $this->makeMarkersList($nationalitiesIds);
 
-        $query = "SELECT id, firstName FROM users WHERE userType = 'target' AND nationalityid NOT IN $markers ";
+        $query = "SELECT id, firstName, lastName FROM users WHERE userType = 'target' AND nationalityid NOT IN $markers ";
 
-        $targets =  $this->query($query);
+        $targets =  $usersModel->query($query, null, '\\App\\Entities\\UsersEntity');
+        // $targets =  $this->query($query, null, '\\App\\Entities\\UsersEntity');
 
         $result = new stdClass();
         $result->targets = $targets;
@@ -179,6 +187,7 @@ class Missions extends AppModel
         $mission = $data['default'];
         $hidingId = $data['hidingId'];
         $mission['hidingId'] = $hidingId;
+
         // Mission's users
         $agents = $data['agents'];
         $contacts = $data['contacts'];
@@ -214,11 +223,11 @@ class Missions extends AppModel
                 $this->messageManager->setError('Troubles with adding specialities in mission');
                 throw new \Exception("Erreur dans la requete d\'update utilisateur", 1);
             }
-            $this->messageManager->setSuccess('Registered successfully');
+            $this->messageManager->setSuccess('Mission updated successfully');
         } else {
             throw new \Exception("Error Processing Request mission request", 1);
 
-            $this->messageManager->setError('Failed to insert into database');
+            $this->messageManager->setError('Failed to update mission');
         }
 
         return $missionResponse;
@@ -243,9 +252,11 @@ class Missions extends AppModel
         $mission = $this->query($query, ['id' => $id], $this->entityName, true);
 
         if (!$mission) {
-            $this->messageManager->setError('Item not found');
+            $this->messageManager->setError('No such a mission in database');
+            return false;
         }
-
+        // var_dump($mission);
+        // die();
         $hidingModel = $this->getModel('hidings');
         $hiding = $hidingModel->findById($mission->hidingId);
         $mission->hiding = $hiding;
