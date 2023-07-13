@@ -447,8 +447,6 @@ class MissionsController extends AppController
      */
     private function formFiltersMissions()
     {
-
-
         $args = array(
             'country' => FILTER_VALIDATE_INT,
             'status' => FILTER_VALIDATE_INT,

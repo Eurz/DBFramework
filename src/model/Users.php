@@ -9,6 +9,7 @@ class Users extends AppModel
 
     // protected $tableName = 'Users';
     // protected $entityPath = '\\App\\Entity\\User\\';
+    public $nbUsers;
 
     /**
      * Get all users, width optional type of user
@@ -16,9 +17,11 @@ class Users extends AppModel
      */
     public function findAll($type = null, $filters = [])
     {
-        $sortBy = isset($filters['sortBy']) && !empty($filters['sortBy']) ? $filters['sortBy'] : 'u.createdAt';
+        $sortBy = isset($filters['sortBy']) && !empty($filters['sortBy']) ? $filters['sortBy'] : 'u.firstName';
         $orderBy = isset($filters['orderBy']) && !empty($filters['orderBy']) ? $filters['orderBy'] : 'ASC';
         $userType = isset($filters['userType']) && !empty($filters['userType']) ? $filters['userType'] : null;
+        $usersPerPages = isset($filters['usersPerPages']) && !empty($filters['usersPerPages']) ? $filters['usersPerPages'] : 4;
+        $offset = $filters['offset'];
 
         $data = [];
         $query = "SELECT u.id,firstName , lastName , dateOfBirth , n.title AS nationality, userType as type, u.createdAt" . SPACER;
@@ -35,9 +38,15 @@ class Users extends AppModel
             $data['type'] = $userType;
         }
 
-        // $query .= "ORDER BY u.createdAt ASC";
         $query .= "ORDER BY $sortBy $orderBy" . SPACER;
+        $nbUsers = $this->query($query, $data, $this->entityName);
+        $this->nbUsers = count($nbUsers);
+
+        if (!is_null($offset)) {
+            $query .= "LIMIT $offset , $usersPerPages" . SPACER;
+        }
         $users = $this->query($query, $data, $this->entityName);
+
         foreach ($users as $user) {
             $specialities = $this->findUserSpecialities($user->id);
 
@@ -46,7 +55,14 @@ class Users extends AppModel
         return $users;
     }
 
+    /**
+     * Get number of users from request in findAll methods
+     */
+    public function getNbUsers()
+    {
 
+        return $this->nbUsers;
+    }
     /**
      * Find data by id
      * @param int $id - Id of data to fetch
