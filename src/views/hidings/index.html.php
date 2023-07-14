@@ -95,3 +95,7 @@
         </tbody>
     </table>
 </div>
+
+<?php if (isset($pagination)) : ?>
+    <?= $pagination ?>
+<?php endif ?>

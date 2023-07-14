@@ -28,14 +28,25 @@ class MissionsController extends AppController
     public function index()
     {
 
-        $filtersOptions = $this->formFiltersMissions();
+        $filtersOptions = $paginationParams = $this->formFiltersMissions();
 
-        $missions = $this->model->findAll($filtersOptions);
         $countries = $this->Attributes->findAll('country');
         $status = $this->Attributes->findAll('status');
 
+        $missionsPerPage = 4;
+        $filtersOptions['missionsPerPages'] = $missionsPerPage;
+        $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?? 1;
+
+        $filtersOptions['offset'] = ($page - 1) * $missionsPerPage;
+
+        $missions = $this->model->findAll($filtersOptions);
+        $nbMissions = $this->model->getNbMissions();
+        $nbPages = ceil($nbMissions / $missionsPerPage);
+
         $pageTitle = 'Missions';
-        $this->render('missions/index', compact('pageTitle', 'missions', 'countries', 'status', 'filtersOptions'));
+        $pagination = $this->pagination($nbPages, $paginationParams);
+
+        $this->render('missions/index', compact('pageTitle', 'missions', 'countries', 'status', 'filtersOptions', 'pagination'));
     }
     /**
      * View mission details

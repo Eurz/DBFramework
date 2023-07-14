@@ -4,11 +4,13 @@ namespace App\Model;
 
 class Hidings extends AppModel
 {
+    public $nbHidings;
+
 
     /**
      * Get all hidings
      */
-    public function findAll($filtersOptions = [])
+    public function findAll($filters = [])
     {
         // $query = 'SELECT * FROM ' . $this->tableName ;
         $query = "SELECT code, h.id as id, c.title as country , address, t.title as type" . SPACER;
@@ -16,19 +18,35 @@ class Hidings extends AppModel
         $query .= 'LEFT JOIN attributes c ON c.id = h.countryId' . SPACER;
         $query .= 'LEFT JOIN attributes t ON t.id = h.typeId' . SPACER;
 
-        $orderBy = isset($filtersOptions['orderBy']) && !empty($filtersOptions['orderBy']) ? $filtersOptions['orderBy'] : 'ASC';
-        $sortBy = isset($filtersOptions['sortBy']) && !empty($filtersOptions['sortBy']) ? $filtersOptions['sortBy'] : 'code';
-        $country = isset($filtersOptions['country']) ? $filtersOptions['country'] : null;
+        $orderBy = isset($filters['orderBy']) && !empty($filters['orderBy']) ? $filters['orderBy'] : 'ASC';
+        $sortBy = isset($filters['sortBy']) && !empty($filters['sortBy']) ? $filters['sortBy'] : 'code';
+        $country = isset($filters['country']) ? $filters['country'] : null;
+        $usersPerPages = isset($filters['usersPerPages']) && !empty($filters['usersPerPages']) ? $filters['usersPerPages'] : 4;
+        $offset = $filters['offset'];
 
         if ($country) {
             $query .= "WHERE c.id = $country" . SPACER;
         }
         $query .= "ORDER BY $sortBy $orderBy" . SPACER;
 
+        $nbHidings = $this->query($query, null, $this->entityName);
+        $this->nbHidings = count($nbHidings);
+
+        if (!is_null($offset)) {
+            $query .= "LIMIT $offset , $usersPerPages" . SPACER;
+        }
+
         $hidings = $this->query($query, null, $this->entityName);
         return $hidings;
     }
+    /**
+     * Get number of users from request in findAll methods
+     */
+    public function getNbHidings()
+    {
 
+        return $this->nbHidings;
+    }
 
     public function findWithFilters($field, $filterByCountry,  $orderBy = 'ASC',)
     {

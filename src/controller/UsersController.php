@@ -24,50 +24,26 @@ class UsersController extends AppController
      */
     public function index()
     {
-        $filtersOptions = $this->formFiltersUsers();
+        $filtersOptions = $paginationParams = $this->formFiltersUsers();
 
         $usersPerPages = 4;
         $filtersOptions['usersPerPages'] = $usersPerPages;
+        
+        $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?? 1;
 
-        if (!$filtersOptions['page']) {
-            $filtersOptions['page'] = 1;
-        }
-        $filtersOptions['offset'] = ($filtersOptions['page'] - 1) * $usersPerPages;
+        $filtersOptions['offset'] = ($page - 1) * $usersPerPages;
         $users = $this->model->findAll(null, $filtersOptions);
         $nbUsers = $this->model->getNbUsers();
         $nbPages = ceil($nbUsers / $usersPerPages);
 
 
         $pageTitle = 'Users';
-        $pagination = $this->pagination($nbPages);
+        $pagination = $this->pagination($nbPages, $paginationParams);
 
         $this->render('users/index', compact('pageTitle', 'users', 'filtersOptions', 'pagination'));
     }
 
-    /**
-     * Make an html pagination
-     * @param int $nbPages - Number of pages for pagination
-     * return string $html
-     */
-    public function pagination(int $nbPages): string
-    {
-        $queryParams = parse_str($_SERVER['QUERY_STRING'], $searchParams);
-        $url = "?";
-        $url .= isset($searchParams['userType']) ? 'userType=' . $searchParams['userType'] . '&' : null;
-        $url .= isset($searchParams['sortBy']) ? 'sortBy=' . $searchParams['sortBy'] . '&' : null;
-        $url .= isset($searchParams['orderBy']) ? 'orderBy=' . $searchParams['orderBy'] . '&' : null;
-        $html = '<nav aria-label="Page navigation example">';
 
-        $html .= '<ul class="pagination">';
-        for ($i = 1; $i <= $nbPages; $i++) {
-            $html .= '<li class="page-item"><a class="page-link" href="' . $url . 'page=' . $i . '">' .  $i . '</a></li>';
-        }
-
-        $html .= '</ul>';
-        $html  .= '</nav>';
-
-        return $html;
-    }
 
     /**
      * Display a user
@@ -326,7 +302,6 @@ class UsersController extends AppController
                 ),
             ),
             'userType' => FILTER_DEFAULT,
-            'page' => FILTER_VALIDATE_INT
 
         );
 

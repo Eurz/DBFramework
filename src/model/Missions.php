@@ -7,11 +7,12 @@ use stdClass;
 class Missions extends AppModel
 {
 
+    private $nbMissions;
 
     /**
      * Get all data
      */
-    public function findAll($filtersOptions = [])
+    public function findAll($filters = [])
     {
 
         $query = "SELECT m.id, status.title AS status, m.title, description, codeName, c.title AS country, mt.title AS type, spec.title AS speciality, startDate, endDate" . SPACER;
@@ -21,11 +22,13 @@ class Missions extends AppModel
         $query .= "LEFT JOIN attributes as spec ON m.specialityId = spec.id" . SPACER;
         $query .= "LEFT JOIN attributes as status ON m.status = status.id" . SPACER;
 
-        $orderBy = isset($filtersOptions['orderBy']) && !empty($filtersOptions['orderBy']) ? $filtersOptions['orderBy'] : 'ASC';
-        $sortBy = isset($filtersOptions['sortBy']) && !empty($filtersOptions['sortBy']) ? $filtersOptions['sortBy'] : 'startDate';
-        $country = isset($filtersOptions['country']) ? $filtersOptions['country'] : null;
-        $status = isset($filtersOptions['status']) ? $filtersOptions['status'] : null;
+        $orderBy = isset($filters['orderBy']) && !empty($filters['orderBy']) ? $filters['orderBy'] : 'ASC';
+        $sortBy = isset($filters['sortBy']) && !empty($filters['sortBy']) ? $filters['sortBy'] : 'startDate';
+        $country = isset($filters['country']) ? $filters['country'] : null;
+        $status = isset($filters['status']) ? $filters['status'] : null;
 
+        $missionsPerPages = isset($filters['missionsPerPages']) && !empty($filters['missionsPerPages']) ? $filters['missionsPerPages'] : 4;
+        $offset = $filters['offset'];
         $filter = [];
         if ($country) {
             $filter[] = "c.id = $country" . SPACER;
@@ -44,12 +47,23 @@ class Missions extends AppModel
             $query .= implode($separator, $filter) . SPACER;
             $query .= "ORDER BY $sortBy $orderBy" . SPACER;
         }
+        $nbMissions = $this->query($query, null, $this->entityName);
+        $this->nbMissions = count($nbMissions);
 
+        if (!is_null($offset)) {
+            $query .= "LIMIT $offset , $missionsPerPages" . SPACER;
+        }
         $missions = $this->query($query, null, $this->entityName);
-
         return $missions;
     }
+    /**
+     * Get number of users from request in findAll methods
+     */
+    public function getNbMissions()
+    {
 
+        return $this->nbMissions;
+    }
 
     /**
      *  Find contacts which have nationality of missions's country by its Id

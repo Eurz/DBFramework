@@ -21,15 +21,26 @@ class HidingsController extends AppController
      */
     public function index()
     {
-        $filtersOptions = $this->formFiltersUsers();
+        $filtersOptions = $paginationParams = $this->formFiltersUsers();
 
-        // $hidings = $this->model->findWithFilters($field, $filterByCountry, $orderBy);
+        $hidingsPerPage = 4;
+        $filtersOptions['hidingsPerPage'] = $hidingsPerPage;
+        $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?? 1;
+
+
+        $filtersOptions['offset'] = ($page - 1) * $hidingsPerPage;
+
         $hidings = $this->model->findAll($filtersOptions);
         $hidingsTypes = $this->Attributes->findAll('hiding');
         $countries = $this->Attributes->findAll('country');
 
+        $nbHidings = $this->model->getNbHidings();
+        $nbPages = ceil($nbHidings / $hidingsPerPage);
+
         $pageTitle = 'Hidings';
-        $this->render('hidings/index', compact('pageTitle', 'hidings', 'countries', 'hidingsTypes', 'filtersOptions'));
+        $pagination = $this->pagination($nbPages, $paginationParams);
+
+        $this->render('hidings/index', compact('pageTitle', 'hidings', 'countries', 'hidingsTypes', 'filtersOptions', 'pagination'));
     }
 
 
@@ -137,11 +148,6 @@ class HidingsController extends AppController
      */
     private function formFiltersUsers()
     {
-        $sortBy = filter_input(INPUT_GET, 'sortBy', FILTER_DEFAULT);
-        $orderBy = filter_input(INPUT_GET, 'orderBy', FILTER_DEFAULT);
-        $country = filter_input(INPUT_GET, 'country', FILTER_VALIDATE_INT);
-
-
         $args = array(
             'country' => FILTER_VALIDATE_INT,
             'sortBy' => array(
@@ -158,7 +164,6 @@ class HidingsController extends AppController
                     'regexp' => '#^ASC|DESC$#'
                 ),
             ),
-
         );
 
 

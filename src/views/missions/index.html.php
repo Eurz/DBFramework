@@ -5,7 +5,7 @@
 
 </div>
 
-<form class="row p-3" method="GET" action="">
+<form class="row p-3" method="GET">
 
     <div class="col">
         <label for="country" class="form-label">Filter by</label>
@@ -106,7 +106,10 @@
         </tr>
     </table>
 
+    <?php if (isset($pagination)) : ?>
+        <?= $pagination ?>
+    <?php endif ?>
 <?php else : ?>
     <p class="p-3">Actually, there is no missions <br />
 
-    <?php endif ?>
+    <?php endif; ?>

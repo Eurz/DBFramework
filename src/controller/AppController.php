@@ -50,4 +50,35 @@ class AppController extends Controller
         $pageTitle = 'Login page';
         $this->render('users/form', compact('pageTitle', 'form'));
     }
+
+    /**
+     * Make an html pagination
+     * @param int $nbPages - Number of pages for pagination
+     * @param array $params - Params url for pagination's links
+     * return string $html
+     */
+    public function pagination(int $nbPages, array $params): string
+    {
+        $currentPage = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?? 1;
+
+        $urlParts = [];
+        foreach ($params as $key => $value) {
+            if ($value) {
+                $urlParts[] = $key . '=' . $value;
+            }
+        }
+        $url = '?' . implode('&', $urlParts);
+        $html = '<nav aria-label="Users pagination">';
+
+        $html .= '<ul class="pagination">';
+        for ($i = 1; $i <= $nbPages; $i++) {
+            $active = $i === (int)$currentPage ? 'active' : null;
+            $html .= '<li class="page-item ' . $active . '"><a class="page-link" href="' . $url . '&page=' . $i . '">' .  $i . '</a></li>';
+        }
+
+        $html .= '</ul>';
+        $html  .= '</nav>';
+
+        return $html;
+    }
 }

@@ -45,6 +45,7 @@ class Users extends AppModel
         if (!is_null($offset)) {
             $query .= "LIMIT $offset , $usersPerPages" . SPACER;
         }
+
         $users = $this->query($query, $data, $this->entityName);
 
         foreach ($users as $user) {
