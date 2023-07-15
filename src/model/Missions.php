@@ -12,16 +12,42 @@ class Missions extends AppModel
     /**
      * Get all data
      */
-    public function findAll($filters = [])
+    public function findAll($filters = [], $searchParams = null)
     {
 
-        $query = "SELECT m.id, status.title AS status, m.title, description, codeName, c.title AS country, mt.title AS type, spec.title AS speciality, startDate, endDate" . SPACER;
-        $query .= "FROM $this->tableName m" . SPACER;
-        $query .= "LEFT JOIN attributes as mt ON m.missionTypeId = mt.id" . SPACER;
-        $query .= "LEFT JOIN attributes as c ON m.countryId = c.id" . SPACER;
-        $query .= "LEFT JOIN attributes as spec ON m.specialityId = spec.id" . SPACER;
-        $query .= "LEFT JOIN attributes as status ON m.status = status.id" . SPACER;
 
+        $attributes = [];
+        $table = $this->tableName;
+
+        // SEARCH
+        if (!empty($searchParams)) {
+            $querySearch = "SELECT *" . SPACER;
+            $querySearch .= "FROM $this->tableName" . SPACER;
+
+            $sql = [];
+            foreach ($searchParams as $key => $keyword) {
+                $sql[] = "title LIKE :" . $keyword . SPACER;
+            }
+            $markers = (implode('OR ', $sql));
+            $querySearch .= "WHERE" . SPACER . $markers . SPACER;
+
+            foreach ($searchParams as $value) {
+                $attributes[$value] = '%' . $value . '%';
+            }
+
+            $table = '(' . $querySearch . ')';
+        }
+
+        // USERS QUERY
+        $query = PHP_EOL . "SELECT m.id, status.title AS status, m.title, description, codeName, c.title AS country, mt.title AS type, spec.title AS speciality, startDate, endDate" . SPACER;
+        $query .= PHP_EOL . "FROM $table m" . SPACER;
+        $query .= PHP_EOL . "LEFT JOIN attributes as mt ON m.missionTypeId = mt.id" . SPACER;
+        $query .= PHP_EOL . "LEFT JOIN attributes as c ON m.countryId = c.id" . SPACER;
+        $query .= PHP_EOL . "LEFT JOIN attributes as spec ON m.specialityId = spec.id" . SPACER;
+        $query .= PHP_EOL . "LEFT JOIN attributes as status ON m.status = status.id" . SPACER;
+
+
+        // FILTERS
         $orderBy = isset($filters['orderBy']) && !empty($filters['orderBy']) ? $filters['orderBy'] : 'ASC';
         $sortBy = isset($filters['sortBy']) && !empty($filters['sortBy']) ? $filters['sortBy'] : 'startDate';
         $country = isset($filters['country']) ? $filters['country'] : null;
@@ -30,6 +56,7 @@ class Missions extends AppModel
         $missionsPerPages = isset($filters['missionsPerPages']) && !empty($filters['missionsPerPages']) ? $filters['missionsPerPages'] : 4;
         $offset = $filters['offset'];
         $filter = [];
+
         if ($country) {
             $filter[] = "c.id = $country" . SPACER;
         }
@@ -40,20 +67,29 @@ class Missions extends AppModel
 
         if (!empty($filter)) {
             $query .= "WHERE" . SPACER;
-            $separator = '';
-            if (count($filter) > 1) {
-                $separator = 'AND ' . SPACER;
-            }
-            $query .= implode($separator, $filter) . SPACER;
-            $query .= "ORDER BY $sortBy $orderBy" . SPACER;
-        }
-        $nbMissions = $this->query($query, null, $this->entityName);
-        $this->nbMissions = count($nbMissions);
+            if (!empty($filter)) {
+                $separator = '';
+                $separator = count($filter) > 1 ? 'AND ' . SPACER : ' ';
 
+                $query .= implode($separator, $filter) . SPACER;
+            }
+        }
+
+        $query .= "ORDER BY $sortBy $orderBy" . SPACER;
+
+
+        $nbMissions = $this->query($query, $attributes, $this->entityName);
+
+        if ($nbMissions !== false) {
+            $this->nbMissions = count($nbMissions);
+        }
+
+        // PAGINATION
         if (!is_null($offset)) {
             $query .= "LIMIT $offset , $missionsPerPages" . SPACER;
         }
-        $missions = $this->query($query, null, $this->entityName);
+
+        $missions = $this->query($query, $attributes, $this->entityName);
         return $missions;
     }
     /**

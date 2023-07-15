@@ -20,5 +20,6 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <?php include_once(VIEW_PATH . '/mainnav.html.php') ?>
+
         </div>
     </nav>

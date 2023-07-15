@@ -91,6 +91,7 @@ class Database
             }
         } catch (PDOException $e) {
             $this->messageManager->setError('Something went wrong with your request. Please check it!');
+            var_dump($e->getMessage());
             return false;
         }
     }

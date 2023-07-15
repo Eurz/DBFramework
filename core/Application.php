@@ -125,6 +125,12 @@ class Application
         $router->post('/missions/edit/:id/:action', 'missions.edit');
         $router->post('/missions/delete/:id', 'missions.delete');
 
+
+        // SEARCH 
+        $router->get('/search', 'search.index');
+        $router->post('/search', 'search.index');
+
+
         $router->run();
     }
 }

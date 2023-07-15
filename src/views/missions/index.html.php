@@ -1,14 +1,18 @@
-<div class="d-flex justify-content-between">
-    <div class="col bg-light p-3">
-        <a href="/missions/add" class="btn btn-primary btn-sm">Create a mission</a>
+<form class="row p-3" method="GET">
+    <div class="row bg-light p-3 g-1">
+        <div class="col">
+            <a href="/missions/add" class="btn btn-primary btn-sm">Create a mission</a>
+        </div>
+        <div class="col col-sm-12 col-lg-6">
+            <?php include_once(VIEW_PATH . '/searchForm.html.php') ?>
+        </div>
+
+
     </div>
 
-</div>
-
-<form class="row p-3" method="GET">
 
     <div class="col">
-        <label for="country" class="form-label">Filter by</label>
+        <label for="country" class="form-label">Filter by country</label>
         <select class="form-select form-select-sm" name="country" id="country" aria-label="Par champs">
 
             <option value="">Choose a country</option>
@@ -26,7 +30,7 @@
         </select>
     </div>
     <div class="col">
-        <label for="status" class="form-label">Filter by</label>
+        <label for="status" class="form-label">Filter by status</label>
         <select class="form-select form-select-sm" name="status" id="status" aria-label="Par champs">
 
             <option value="">Choose a country</option>
@@ -49,17 +53,19 @@
         <label for="sortBy" class="form-label">Sort by</label>
         <select class="form-select form-select-sm" name="sortBy" id="sortBy" aria-label="Par champs">
             <option value="">Choose a field</option>
-            <option value="title" <?= $filtersOptions['sortBy'] === 'Title' ? 'selected="selected"' : null; ?>>Title</option>
+            <option value="title" <?= $filtersOptions['sortBy'] === 'title' ? 'selected="selected"' : null; ?>>Title</option>
+            <option value="status" <?= $filtersOptions['sortBy'] === 'status' ? 'selected="selected"' : null; ?>>Status</option>
+            <option value="type" <?= $filtersOptions['sortBy'] === 'type' ? 'selected="selected"' : null; ?>>Mission type</option>
             <option value="country" <?= $filtersOptions['sortBy'] === 'country' ? 'selected="selected"' : null; ?>>Country</option>
-            <option value="startDate" <?= $filtersOptions['sortBy'] === 'type' ? 'selected="selected"' : null; ?>>Start date</option>
+            <option value="startDate" <?= $filtersOptions['sortBy'] === 'startDate' ? 'selected="selected"' : null; ?>>Start date</option>
         </select>
     </div>
 
     <div class="col">
         <label class="form-label" for="orderBy">Order </label>
         <select class="form-select form-select-sm" name="orderBy" aria-label="Par champs">
-            <option value="ASC" <?= isset($_GET['orderBy']) && $_GET['orderBy'] === "ASC" ? 'selected' : null ?>> Growing</option>
-            <option value="DESC" <?= isset($_GET['orderBy']) && $_GET['orderBy'] === 'DESC' ? 'selected' : null ?>> Decrease</option>
+            <option value="ASC" <?= isset($_GET['orderBy']) && $_GET['orderBy'] === "ASC" ? 'selected' : null ?>> Crescent</option>
+            <option value="DESC" <?= isset($_GET['orderBy']) && $_GET['orderBy'] === 'DESC' ? 'selected' : null ?>> Descending</option>
         </select>
     </div>
     <div class="col-12">

@@ -21,7 +21,7 @@ class Users extends AppModel
         $orderBy = isset($filters['orderBy']) && !empty($filters['orderBy']) ? $filters['orderBy'] : 'ASC';
         $userType = isset($filters['userType']) && !empty($filters['userType']) ? $filters['userType'] : null;
         $usersPerPages = isset($filters['usersPerPages']) && !empty($filters['usersPerPages']) ? $filters['usersPerPages'] : 4;
-        $offset = $filters['offset'];
+        $offset = $filters['offset'] ?? 0;
 
         $data = [];
         $query = "SELECT u.id,firstName , lastName , dateOfBirth , n.title AS nationality, userType as type, u.createdAt" . SPACER;

@@ -28,6 +28,9 @@ class MissionsController extends AppController
     public function index()
     {
 
+        // SEARCH
+        $searchParams = $this->searchForm();
+        // FILTERS
         $filtersOptions = $paginationParams = $this->formFiltersMissions();
 
         $countries = $this->Attributes->findAll('country');
@@ -39,7 +42,7 @@ class MissionsController extends AppController
 
         $filtersOptions['offset'] = ($page - 1) * $missionsPerPage;
 
-        $missions = $this->model->findAll($filtersOptions);
+        $missions = $this->model->findAll($filtersOptions, $searchParams);
         $nbMissions = $this->model->getNbMissions();
         $nbPages = ceil($nbMissions / $missionsPerPage);
 
@@ -48,6 +51,30 @@ class MissionsController extends AppController
 
         $this->render('missions/index', compact('pageTitle', 'missions', 'countries', 'status', 'filtersOptions', 'pagination'));
     }
+
+    /**
+     * Get keyword from query search
+     * @return array[string] - Keys from search
+     */
+    public function searchForm()
+    {
+        $q = filter_input(INPUT_GET, 'q', FILTER_SANITIZE_SPECIAL_CHARS);
+
+        if (!empty($q)) {
+            $keywords = explode(' ', $q);
+            return array_filter(
+                $keywords,
+                function ($keyword) {
+                    if (strlen($keyword) > 3) {
+                        return $keyword;
+                    }
+                }
+            );
+        }
+
+        return [];
+    }
+
     /**
      * View mission details
      */
@@ -473,6 +500,13 @@ class MissionsController extends AppController
                 'flags' => FILTER_DEFAULT,
                 'options' => array(
                     'regexp' => '#^ASC|DESC$#'
+                ),
+            ),
+            'q' => array(
+                'filter' => FILTER_VALIDATE_REGEXP,
+                'flags' => FILTER_DEFAULT,
+                'options' => array(
+                    'regexp' => '#[\w]#'
                 ),
             ),
 
