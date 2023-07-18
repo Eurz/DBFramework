@@ -30,15 +30,19 @@ Completed:
     -   contacts (ex: Todd)
 -   Basic class Sessions to manage Sesssion
 -   Messages flash for success or errors actions
-
-In progress:
-
--   Creation of the "missions"
-
-To do:
-
+-   Creation of the "missions page" for users and administrator
 -   Intregate a pagination in pages
 -   Add a system of filters and sorting on all the lists of the site
 -   Add a search field for a mission
--   implementation of an authentication system
--   Implementation of error handling and flash messages
+-   implementation of an authentication and permssions
+-   Implementation of flash messages
+
+## In progress:
+
+-   Refactoring and optimisation
+-   Updating php docs
+
+## To do:
+
+-   Implementation of error handling
+-   Implementation of a container of services

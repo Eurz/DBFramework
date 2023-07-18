@@ -2,11 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entities\AttributesEntity;
 use Core\Forms\Forms;
-use Core\Http;
 use Core\Session;
-use Error;
 use stdClass;
 
 class AttributesController extends AppController
@@ -22,10 +19,18 @@ class AttributesController extends AppController
     ];
 
     private Session $session;
+    protected $roles = 'ROLE_ADMIN';
+
 
     public function __construct()
     {
         parent::__construct();
+        if (!$this->auth->isLogged()) {
+            $this->redirect('login');
+        }
+        if (!$this->auth->grantedAccess($this->roles)) {
+            $this->redirect('home');
+        }
         $this->model = $this->getModel();
         $this->session = new Session('attributesForm');
     }

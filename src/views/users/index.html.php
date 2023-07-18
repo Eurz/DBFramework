@@ -17,7 +17,7 @@
         <option value="Villa">Villa</option>
     </select> -->
 
-    <div class="col-sm-12 col-md-3 mb-3">
+    <div class="col-sm-6 col-md-3 mb-2">
         <label for="userType" class="form-label">Filter by type</label>
         <select class="form-select form-select-sm" name="userType" id="userType" aria-label="Par champs">
 
@@ -30,7 +30,7 @@
     </div>
 
 
-    <div class="col-sm-12 col-md-3 mb-3">
+    <div class="col-sm-6 col-md-3 mb-2">
         <label for="sortBy" class="form-label">Sort by</label>
         <select class="form-select form-select-sm" name="sortBy" id="sortBy" aria-label="Par champs">
             <option value="">Choose a field</option>
@@ -41,7 +41,7 @@
         </select>
     </div>
 
-    <div class="col-sm-12 col-md-3 mb-3">
+    <div class="col-sm-12 col-md-3 mb-2">
         <label class="form-label" for="orderBy">Order </label>
         <select class="form-select form-select-sm" name="orderBy" aria-label="Par champs">
             <option value="ASC" <?= $filtersOptions['orderBy'] === "ASC" ? 'selected' : null ?>> Growing</option>

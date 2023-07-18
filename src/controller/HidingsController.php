@@ -8,10 +8,18 @@ use Core\Forms\Forms;
 class HidingsController extends AppController
 {
     private Attributes $Attributes;
+    protected $roles = 'ROLE_ADMIN';
 
     public function __construct()
     {
         parent::__construct();
+        if (!$this->auth->isLogged()) {
+            $this->redirect('login');
+        }
+
+        if (!$this->auth->grantedAccess($this->roles)) {
+            $this->redirect('home');
+        }
         $this->model = $this->getModel();
         $this->Attributes = $this->getModel('Attributes');
     }

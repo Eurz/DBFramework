@@ -1,1 +1,1 @@
-<h1 class="mb-5"> <?= isset($pageTitle) ? $pageTitle : "No title" ?></h1>
+<h1 class="mb-3"> <?= isset($pageTitle) ? $pageTitle : null ?></h1>

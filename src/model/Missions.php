@@ -11,32 +11,46 @@ class Missions extends AppModel
 
     /**
      * Get all data
+     * @param array $filters - Keys to filter search
+     * @param array $searchParams - Keys to search form mission
+     * @param int $userId - Id of single user as Agent
      */
-    public function findAll($filters = [], $searchParams = null)
+    public function findAll(array $filters = [], array $searchParams = [], int $userId = null)
     {
-
 
         $attributes = [];
         $table = $this->tableName;
 
         // SEARCH
-        if (!empty($searchParams)) {
+        if (!empty($searchParams) || !is_null($userId)) {
             $querySearch = "SELECT *" . SPACER;
-            $querySearch .= "FROM $this->tableName" . SPACER;
+            $querySearch .= "FROM $this->tableName AS u" . SPACER;
+            $where = [];
+            if (!empty($searchParams)) {
+                $sql = array_map(function ($param) {
+                    return "u.title LIKE :" . $param . SPACER;
+                }, $searchParams);
 
-            $sql = [];
-            foreach ($searchParams as $key => $keyword) {
-                $sql[] = "title LIKE :" . $keyword . SPACER;
+
+                $searchMarkers = (implode('OR ', $sql));
+
+                foreach ($searchParams as $value) {
+                    $attributes[$value] = '%' . $value . '%';
+                }
+                $where[] = $searchMarkers;
             }
-            $markers = (implode('OR ', $sql));
+
+            if (!is_null($userId)) {
+                $missionsIds = $this->findMissionsByUserId($userId);
+                $missionsMarkers = $this->makeMarkersList($missionsIds);
+                $where[] = "u.id IN $missionsMarkers";
+            }
+
+            $markers = implode(' AND ', $where);
             $querySearch .= "WHERE" . SPACER . $markers . SPACER;
-
-            foreach ($searchParams as $value) {
-                $attributes[$value] = '%' . $value . '%';
-            }
-
             $table = '(' . $querySearch . ')';
         }
+
 
         // USERS QUERY
         $query = PHP_EOL . "SELECT m.id, status.title AS status, m.title, description, codeName, c.title AS country, mt.title AS type, spec.title AS speciality, startDate, endDate" . SPACER;
@@ -65,14 +79,10 @@ class Missions extends AppModel
             $filter[] = "status.id = $status" . SPACER;
         }
 
-        if (!empty($filter)) {
-            $query .= "WHERE" . SPACER;
-            if (!empty($filter)) {
-                $separator = '';
-                $separator = count($filter) > 1 ? 'AND ' . SPACER : ' ';
 
-                $query .= implode($separator, $filter) . SPACER;
-            }
+
+        if (!empty($filter)) {
+            $query .= "WHERE" . SPACER . implode(' AND ', $filter) . SPACER;
         }
 
         $query .= "ORDER BY $sortBy $orderBy" . SPACER;
@@ -88,10 +98,31 @@ class Missions extends AppModel
         if (!is_null($offset)) {
             $query .= "LIMIT $offset , $missionsPerPages" . SPACER;
         }
-
         $missions = $this->query($query, $attributes, $this->entityName);
+
         return $missions;
     }
+
+    /**
+     * Get missions for users as agent
+     * @param $userId
+     * @return array $missions
+     */
+    public function findMissionsByUserId($userId)
+    {
+        $query = "SELECT mission FROM missions_users WHERE user = :userId ";
+        $missionsIds = $this->queryIndexed($query, ['userId' => $userId]);
+        $markers = $this->makeMarkersList($missionsIds);
+
+        // $queryMissions = "SELECT *" . SPACER;
+        // $queryMissions .= "FROM $this->tableName AS m" . SPACER;
+        // $queryMissions .= " WHERE m.id IN $markers" . SPACER;
+
+        // $missions = $this->query($queryMissions, null, $this->entityName);
+
+        return $missionsIds;
+    }
+
     /**
      * Get number of users from request in findAll methods
      */
@@ -142,7 +173,6 @@ class Missions extends AppModel
         }
 
         // Nationalities
-        $attributesModel = $this->findNationalitiesFromUsers($agentsIds);
         $markersNationalities = $this->makeMarkersList($nationalitiesIds);
 
         $queryNationalities = "SELECT * FROM attributes" . SPACER;
@@ -166,11 +196,11 @@ class Missions extends AppModel
         return $result;
     }
 
-    private function findNationalitiesFromUsers($usersId)
-    {
+    // private function findNationalitiesFromUsers($usersId)
+    // {
 
-        $query = "SELECT * ";
-    }
+    //     $query = "SELECT * ";
+    // }
 
     /**
      * Test
@@ -182,7 +212,6 @@ class Missions extends AppModel
         $query = "SELECT nationalityId FROM users" . SPACER;
         $markers = $this->makeMarkersList($agentsIds);
         $query .= "WHERE users.id IN $markers";
-        // $query .= "LEFT JOIN attributes a ON a.id = users.nationalityId" . SPACER;
         $ids = $this->query($query);
         $result = [];
         foreach ($ids as $id) {
@@ -340,7 +369,7 @@ class Missions extends AppModel
         $usersIdsQuery .= " WHERE mission = $id " . SPACER;
 
         $usersIds = $this->queryIndexed($usersIdsQuery, null);
-
+        var_dump($usersIds);
         if ($usersIds) {
             $agents = $usersModel->findAgents($usersIds, 'agent');
             $mission->setAgents($agents);

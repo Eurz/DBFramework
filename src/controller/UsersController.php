@@ -9,12 +9,24 @@ use Core\Session;
 class UsersController extends AppController
 {
     private Attributes $Attributes;
-
+    protected $roles = 'ROLE_ADMIN';
     private array $types = ['agent' => 'Agent', 'contact' => 'Contact', 'target' => 'Target', 'manager' => 'Manager'];
 
     public function __construct()
     {
         parent::__construct();
+        if (!$this->auth->isLogged()) {
+            $this->redirect('login');
+            return;
+        }
+
+        if (!$this->auth->grantedAccess($this->roles)) {
+            $this->redirect('home');
+        }
+
+        // if (!$this->isAdmin()) {
+        //     $this->redirect('home');
+        // }
         $this->model = $this->getModel();
         $this->Attributes = $this->getModel('attributes');
     }
@@ -28,7 +40,7 @@ class UsersController extends AppController
 
         $usersPerPages = 4;
         $filtersOptions['usersPerPages'] = $usersPerPages;
-        
+
         $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?? 1;
 
         $filtersOptions['offset'] = ($page - 1) * $usersPerPages;
@@ -85,7 +97,10 @@ class UsersController extends AppController
                     ->addRow('identificationCode', '', 'Identification Code', 'input:text', true, null, ['notBlank' => true])
                     ->addRow('nationalityId', '', 'Nationality', 'select', true, $nationalities, ['notBlank' => true])
                     ->addRow('dateOfBirth', '', 'Date of birth', 'input:date', true, null, ['notBlank' => true])
-                    ->addRow('specialities', [], 'Specialities', 'select:multiple', true, $specialities, ['notBlank' => true, 'minValue' => 1]);
+                    ->addRow('specialities', [], 'Specialities', 'select:multiple', true, $specialities, ['notBlank' => true, 'minValue' => 1])
+                    ->addRow('email', '', 'Email', 'input:email', true, null, ['notBlank' => true])
+                    ->addRow('password', '', 'Password', 'input:password', true, null, ['notBlank' => true]);
+
                 break;
             case 'target';
             case 'contact':
@@ -108,7 +123,7 @@ class UsersController extends AppController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            if ($userType === 'manager') {
+            if ($userType === 'manager' || $userType === 'agent') {
                 $data['password'] = $this->auth->hashPassword($data['password']);
             }
 
@@ -146,11 +161,15 @@ class UsersController extends AppController
         switch ($user->userType) {
             case 'agent':
                 $specialities = $this->Attributes->findByKeys('id', 'title', 'speciality');
+
                 $form
                     ->addRow('identificationCode', $user->identificationCode, 'Identification Code', 'input:text', true, null, ['notBlank' => true])
                     ->addRow('nationalityId', $user->nationalityId, 'Nationality', 'select', true, $nationalities, ['notBlank' => true])
                     ->addRow('dateOfBirth', $user->dateOfBirth, 'Date of birth', 'input:date', true, null, ['notBlank' => true])
-                    ->addRow('specialities', $user->specialities, 'Specialities', 'select:multiple', true, $specialities, ['notBlank' => true]);
+                    ->addRow('specialities', $user->specialities, 'Specialities', 'select:multiple', true, $specialities, ['notBlank' => true])
+                    ->addRow('email', $user->email, 'Email', 'input:email', true, null, ['notBlank' => true])
+                    ->addRow('password', $user->password, 'Password', 'input:password', true, null, ['notBlank' => true]);
+
                 break;
             case 'target';
             case 'contact':
@@ -173,7 +192,7 @@ class UsersController extends AppController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            if ($user->userType === 'manager') {
+            if ($user->userType === 'manager' || $user->userType === 'agent') {
                 $data['password'] = $this->auth->hashPassword($data['password']);
             }
 
@@ -217,27 +236,33 @@ class UsersController extends AppController
         $this->render('users/delete', compact('pageTitle', 'user'));
     }
 
-    public function login()
-    {
+    /**
+     * Users form login
+     */
+    // public function login()
+    // {
+    //     $form = new Forms();
+    //     $form
+    //         ->addRow('email', '', 'Email', 'input:email', true, null)
+    //         ->addRow('password', '', 'Password', 'input:password', true, null);
 
-        $form = new Forms();
-        $form
-            ->addRow('email', '', 'Email', 'input:email', true, null)
-            ->addRow('password', '', 'Password', 'input:password', true, null);
+    //     if ($form->isSubmitted() && $form->isValid()) {
+    //         $data = $form->getData();
+    //         $email = $data['email'];
+    //         $password = $data['password'];
+    //         if ($this->auth->login($email, $password)) {
+    //             // var_dump('connection');
+    //             // die('usercontroller');
+    //             $this->redirect('home');
+    //         } else {
 
+    //             $this->messageManager->setError('Incorrect email or password');
+    //         }
+    //     }
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            $email = $data['email'];
-            $password = $data['password'];
-            if ($this->auth->login($email, $password)) {
-                $this->redirect('home');
-            }
-        }
-
-        $pageTitle = 'Login page';
-        $this->render('users/form', compact('pageTitle', 'form'));
-    }
+    //     $pageTitle = 'Login page';
+    //     $this->render('users/form', compact('pageTitle', 'form'));
+    // }
 
 
     public function signIn()
@@ -261,14 +286,7 @@ class UsersController extends AppController
         $this->render('users/form', compact('pageTitle', 'message', 'form'));
     }
 
-    public function logout()
-    {
-        $this->messageManager->setSuccess('You\ve been logout');
-        $this->auth->logout();
-        $this->redirect('login');
-        // $pageTitle = 'Logout page';
-        // $this->render('users/form', compact('pageTitle'));
-    }
+
 
     /**
      * Returns allowed types of user
