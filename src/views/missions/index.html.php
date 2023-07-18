@@ -16,68 +16,73 @@
 
 
     <div class="col-sm-6 col-md-3 mb-3">
-        <label for="country" class="form-label">Filter by country</label>
-        <select class="form-select form-select-sm" name="country" id="country" aria-label="Par champs">
+        <div class="col-sm-6 col-md-3 mb-3">
+            <label for="country" class="form-label">Filter by country</label>
+            <select class="form-select form-select-sm" name="country" id="country" aria-label="Par champs">
 
-            <option value="">Choose a country</option>
-            <?php foreach ($countries as $country) : ?>
-                <?php
-                if (!empty($_GET['country']) && $_GET['country'] === (string)$country->id) {
-                    $selected = 'selected';
-                } else {
+                <option value="">Choose a country</option>
+                <?php foreach ($countries as $country) : ?>
+                    <?php
+                    if (!empty($_GET['country']) && $_GET['country'] === (string)$country->id) {
+                        $selected = 'selected';
+                    } else {
 
-                    $selected = null;
-                }
-                ?>
-                <option value="<?= $country->id ?>" <?= $selected  ?>><?= $country->title ?></option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-    <div class="col-sm-6 col-md-3 mb-3">
-        <label for="status" class="form-label">Filter by status</label>
-        <select class="form-select form-select-sm" name="status" id="status" aria-label="Par champs">
-
-            <option value="">Choose a status</option>
-            <?php foreach ($status as $item) : ?>
-                <?php
-                if ($filtersOptions['status'] === (int)$item->id) {
-                    $selected = 'selected';
-                } else {
-
-                    $selected = null;
-                }
-                ?>
-                <option value="<?= $item->id ?>" <?= $selected  ?>><?= $item->title ?></option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-
-
-    <div class="col-sm-6 col-md-3 mb-3">
-        <label for="sortBy" class="form-label">Sort by</label>
-        <select class="form-select form-select-sm" name="sortBy" id="sortBy" aria-label="Par champs">
-            <option value="">Choose a field</option>
-            <option value="title" <?= $filtersOptions['sortBy'] === 'title' ? 'selected="selected"' : null; ?>>Title</option>
-            <option value="status" <?= $filtersOptions['sortBy'] === 'status' ? 'selected="selected"' : null; ?>>Status</option>
-            <option value="type" <?= $filtersOptions['sortBy'] === 'type' ? 'selected="selected"' : null; ?>>Mission type</option>
-            <option value="country" <?= $filtersOptions['sortBy'] === 'country' ? 'selected="selected"' : null; ?>>Country</option>
-            <option value="startDate" <?= $filtersOptions['sortBy'] === 'startDate' ? 'selected="selected"' : null; ?>>Start date</option>
-        </select>
-    </div>
-
-    <div class="col-sm-6 col-md-3 mb-3">
-        <label class="form-label" for="orderBy">Order </label>
-        <select class="form-select form-select-sm" name="orderBy" aria-label="Par champs">
-            <option value="ASC" <?= isset($_GET['orderBy']) && $_GET['orderBy'] === "ASC" ? 'selected' : null ?>> Crescent</option>
-            <option value="DESC" <?= isset($_GET['orderBy']) && $_GET['orderBy'] === 'DESC' ? 'selected' : null ?>> Descending</option>
-        </select>
-    </div>
-    <div class="col-12">
-        <span class="form-label"><br /></span>
-        <div class="">
-            <button class="btn btn-primary">Go</button>
+                        $selected = null;
+                    }
+                    ?>
+                    <option value="<?= $country->id ?>" <?= $selected  ?>><?= $country->title ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
-    </div>
+        <div class="col-sm-6 col-md-3 mb-3">
+            <div class="col-sm-6 col-md-3 mb-3">
+                <label for="status" class="form-label">Filter by status</label>
+                <select class="form-select form-select-sm" name="status" id="status" aria-label="Par champs">
+
+                    <option value="">Choose a status</option>
+                    <option value="">Choose a status</option>
+                    <?php foreach ($status as $item) : ?>
+                        <?php
+                        if ($filtersOptions['status'] === (int)$item->id) {
+                            $selected = 'selected';
+                        } else {
+
+                            $selected = null;
+                        }
+                        ?>
+                        <option value="<?= $item->id ?>" <?= $selected  ?>><?= $item->title ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+
+            <div class="col-sm-6 col-md-3 mb-3">
+                <div class="col-sm-6 col-md-3 mb-3">
+                    <label for="sortBy" class="form-label">Sort by</label>
+                    <select class="form-select form-select-sm" name="sortBy" id="sortBy" aria-label="Par champs">
+                        <option value="">Choose a field</option>
+                        <option value="title" <?= $filtersOptions['sortBy'] === 'title' ? 'selected="selected"' : null; ?>>Title</option>
+                        <option value="status" <?= $filtersOptions['sortBy'] === 'status' ? 'selected="selected"' : null; ?>>Status</option>
+                        <option value="type" <?= $filtersOptions['sortBy'] === 'type' ? 'selected="selected"' : null; ?>>Mission type</option>
+                        <option value="country" <?= $filtersOptions['sortBy'] === 'country' ? 'selected="selected"' : null; ?>>Country</option>
+                        <option value="startDate" <?= $filtersOptions['sortBy'] === 'startDate' ? 'selected="selected"' : null; ?>>Start date</option>
+                    </select>
+                </div>
+
+                <div class="col-sm-6 col-md-3 mb-3">
+                    <div class="col-sm-6 col-md-3 mb-3">
+                        <label class="form-label" for="orderBy">Order </label>
+                        <select class="form-select form-select-sm" name="orderBy" aria-label="Par champs">
+                            <option value="ASC" <?= isset($_GET['orderBy']) && $_GET['orderBy'] === "ASC" ? 'selected' : null ?>> Crescent</option>
+                            <option value="DESC" <?= isset($_GET['orderBy']) && $_GET['orderBy'] === 'DESC' ? 'selected' : null ?>> Descending</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <span class="form-label"><br /></span>
+                        <div class="">
+                            <button class="btn btn-primary">Go</button>
+                        </div>
+                    </div>
 </form>
 <?php if ($missions) : ?>
     <table class="table table-hover">
@@ -111,6 +116,11 @@
                         <a href="/missions/edit/<?= $mission->id ?>" class="btn btn-primary btn-sm">Edit</a>
                         <a href="/missions/delete/<?= $mission->id ?>" class="btn btn-danger btn-sm">Delete</a>
                     <?php endif ?>
+                    <?php if ($auth->grantedAccess('ROLE_ADMIN')) : ?>
+                        <a href="/missions/view/<?= $mission->id ?>" class="btn btn-primary btn-sm">View</a>
+                        <a href="/missions/edit/<?= $mission->id ?>" class="btn btn-primary btn-sm">Edit</a>
+                        <a href="/missions/delete/<?= $mission->id ?>" class="btn btn-danger btn-sm">Delete</a>
+                    <?php endif ?>
                 </td>
             </tr>
 
@@ -122,6 +132,7 @@
         <?= $pagination ?>
     <?php endif ?>
 <?php else : ?>
+    <p class="p-3">Actually, there is no missions for your selection
     <p class="p-3">Actually, there is no missions for your selection
 
     <?php endif; ?>
