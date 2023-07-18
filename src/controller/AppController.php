@@ -19,37 +19,55 @@ class AppController extends Controller
     protected $auth;
     protected $messageManager;
     protected $itemName = 'Test';
+    protected $user;
 
     public function __construct()
     {
         parent::__construct();
         $this->auth = new Authentication(Application::getDb());
         $this->messageManager = new Messages();
-        if (!$this->auth->isLogged()) {
-            // $this->login();
-            // $this->redirect('login');
-        }
     }
 
+    /**
+     * Users form login
+     */
     public function login()
     {
 
-        $form = new Forms();
-        $form->addRow('email', '', 'Email', 'input:email', true, null, ['notBlank' => true]);
-        $form->addRow('password', '', 'Password', 'input:password', true, null, ['notBlank' => true]);
+        if (!$this->auth->isLogged()) {
+            # code...
+            $form = new Forms();
+            $form
+                ->addRow('email', '', 'Email', 'input:email', true, null)
+                ->addRow('password', '', 'Password', 'input:password', true, null);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            $email = $data['email'];
-            $password = $data['password'];
-            if ($this->auth->login($email, $password)) {
-                $this->redirect('home');
+            if ($form->isSubmitted() && $form->isValid()) {
+                $data = $form->getData();
+                $email = $data['email'];
+                $password = $data['password'];
+                if ($this->auth->login($email, $password) !== false) {
+                    $this->redirect('home');
+                } else {
+                    $this->messageManager->setError('Incorrect email or password');
+                }
             }
+            $pageTitle = 'Login page';
+            $this->render('users/form', compact('pageTitle', 'form'));
+            return;
         }
-
-        $pageTitle = 'Login page';
-        $this->render('users/form', compact('pageTitle', 'form'));
+        $this->redirect('home');
     }
+
+    /**
+     * Logoout user
+     */
+    public function logout()
+    {
+        $this->messageManager->setSuccess('You\'ve been logout successfully');
+        $this->auth->logout();
+        $this->redirect('login');
+    }
+
 
     /**
      * Make an html pagination
@@ -81,4 +99,16 @@ class AppController extends Controller
 
         return $html;
     }
+    /**
+     * Test
+     */
+    // public function isAdmin()
+    // {
+    //     if (!$this->auth->isAdmin()) {
+    //         $pageTitle = 'Accès refusé';
+    //         $message = 'You must be an admin to access this page';
+    //         $this->render('error', compact('pageTitle', 'message'));
+    //         exit();
+    //     }
+    // }
 }

@@ -14,9 +14,21 @@ class MissionsController extends AppController
     protected Users $Users;
     protected Hidings $Hidings;
     protected Session $session;
+    protected $roles = 'ROLE_USER';
     public function __construct()
     {
         parent::__construct();
+        if (!$this->auth->isLogged()) {
+            $this->redirect('login');
+        }
+
+
+        if (!$this->auth->grantedAccess($this->roles)) {
+            // $this->redirect('home');
+        }
+
+
+
         $this->model = $this->getModel();
         $this->Attributes = $this->getModel('attributes');
         $this->Users = $this->getModel('users');
@@ -28,8 +40,13 @@ class MissionsController extends AppController
     public function index()
     {
 
+
+        $message = [];
+
         // SEARCH
         $searchParams = $this->searchForm();
+
+
         // FILTERS
         $filtersOptions = $paginationParams = $this->formFiltersMissions();
 
@@ -42,14 +59,24 @@ class MissionsController extends AppController
 
         $filtersOptions['offset'] = ($page - 1) * $missionsPerPage;
 
-        $missions = $this->model->findAll($filtersOptions, $searchParams);
+        $userId = null;
+        $this->auth->grantedAccess('ROLE_USER');
+        if ($this->auth->getUser()->userType !== 'manager') {
+            $userId = $this->auth->getUserId();
+        }
+        $missions = $this->model->findAll($filtersOptions, $searchParams, $userId);
         $nbMissions = $this->model->getNbMissions();
+
+
         $nbPages = ceil($nbMissions / $missionsPerPage);
 
         $pageTitle = 'Missions';
-        $pagination = $this->pagination($nbPages, $paginationParams);
 
-        $this->render('missions/index', compact('pageTitle', 'missions', 'countries', 'status', 'filtersOptions', 'pagination'));
+        $pagination = $this->pagination($nbPages, $paginationParams);
+        $auth = $this->auth;
+
+
+        $this->render('missions/index', compact('pageTitle', 'missions', 'countries', 'status', 'filtersOptions', 'pagination', 'message', 'auth'));
     }
 
     /**
@@ -91,10 +118,10 @@ class MissionsController extends AppController
      */
     public function add($action = 'default')
     {
-
-        if (!$this->session->exist('mission')) {
-            // $this->session->set('mission', [], $action);
+        if (!$this->auth->grantedAccess('ROLE_ADMIN')) {
+            $this->redirect('missions');
         }
+
 
         // Initialisation
         $pageTitle = 'Missions';
@@ -148,6 +175,7 @@ class MissionsController extends AppController
 
                 $message = 'Choose agent(s) for mission';
                 $agents = $this->Users->findByKeys('id', 'fullName', 'agent');
+
 
                 if ($agents === false) {
                     $this->messageManager->setError('There \'s no agent(s) available(s) in your database for this mission');
@@ -274,6 +302,11 @@ class MissionsController extends AppController
 
     public function edit($id, $action = 'default')
     {
+
+        if (!$this->auth->grantedAccess('ROLE_ADMIN')) {
+            $this->redirect('missions');
+        }
+
         $pageTitle = 'Missions';
 
         $mission = $this->model->findById($id);
@@ -460,6 +493,11 @@ class MissionsController extends AppController
      */
     public function delete($id)
     {
+
+        if (!$this->auth->grantedAccess('ROLE_ADMIN')) {
+            $this->redirect('missions');
+        }
+
         $mission = $this->model->findById($id);
 
         if (!$mission) {

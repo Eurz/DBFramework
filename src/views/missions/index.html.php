@@ -1,8 +1,12 @@
 <form class="row p-3" method="GET">
-    <div class="row bg-light p-3 g-1">
-        <div class="col">
-            <a href="/missions/add" class="btn btn-primary btn-sm">Create a mission</a>
-        </div>
+    <div class="row bg-light p-3 g-1 mb-3">
+        <?php if ($auth->grantedAccess('ROLE_ADMIN')) : ?>
+            <div class="col">
+                <a href="/missions/add" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-lg"></i>
+                    Create a mission</a>
+            </div>
+        <?php endif; ?>
         <div class="col col-sm-12 col-lg-6">
             <?php include_once(VIEW_PATH . '/searchForm.html.php') ?>
         </div>
@@ -11,7 +15,7 @@
     </div>
 
 
-    <div class="col">
+    <div class="col-sm-6 col-md-3 mb-3">
         <label for="country" class="form-label">Filter by country</label>
         <select class="form-select form-select-sm" name="country" id="country" aria-label="Par champs">
 
@@ -29,11 +33,11 @@
             <?php endforeach; ?>
         </select>
     </div>
-    <div class="col">
+    <div class="col-sm-6 col-md-3 mb-3">
         <label for="status" class="form-label">Filter by status</label>
         <select class="form-select form-select-sm" name="status" id="status" aria-label="Par champs">
 
-            <option value="">Choose a country</option>
+            <option value="">Choose a status</option>
             <?php foreach ($status as $item) : ?>
                 <?php
                 if ($filtersOptions['status'] === (int)$item->id) {
@@ -49,7 +53,7 @@
     </div>
 
 
-    <div class="col">
+    <div class="col-sm-6 col-md-3 mb-3">
         <label for="sortBy" class="form-label">Sort by</label>
         <select class="form-select form-select-sm" name="sortBy" id="sortBy" aria-label="Par champs">
             <option value="">Choose a field</option>
@@ -61,7 +65,7 @@
         </select>
     </div>
 
-    <div class="col">
+    <div class="col-sm-6 col-md-3 mb-3">
         <label class="form-label" for="orderBy">Order </label>
         <select class="form-select form-select-sm" name="orderBy" aria-label="Par champs">
             <option value="ASC" <?= isset($_GET['orderBy']) && $_GET['orderBy'] === "ASC" ? 'selected' : null ?>> Crescent</option>
@@ -102,9 +106,11 @@
                 <td><?= $mission->endDate ?></td>
                 <td><?= $mission->speciality ?></td> -->
                 <td class="text-end">
-                    <a href="/missions/view/<?= $mission->id ?>" class="btn btn-primary btn-sm">View</a>
-                    <a href="/missions/edit/<?= $mission->id ?>" class="btn btn-primary btn-sm">Edit</a>
-                    <a href="/missions/delete/<?= $mission->id ?>" class="btn btn-danger btn-sm">Delete</a>
+                    <?php if ($auth->grantedAccess('ROLE_ADMIN')) : ?>
+                        <a href="/missions/view/<?= $mission->id ?>" class="btn btn-primary btn-sm">View</a>
+                        <a href="/missions/edit/<?= $mission->id ?>" class="btn btn-primary btn-sm">Edit</a>
+                        <a href="/missions/delete/<?= $mission->id ?>" class="btn btn-danger btn-sm">Delete</a>
+                    <?php endif ?>
                 </td>
             </tr>
 
@@ -116,6 +122,6 @@
         <?= $pagination ?>
     <?php endif ?>
 <?php else : ?>
-    <p class="p-3">Actually, there is no missions <br />
+    <p class="p-3">Actually, there is no missions for your selection
 
     <?php endif; ?>

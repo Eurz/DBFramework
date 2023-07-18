@@ -29,10 +29,11 @@ class Authentication
         if ($user) {
 
             $result = $this->verifyPassword($password, $user['password']);
+
             if ($result) {
                 $_SESSION['user'] = $user['id'];
+                return true;
             }
-            return true;
         }
 
         return false;
@@ -53,25 +54,55 @@ class Authentication
     public function signIn()
     {
     }
-
-    public function logout()
+    /**
+     * Log out current user. Delete user key in current SESSION
+     * @return void
+     */
+    public function logout(): void
     {
         if ($this->isLogged()) {
             unset($_SESSION['user']);
         }
     }
 
+    /**
+     * Check if user is authenticated
+     * @return bool
+     */
     public function isLogged(): bool
     {
         return isset($_SESSION['user']);
     }
 
-
+    /**
+     * Get user's id authenticated
+     */
     public function getUserId()
     {
         if ($this->isLogged()) {
             return $_SESSION['user'];
         }
         return null;
+    }
+
+    /**
+     * Get the authenticated user
+     * @return Entity $user
+     */
+    public function getUser(): Entity
+    {
+        $usersModel = Application::getInstance()->getModel('users');
+        $user = $usersModel->findUserById($this->getUserId());
+        return $user;
+    }
+
+    /**
+     * Checks if a user has the required role
+     * @param int|string $role - Role to check
+     * @return bool - True if role is checked otherwise false
+     */
+    public function grantedAccess($role)
+    {
+        return in_array($role, $this->getUser()->getRoles());
     }
 }

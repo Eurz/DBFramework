@@ -2,29 +2,32 @@
 
 namespace App\Controller;
 
+use App\Model\Missions;
 use Core\Controller;
 
 class HomeController extends AppController
 {
 
+    private Missions $Missions;
     public function __construct()
     {
         parent::__construct();
 
         // $this->model = $this->getModel();
+        if (!$this->auth->isLogged()) {
+            $this->redirect('login');
+        }
+
+        $this->Missions = $this->getModel('missions');
     }
 
     function index()
     {
+        $this->Missions->findMissionsByUserId($this->auth->getUserId());
 
-        $pageTitle = "Your dashboard";
+        $pageTitle = "Your missions";
+        $auth = $this->auth;
 
-        $userId = $this->auth->getUserId();
-
-        $usersModel = $this->getModel('users');
-        var_dump($userId);
-        $user = $usersModel->findById($userId);
-
-        $this->render('home/index', compact('pageTitle', 'user'));
+        $this->render('home/index', compact('pageTitle', 'auth'));
     }
 }

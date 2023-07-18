@@ -21,7 +21,7 @@ class Users extends AppModel
         $orderBy = isset($filters['orderBy']) && !empty($filters['orderBy']) ? $filters['orderBy'] : 'ASC';
         $userType = isset($filters['userType']) && !empty($filters['userType']) ? $filters['userType'] : null;
         $usersPerPages = isset($filters['usersPerPages']) && !empty($filters['usersPerPages']) ? $filters['usersPerPages'] : 4;
-        $offset = $filters['offset'] ?? 0;
+        $offset = $filters['offset'] ?? null;
 
         $data = [];
         $query = "SELECT u.id,firstName , lastName , dateOfBirth , n.title AS nationality, userType as type, u.createdAt" . SPACER;
@@ -73,6 +73,7 @@ class Users extends AppModel
     {
         $query = "SELECT users.id, firstName , lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, users.createdAt, codeName, email, password FROM $this->tableName" . SPACER;
         $query .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
+
         $query .= "WHERE users.id = :id";
 
         $user = $this->query($query, ['id' => $id], $this->entityName, true);
@@ -85,6 +86,13 @@ class Users extends AppModel
 
             $user->setSpecialities($this->extractKeys('id', $specialities));
         }
+
+        $rolesQuery = "SELECT roles.title FROM roles_users AS ru" . SPACER;
+        $rolesQuery .= "LEFT JOIN roles ON roles.id = role" . SPACER;
+        $rolesQuery .= "WHERE ru.user = $id" . SPACER;
+        $roles = $this->queryIndexed($rolesQuery, null);
+        $user->setRoles($roles);
+
         return $user;
     }
 

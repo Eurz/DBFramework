@@ -99,10 +99,10 @@ class Application
         $router->get('/users/edit/:id', 'users.edit');
         $router->get('/users/delete/:id', 'users.delete');
         $router->get('/signin', 'users.signIn');
-        $router->get('/login', 'home.login');
-        $router->get('/logout', 'users.logout');
+        $router->get('/login', 'app.login');
+        $router->get('/logout', 'app.logout');
 
-        $router->post('/login', 'home.login');
+        $router->post('/login', 'app.login');
         $router->post('/users/add/', 'users.add');
         $router->post('/users/add/:userType', 'users.add');
         $router->post('/users/edit/:id', 'users.edit');

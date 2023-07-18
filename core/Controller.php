@@ -2,11 +2,17 @@
 
 namespace Core;
 
+use App\Model\AppModel;
 use Core\Renderer;
 
 class Controller
 {
     protected $model;
+
+    /**
+     * @var array|string $roles - List of required roles
+     */
+    protected $roles;
 
     public function __construct()
     {
@@ -21,15 +27,6 @@ class Controller
     {
         $renderer = new Renderer();
         $renderer->render($viewPath, $data);
-    }
-
-
-    /**
-     * Under consideration
-     */
-    public function query()
-    {
-        # code...
     }
 
 
