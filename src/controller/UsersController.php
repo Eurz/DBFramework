@@ -191,7 +191,8 @@ class UsersController extends AppController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-
+            // var_dump($data);
+            // die();
             if ($user->userType === 'manager' || $user->userType === 'agent') {
                 $data['password'] = $this->auth->hashPassword($data['password']);
             }

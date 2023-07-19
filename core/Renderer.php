@@ -13,12 +13,14 @@ class Renderer
     public static function render(string $path, array $variables = []): void
     {
         extract($variables);
+        $auth = new Authentication(Application::getDb());
         ob_start();
         require(VIEW_PATH .  '/' . $path . '.html.php');
         $pageContent = ob_get_clean();
 
         $messageManager = new Messages();
         $messages = $messageManager->read();
+
 
 
         require_once(VIEW_PATH . '/layout.html.php');

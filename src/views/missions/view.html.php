@@ -91,6 +91,8 @@
 
     </table>
     <div>
-        <a href="/missions/edit/<?= $mission->id ?>" class="btn btn-primary">Edit mission</a>
-        <a href="/missions/delete/<?= $mission->id ?>" class="btn btn-danger">Delete mission</a>
+        <?php if ($auth->grantedAccess('ROLE_ADMIN')) : ?>
+            <a href="/missions/edit/<?= $mission->id ?>" class="btn btn-primary">Edit mission</a>
+            <a href="/missions/delete/<?= $mission->id ?>" class="btn btn-danger">Delete mission</a>
+        <?php endif ?>
     </div>

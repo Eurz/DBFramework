@@ -23,9 +23,6 @@ class MissionsController extends AppController
         }
 
 
-        if (!$this->auth->grantedAccess($this->roles)) {
-            // $this->redirect('home');
-        }
 
 
 
@@ -39,7 +36,6 @@ class MissionsController extends AppController
 
     public function index()
     {
-
 
         $message = [];
 
@@ -61,7 +57,7 @@ class MissionsController extends AppController
 
         $userId = null;
         $this->auth->grantedAccess('ROLE_USER');
-        if ($this->auth->getUser()->userType !== 'manager') {
+        if ($this->auth->getUser() && $this->auth->getUser()->userType !== 'manager') {
             $userId = $this->auth->getUserId();
         }
         $missions = $this->model->findAll($filtersOptions, $searchParams, $userId);
@@ -72,11 +68,14 @@ class MissionsController extends AppController
 
         $pageTitle = 'Missions';
 
-        $pagination = $this->pagination($nbPages, $paginationParams);
-        $auth = $this->auth;
+        if ($nbMissions > $missionsPerPage) {
+            $pagination = $this->pagination($nbPages, $paginationParams);
+        } else {
+            $pagination = null;
+        }
 
 
-        $this->render('missions/index', compact('pageTitle', 'missions', 'countries', 'status', 'filtersOptions', 'pagination', 'message', 'auth'));
+        $this->render('missions/index', compact('pageTitle', 'missions', 'countries', 'status', 'filtersOptions', 'pagination', 'message'));
     }
 
     /**
@@ -108,6 +107,7 @@ class MissionsController extends AppController
     public function view($id)
     {
         $mission = $this->model->findById($id);
+
 
         $pageTitle = 'Mission : <i>' . $mission->title . '</i>';
         $this->render('missions/view', compact('pageTitle', 'mission'));
@@ -220,7 +220,7 @@ class MissionsController extends AppController
                 $response = $this->model->insert($data);
 
                 if ($response) {
-                    $this->session->reset();
+                    $this->session->delete('mission');
                 }
 
                 $this->redirect('missions');

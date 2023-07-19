@@ -26,8 +26,7 @@ class HomeController extends AppController
         $this->Missions->findMissionsByUserId($this->auth->getUserId());
 
         $pageTitle = "Your missions";
-        $auth = $this->auth;
 
-        $this->render('home/index', compact('pageTitle', 'auth'));
+        $this->render('home/index', compact('pageTitle'));
     }
 }

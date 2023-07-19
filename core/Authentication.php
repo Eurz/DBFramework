@@ -2,7 +2,6 @@
 
 namespace Core;
 
-use App\Model\Users;
 
 class Authentication
 {
@@ -71,7 +70,16 @@ class Authentication
      */
     public function isLogged(): bool
     {
-        return isset($_SESSION['user']);
+        if (isset($_SESSION['user'])) {
+            $query = "SELECT * FROM users WHERE id = :id" . SPACER;
+            $user = $this->db->query($query, [':id' => $_SESSION['user']], null, true);
+            if (!$user) {;
+                return false;
+            }
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -82,17 +90,19 @@ class Authentication
         if ($this->isLogged()) {
             return $_SESSION['user'];
         }
+
         return null;
     }
 
     /**
      * Get the authenticated user
-     * @return Entity $user
+     * @return $user
      */
-    public function getUser(): Entity
+    public function getUser(): Entity|bool
     {
         $usersModel = Application::getInstance()->getModel('users');
         $user = $usersModel->findUserById($this->getUserId());
+
         return $user;
     }
 
@@ -103,6 +113,10 @@ class Authentication
      */
     public function grantedAccess($role)
     {
-        return in_array($role, $this->getUser()->getRoles());
+        if ($this->getUser() !== false) {
+            return in_array($role, $this->getUser()->getRoles());
+        }
+
+        return false;
     }
 }

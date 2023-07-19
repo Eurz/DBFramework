@@ -26,9 +26,7 @@
 
             if ($auth->isLogged()) : ?>
                 <?php include_once(VIEW_PATH . '/mainnav.html.php') ?>
-            <?php else : ?>
-                <a class="btn btn-primary" href="/login">Login</a>
-            <?php endif ?>
+            <?php endif; ?>
 
         </div>
     </nav>

@@ -21,14 +21,17 @@ class Missions extends AppModel
         $attributes = [];
         $table = $this->tableName;
 
-        // SEARCH
         if (!empty($searchParams) || !is_null($userId)) {
             $querySearch = "SELECT *" . SPACER;
             $querySearch .= "FROM $this->tableName AS u" . SPACER;
             $where = [];
+
+            // SEARCH
             if (!empty($searchParams)) {
                 $sql = array_map(function ($param) {
-                    return "u.title LIKE :" . $param . SPACER;
+                    $item = "u.title LIKE :" . $param . SPACER;
+                    // $item .= "u.codeName LIKE :" . $param . SPACER;
+                    return $item;
                 }, $searchParams);
 
 
@@ -40,15 +43,23 @@ class Missions extends AppModel
                 $where[] = $searchMarkers;
             }
 
+            // SPECIFIC USER
             if (!is_null($userId)) {
                 $missionsIds = $this->findMissionsByUserId($userId);
-                $missionsMarkers = $this->makeMarkersList($missionsIds);
-                $where[] = "u.id IN $missionsMarkers";
+                if (!$missionsIds) {
+                    return false;
+                }
+                if (!empty($missionsIds)) {
+                    $missionsMarkers = $this->makeMarkersList($missionsIds);
+                    $where[] = "u.id IN $missionsMarkers";
+                }
             }
 
-            $markers = implode(' AND ', $where);
-            $querySearch .= "WHERE" . SPACER . $markers . SPACER;
-            $table = '(' . $querySearch . ')';
+            if (!empty($where)) {
+                $markers = implode(' AND ', $where);
+                $querySearch .= "WHERE" . SPACER . $markers . SPACER;
+                $table = '(' . $querySearch . ')';
+            }
         }
 
 
@@ -86,7 +97,6 @@ class Missions extends AppModel
         }
 
         $query .= "ORDER BY $sortBy $orderBy" . SPACER;
-
 
         $nbMissions = $this->query($query, $attributes, $this->entityName);
 
@@ -357,8 +367,6 @@ class Missions extends AppModel
             $this->messageManager->setError('No such a mission in database');
             return false;
         }
-        // var_dump($mission);
-        // die();
         $hidingModel = $this->getModel('hidings');
         $hiding = $hidingModel->findById($mission->hidingId);
         $mission->hiding = $hiding;
@@ -369,7 +377,6 @@ class Missions extends AppModel
         $usersIdsQuery .= " WHERE mission = $id " . SPACER;
 
         $usersIds = $this->queryIndexed($usersIdsQuery, null);
-        var_dump($usersIds);
         if ($usersIds) {
             $agents = $usersModel->findAgents($usersIds, 'agent');
             $mission->setAgents($agents);

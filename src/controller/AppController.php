@@ -35,7 +35,6 @@ class AppController extends Controller
     {
 
         if (!$this->auth->isLogged()) {
-            # code...
             $form = new Forms();
             $form
                 ->addRow('email', '', 'Email', 'input:email', true, null)
@@ -46,16 +45,18 @@ class AppController extends Controller
                 $email = $data['email'];
                 $password = $data['password'];
                 if ($this->auth->login($email, $password) !== false) {
-                    $this->redirect('home');
+                    $this->redirect('missions');
                 } else {
                     $this->messageManager->setError('Incorrect email or password');
                 }
             }
+
             $pageTitle = 'Login page';
             $this->render('users/form', compact('pageTitle', 'form'));
             return;
         }
-        $this->redirect('home');
+
+        $this->redirect('missions');
     }
 
     /**
@@ -88,7 +89,7 @@ class AppController extends Controller
         $url = '?' . implode('&', $urlParts);
         $html = '<nav aria-label="Users pagination">';
 
-        $html .= '<ul class="pagination">';
+        $html .= '<ul class="pagination justify-content-center">';
         for ($i = 1; $i <= $nbPages; $i++) {
             $active = $i === (int)$currentPage ? 'active' : null;
             $html .= '<li class="page-item ' . $active . '"><a class="page-link" href="' . $url . '&page=' . $i . '">' .  $i . '</a></li>';

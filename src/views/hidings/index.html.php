@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-between">
     <div class="col bg-light p-3">
-        <a href="/hidings/add" class="btn btn-primary btn-sm"><i class="bi bi-house-door-fill"></i> Add an hiding</a>
+        <a href="/hidings/add" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Add an hiding</a>
     </div>
 
 </div>
@@ -78,8 +78,8 @@
                         <td><?= $hiding->address ?> </td>
                         <td><?= $hiding->type ?? '---' ?> </td>
                         <td class="text-end">
-                            <a href="hidings/edit/<?= $hiding->id ?>" class="btn btn-sm btn-primary">Edit</a>
-                            <a href="hidings/delete/<?= $hiding->id ?>" class="btn btn-sm btn-danger">Delete</a>
+                            <a href="hidings/edit/<?= $hiding->id ?>" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
+                            <a href="hidings/delete/<?= $hiding->id ?>" class="btn btn-sm btn-danger"><i class="bi bi-trash3"></i></a>
                         </td>
                     </tr>
 

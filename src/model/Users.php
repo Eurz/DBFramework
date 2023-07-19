@@ -78,21 +78,23 @@ class Users extends AppModel
 
         $user = $this->query($query, ['id' => $id], $this->entityName, true);
 
-        if ($user && $user->userType === 'agent') {
-            $specialitiesQuery = "SELECT specialityId AS id FROM userspecialities" . SPACER;
-            $specialitiesQuery .= "LEFT JOIN attributes AS a ON a.id = specialityId" . SPACER;
-            $specialitiesQuery .= "WHERE userId = :id";
-            $specialities = $this->query($specialitiesQuery, ['id' => $id]);
+        if ($user) {
+            if ($user && $user->userType === 'agent') {
+                $specialitiesQuery = "SELECT specialityId AS id FROM userspecialities" . SPACER;
+                $specialitiesQuery .= "LEFT JOIN attributes AS a ON a.id = specialityId" . SPACER;
+                $specialitiesQuery .= "WHERE userId = :id";
+                $specialities = $this->query($specialitiesQuery, ['id' => $id]);
 
-            $user->setSpecialities($this->extractKeys('id', $specialities));
+                $user->setSpecialities($this->extractKeys('id', $specialities));
+            }
+
+            $rolesQuery = "SELECT roles.title FROM roles_users AS ru" . SPACER;
+            $rolesQuery .= "LEFT JOIN roles ON roles.id = role" . SPACER;
+            $rolesQuery .= "WHERE ru.user = $id" . SPACER;
+            $roles = $this->queryIndexed($rolesQuery, null);
+
+            $user->setRoles($roles);
         }
-
-        $rolesQuery = "SELECT roles.title FROM roles_users AS ru" . SPACER;
-        $rolesQuery .= "LEFT JOIN roles ON roles.id = role" . SPACER;
-        $rolesQuery .= "WHERE ru.user = $id" . SPACER;
-        $roles = $this->queryIndexed($rolesQuery, null);
-        $user->setRoles($roles);
-
         return $user;
     }
 

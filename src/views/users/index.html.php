@@ -103,8 +103,8 @@
                     <td><?= $user->createdAt ?></td>
                     <td class="text-end">
 
-                        <a href="/users/edit/<?= $user->id ?>" class="btn btn-primary btn-sm">Edit</a>
-                        <a href="/users/delete/<?= $user->id ?>" class="btn btn-danger btn-sm">Delete</a>
+                        <a href="/users/edit/<?= $user->id ?>" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i></a>
+                        <a href="/users/delete/<?= $user->id ?>" class="btn btn-danger btn-sm"><i class="bi bi-trash3"></i></a>
                     </td>
                 </tr>
 

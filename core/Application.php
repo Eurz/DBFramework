@@ -60,8 +60,8 @@ class Application
         $router = new Router($_GET['url']);
 
         // Home
-        $router->get('/', 'home.index');
-        $router->get('/home', 'home.index');
+        $router->get('/', 'missions.index');
+        $router->get('/home', 'missions.index');
         $router->get('/404', 'app.notFound');
 
         // Attributes
