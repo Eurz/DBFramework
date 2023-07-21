@@ -88,7 +88,8 @@
             <th>Status</th>
             <th>Country</th>
             <th>Type</th>
-            <!-- <th>Start</th>
+            <th>Start</th>
+            <!-- 
             <th>End</th> -->
             <!--
             <th>Country</th>
@@ -102,8 +103,8 @@
                 <td><?= $mission->status ?></td>
                 <td><?= $mission->country ?></td>
                 <td><?= $mission->type ?></td>
-                <!--
                 <td><?= $mission->startDate ?></td>
+                <!--
                 <td><?= $mission->endDate ?></td>
                 <td><?= $mission->speciality ?></td> -->
                 <td class="text-end">

@@ -6,9 +6,9 @@ use Core\Entity;
 
 class AttributesEntity extends Entity
 {
-    protected int $id;
-    protected string $title = '';
-    protected string $type = '';
+    protected $id;
+    protected $title = '';
+    protected $type = '';
     protected $createdAt;
     protected $linkedAttribute;
 

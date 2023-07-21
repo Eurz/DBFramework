@@ -25,7 +25,7 @@ class AppModel extends Model
             $data = $this->findAll($type);
         }
 
-        if ($data === false) {
+        if (!$data) {
             return $data;
         }
 

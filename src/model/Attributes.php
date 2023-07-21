@@ -19,7 +19,6 @@ class Attributes extends AppModel
             $data['type'] = $type;
         }
         $query .= "ORDER BY type ASC" . SPACER;
-
         $attributes = $this->query($query, $data, $this->entityName);
 
         return $attributes;

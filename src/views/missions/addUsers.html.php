@@ -14,6 +14,8 @@ if (isset($form)) :
                 <?php if (isset($mission)) : ?>
                     <a href="/missions/delete/<?= $mission->id ?>" class="btn btn-danger">Delete</a>
                 <?php endif ?>
+                <button name="cancelMission" type="submit" value="Cancel" class="btn btn-danger">Cancel</button>
+
 
             </div>
         </div>

@@ -22,6 +22,6 @@ if (isset($form)) :
 <?php else : ?>
     <p><?= $message ?></p>
 
-    <a href="/hidings/add/<?= $action ?>" target="_blank" class="btn btn-primary">Add a <?= $action ?></a>
+    <a href="/<?= $action ?>/add" target="_blank" class="btn btn-primary">Add <?= $action ?></a>
     <a href="/missions/add" class="btn btn-primary">Change country</a>
 <?php endif ?>

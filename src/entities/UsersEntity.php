@@ -32,7 +32,7 @@ class UsersEntity extends Entity
     protected $codeName;
     protected $email;
     protected $password;
-    protected  $roles;
+    protected $roles;
 
     public function __construct()
     {

@@ -57,7 +57,7 @@ class Model
 
     /**
      * Find data by id
-     * @param int $id - Id of data to fetch
+     * @param mixed $id - Id of data to fetch
      * @return Entity|false $data - False or an entity if data exist
      */
     public function findById($id)
@@ -93,14 +93,14 @@ class Model
 
     /**
      * Update item from database
-     * @param int $id - ID of the updated item
+     * @param mixed $id - ID of the updated item
      * @param array $data - New item's data
      */
     public function update($id, $data)
     {
         $markers = $this->makeMarkers($data);
-        $query = "UPDATE $this->tableName SET $markers WHERE id = $id ";
-
+        $query = "UPDATE $this->tableName SET $markers WHERE id = :id ";
+        $data['id'] = $id;
         $response = $this->query($query, $data);
         if ($response) {
             $this->messageManager->setSuccess($this->itemName . SPACER .  'successfully updated');
@@ -112,10 +112,10 @@ class Model
 
     /**
      * Delete an item from Database
-     * @param int $id - ID of the item to delete
+     * @param mixed $id - ID of the item to delete
      * @return mixed - False if delete failed, treu otherwise
      */
-    public function delete(int $id)
+    public function delete(mixed $id)
     {
         if ($this->itemExist($id)) {
             $query = "DELETE FROM $this->tableName WHERE id = :id";
@@ -198,7 +198,10 @@ class Model
      */
     protected function makeMarkersList($data)
     {
-        $result = '(' . implode(',', $data) . ')';
+        $markers = array_map(function ($marker) {
+            return "$marker";
+        }, $data);
+        $result = '(' . implode(',', $markers) . ')';
         return $result;
     }
 

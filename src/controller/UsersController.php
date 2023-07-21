@@ -128,7 +128,7 @@ class UsersController extends AppController
             }
 
             $response = $this->model->insertUser($data, $userType);
-            if ($response) {
+            if ($response !== false) {
 
                 $this->redirect('users/edit/' . $response);
             }
@@ -141,7 +141,7 @@ class UsersController extends AppController
 
     /**
      * Edit an user
-     * @param int $id - User's Id
+     * @param mixed $id - User's Id
      */
     public function edit($id)
     {
@@ -168,7 +168,7 @@ class UsersController extends AppController
                     ->addRow('dateOfBirth', $user->dateOfBirth, 'Date of birth', 'input:date', true, null, ['notBlank' => true])
                     ->addRow('specialities', $user->specialities, 'Specialities', 'select:multiple', true, $specialities, ['notBlank' => true])
                     ->addRow('email', $user->email, 'Email', 'input:email', true, null, ['notBlank' => true])
-                    ->addRow('password', $user->password, 'Password', 'input:password', true, null, ['notBlank' => true]);
+                    ->addRow('password', '', 'Password', 'input:password', true, null, ['notBlank' => true]);
 
                 break;
             case 'target';
@@ -191,8 +191,6 @@ class UsersController extends AppController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            // var_dump($data);
-            // die();
             if ($user->userType === 'manager' || $user->userType === 'agent') {
                 $data['password'] = $this->auth->hashPassword($data['password']);
             }

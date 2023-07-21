@@ -13,9 +13,9 @@ class Missions extends AppModel
      * Get all data
      * @param array $filters - Keys to filter search
      * @param array $searchParams - Keys to search form mission
-     * @param int $userId - Id of single user as Agent
+     * @param string $userId - Id of single user as Agent
      */
-    public function findAll(array $filters = [], array $searchParams = [], int $userId = null)
+    public function findAll(array $filters = [], array $searchParams = [], string $userId = null)
     {
 
         $attributes = [];
@@ -170,11 +170,14 @@ class Missions extends AppModel
 
         $usersModel = $this->getModel('users');
 
-        $markersAgents = $this->makeMarkersList($agentsIds);
+        $markersAgents = array_map(function ($specialityId) {
+            return "?";
+        }, $agentsIds);
+        $markersAgents = '(' . implode(',', $markersAgents) . ')';
 
         $queryAgents = "SELECT * FROM users" . SPACER;
         $queryAgents .= "WHERE id IN $markersAgents" . SPACER;
-        $agents = $this->query($queryAgents, null, '\\App\\Entities\\UsersEntity');
+        $agents = $this->query($queryAgents, $agentsIds, '\\App\\Entities\\UsersEntity');
 
 
         $nationalitiesIds = [];
@@ -248,7 +251,7 @@ class Missions extends AppModel
         $contacts = $data['contacts'];
         $targets = $data['targets'];
 
-        $users = array_merge($agents, $contacts, $targets);
+        $usersIds = array_merge($agents, $contacts, $targets);
 
         // Insert mission
         $missionMarkers = $this->makeMarkers($mission);
@@ -260,23 +263,9 @@ class Missions extends AppModel
         if ($missionResponse) {
 
             $id = $this->lastInsertId();
-            $markersUsers = '';
-            foreach ($users as $userId) {
-                $markersUsers .= '(' . $userId . ', ' . $id . '),';
-            }
-
-            $markersUsers = trim($markersUsers, ',');
-            $usersQuery = "INSERT INTO missions_users VALUES $markersUsers" . SPACER;
-
-            $usersInsertion = $this->query($usersQuery);
-            if (!$usersInsertion) {
-                $this->messageManager->setError('Troubles with adding users in mission');
-                throw new \Exception("Erreur dans la requete dajout utilisateur", 1);
-            }
-            $this->messageManager->setSuccess('Registered successfully');
+            $this->addMissionsUsers($usersIds, $id);
         } else {
             throw new \Exception("Error Processing Request mission request", 1);
-
             $this->messageManager->setError('Failed to insert into database');
         }
 
@@ -301,7 +290,7 @@ class Missions extends AppModel
         $contacts = $data['contacts'];
         $targets = $data['targets'];
 
-        $users = array_merge($agents, $contacts, $targets);
+        $usersIds = array_merge($agents, $contacts, $targets);
 
         // Insert mission
         $missionMarkers = $this->makeMarkers($mission);
@@ -312,30 +301,8 @@ class Missions extends AppModel
 
         if ($missionResponse) {
 
-            $queryDelete = "DELETE FROM missions_users" . SPACER;
-            $queryDelete .= "WHERE mission = :id " . SPACER;
-
-            $deleteUsers = $this->query($queryDelete, ['id' => $id]);
-
-            if (!$deleteUsers) {
-                var_dump('bouh');
-                die();
-            }
-
-            $markersUsers = '';
-            foreach ($users as $userId) {
-                $markersUsers .= '(' . $userId . ', ' . $id . '),';
-            }
-
-            $markersUsers = trim($markersUsers, ',');
-            $usersQuery = "INSERT INTO missions_users VALUES $markersUsers" . SPACER;
-
-            $usersUpdate = $this->query($usersQuery);
-            if (!$usersUpdate) {
-                $this->messageManager->setError('Troubles with adding specialities in mission');
-                throw new \Exception("Erreur dans la requete d\'update utilisateur", 1);
-            }
-            $this->messageManager->setSuccess('Mission updated successfully');
+            $this->deleteMissionsUsers($id);
+            $this->addMissionsUsers($usersIds, $id);
         } else {
             throw new \Exception("Error Processing Request mission request", 1);
 
@@ -346,13 +313,53 @@ class Missions extends AppModel
     }
 
     /**
+     * Insert user's ids in missions_users table for mission with id = $missionId
+     * @param array $usersIds
+     * @param int $missionId
+     * @return bool $response
+     */
+    private function addMissionsUsers($usersIds, $missionId): bool
+    {
+        $markersUsers = array_map(function ($userId) use ($missionId) {
+            return "('$userId' , $missionId)";
+        }, $usersIds);
+
+        $markersUsers = implode(',', $markersUsers);
+        $usersQuery = "INSERT INTO missions_users VALUES $markersUsers" . SPACER;
+
+        $response = $this->query($usersQuery);
+        if (!$response) {
+            $this->messageManager->setError('Troubles with adding specialities in mission');
+            throw new \Exception("Erreur dans la requete d\'update utilisateur", 1);
+        }
+        $this->messageManager->setSuccess('Mission updated successfully');
+
+        return $response;
+    }
+
+    /**
+     * Delete data from missions_users table for mission with id = $missionId
+     * @param int $missionId
+     * @return bool $response
+     */
+    private function deleteMissionsUsers($missionId): bool
+    {
+
+        $queryDelete = "DELETE FROM missions_users" . SPACER;
+        $queryDelete .= "WHERE mission = :id " . SPACER;
+
+        $response = $this->query($queryDelete, ['id' => $missionId]);
+
+        return $response;
+    }
+
+    /**
      * Find data by id
-     * @param array|int $id - Id of data to fetch
+     * @param mixed $id - Id of data to fetch
      * @return Entity|false $mission - False or an entity if data exist
      */
     public function findById($id)
     {
-        // $query = "SELECT * FROM $this->tableName as m" . SPACER;
         $query = "SELECT m.id AS id, m.title AS title, description, s.title AS status, m.status AS statusId, codeName, c.title AS country, m.countryId, m.missionTypeId,m.specialityId,m.hidingId, t.title AS missionType, h.code AS hiding, spe.title AS speciality, m.startDate, m.endDate" . SPACER;
         $query .= "FROM $this->tableName AS m" . SPACER;
         $query .= "LEFT JOIN attributes c ON c.id = m.countryId" . SPACER;
@@ -367,6 +374,7 @@ class Missions extends AppModel
             $this->messageManager->setError('No such a mission in database');
             return false;
         }
+
         $hidingModel = $this->getModel('hidings');
         $hiding = $hidingModel->findById($mission->hidingId);
         $mission->hiding = $hiding;
@@ -377,17 +385,21 @@ class Missions extends AppModel
         $usersIdsQuery .= " WHERE mission = $id " . SPACER;
 
         $usersIds = $this->queryIndexed($usersIdsQuery, null);
-        if ($usersIds) {
+        if (!empty($usersIds)) {
             $agents = $usersModel->findAgents($usersIds, 'agent');
-            $mission->setAgents($agents);
+            if ($agents) {
+                $mission->setAgents($agents);
+            }
 
             $contacts = $usersModel->findContacts($usersIds, 'contact');
-            $mission->setContacts($contacts);
+            if ($contacts) {
+                $mission->setContacts($contacts);
+            }
 
             $targets = $usersModel->findTargets($usersIds, 'target');
-            $mission->setTargets($targets);
-
-            // $users = $Users->findUsersByIds($usersIds, 'agent');
+            if ($targets) {
+                $mission->setTargets($targets);
+            }
         }
 
         return $mission;
@@ -397,18 +409,6 @@ class Missions extends AppModel
     {
         $this->delete($id);
 
-        $query = "DELETE FROM missions_users WHERE mission = :id";
-
-        $deleteUsers =  $this->query($query, ['id' => $id]);
-    }
-
-    public function checkAgentsSpecialityForMission()
-    {
-        $query = "SELECT missions.id, status.title AS status, missions.title, description, codeName, country.title AS country, missiontype.title AS type, spec.title AS speciality, startDate, endDate" . SPACER;
-        $query .= "FROM $this->tableName" . SPACER;
-        $query .= "LEFT JOIN attributes as missiontype ON missions.missionTypeId = missiontype.id" . SPACER;
-        $query .= "LEFT JOIN attributes as country ON missions.countryId = country.id" . SPACER;
-        $query .= "LEFT JOIN attributes as spec ON missions.specialityId = spec.id" . SPACER;
-        $query .= "LEFT JOIN attributes as status ON missions.status = status.id" . SPACER;
+        $this->deleteMissionsUsers($id);
     }
 }

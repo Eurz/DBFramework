@@ -1,1 +1,1 @@
-<div class="alert alert-success d-flex justify-content-between"><?= $message ?> <a href="/attributes/add" class="btn btn-primary">Add an attribute</a></div>
+<div><?= $message ?> <a href="/attributes/add/hiding" class="btn btn-primary">Add an hiding</a></div>

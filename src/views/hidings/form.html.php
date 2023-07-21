@@ -1,5 +1,5 @@
 <?php
-if ($form) :
+if (isset($form)) :
 ?>
 
     <div class="p-3 mb-3 bg-light"><a href="/hidings">Back to list</a></div>
@@ -18,11 +18,12 @@ if ($form) :
                 <?php if (isset($hiding)) : ?>
                     <a class="btn btn-danger" href="/hidings/delete/<?= $hiding->id ?>">Delete</a>
                 <?php endif ?>
+
             </div>
         </div>
     </form>
 
 <?php else : ?>
-    <div class="alert alert-success"><?= $message ?></div>
+    <div><?= $message ?></div>
 
 <?php endif; ?>

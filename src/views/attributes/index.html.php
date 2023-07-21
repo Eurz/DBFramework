@@ -5,6 +5,7 @@
         <a href="/attributes/add/status" class="btn btn-primary btn-sm">Add <?= $types['status'] ?></a>
         <a href="/attributes/add/hiding" class="btn btn-primary btn-sm">Add <?= $types['hiding'] ?></a>
         <a href="/attributes/add/speciality" class="btn btn-primary btn-sm">Add <?= $types['speciality'] ?></a>
+        <a href="/attributes/add/missionType" class="btn btn-primary btn-sm">Add <?= $types['missionType'] ?></a>
 
     </div>
 

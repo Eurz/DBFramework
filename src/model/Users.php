@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use App\Entities\AttributesEntity;
 
 class Users extends AppModel
 {
@@ -66,10 +67,10 @@ class Users extends AppModel
     }
     /**
      * Find data by id
-     * @param int $id - Id of data to fetch
+     * @param mixed $id - Id of data to fetch
      * @return Entity|false $data - False or an entity if data exist
      */
-    public function findUserById(int $id)
+    public function findUserById(mixed $id)
     {
         $query = "SELECT users.id, firstName , lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, users.createdAt, codeName, email, password FROM $this->tableName" . SPACER;
         $query .= "LEFT JOIN attributes ON attributes.id = users.nationalityId" . SPACER;
@@ -90,9 +91,8 @@ class Users extends AppModel
 
             $rolesQuery = "SELECT roles.title FROM roles_users AS ru" . SPACER;
             $rolesQuery .= "LEFT JOIN roles ON roles.id = role" . SPACER;
-            $rolesQuery .= "WHERE ru.user = $id" . SPACER;
-            $roles = $this->queryIndexed($rolesQuery, null);
-
+            $rolesQuery .= "WHERE ru.user = :id" . SPACER;
+            $roles = $this->queryIndexed($rolesQuery, ['id' => $id]);
             $user->setRoles($roles);
         }
         return $user;
@@ -103,17 +103,19 @@ class Users extends AppModel
      */
     public function findAgents($ids)
     {
-        $markersIds = $this->makeMarkersList($ids);
-
+        $markersIds = array_map(function ($id) {
+            return "?";
+        }, $ids);
+        $markers = '(' . implode(',', $markersIds) . ')';
         $queryUsers = "SELECT u.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, u.createdAt, codeName, email, password" . SPACER;
         $queryUsers .= "FROM $this->tableName AS u" . SPACER;
         $queryUsers .= "LEFT JOIN attributes ON attributes.id = u.nationalityId" . SPACER;
         $queryUsers .= "WHERE userType = 'agent'" . SPACER;
 
         $query = "SELECT * FROM ( $queryUsers ) AS agent" . SPACER;
-        $query .= "WHERE agent.id IN $markersIds";
+        $query .= "WHERE agent.id IN $markers";
 
-        $agents =  $this->query($query, null, $this->entityName);
+        $agents =  $this->query($query, $ids, $this->entityName);
 
         return $agents;
     }
@@ -124,7 +126,10 @@ class Users extends AppModel
      */
     public function findContacts($ids)
     {
-        $markersIds = $this->makeMarkersList($ids);
+        $markersIds = array_map(function ($id) {
+            return "?";
+        }, $ids);
+        $markers = '(' . implode(',', $markersIds) . ')';
 
         $queryUsers = "SELECT u.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, u.createdAt, codeName, email, password" . SPACER;
         $queryUsers .= "FROM $this->tableName AS u" . SPACER;
@@ -132,11 +137,10 @@ class Users extends AppModel
         $queryUsers .= "WHERE userType = 'contact'" . SPACER;
 
         $query = "SELECT * FROM ( $queryUsers ) AS contact" . SPACER;
-        $query .= "WHERE contact.id IN $markersIds";
+        $query .= "WHERE contact.id IN $markers";
+        $contacts =  $this->query($query, $ids, $this->entityName);
 
-        $agents =  $this->query($query, null, $this->entityName);
-
-        return $agents;
+        return $contacts;
     }
 
     /**
@@ -145,7 +149,10 @@ class Users extends AppModel
 
     public function findTargets($ids)
     {
-        $markersIds = $this->makeMarkersList($ids);
+        $markersIds = array_map(function ($id) {
+            return "?";
+        }, $ids);
+        $markers = '(' . implode(',', $markersIds) . ')';
 
         $queryUsers = "SELECT u.id, firstName, lastName , dateOfBirth , nationalityId, attributes.title AS nationality, userType, identificationCode, u.createdAt, codeName, email, password" . SPACER;
         $queryUsers .= "FROM $this->tableName AS u" . SPACER;
@@ -153,9 +160,9 @@ class Users extends AppModel
         $queryUsers .= "WHERE userType = 'target'" . SPACER;
 
         $query = "SELECT * FROM ( $queryUsers ) AS contact" . SPACER;
-        $query .= "WHERE contact.id IN $markersIds";
+        $query .= "WHERE contact.id IN $markers";
 
-        $targets =  $this->query($query, null, $this->entityName);
+        $targets =  $this->query($query, $ids, $this->entityName);
 
         return $targets;
     }
@@ -256,12 +263,40 @@ class Users extends AppModel
         $user = $extractedData['user'];
         $user['userType'] = $userType;
 
-        $userResponse = $this->insert($user);
+        $uuid = $this->query("SELECT UUID()");
+        $id = $uuid[0]['UUID()'];
+
+        $user['id'] = $id;
+
+        $markers = [];
+        foreach ($user as $key => $value) {
+            $markers[] = ':' . $key;
+        }
+        $markersList = $this->makeMarkersList($markers);
+
+        $fieldsList = array_keys($user);
+        $fields = '(' . implode(',', $fieldsList) .  ')';
+        $query = "INSERT INTO $this->tableName $fields VALUES $markersList";
+        $userResponse = $this->query($query, $user);
+
+        // var_dump($markersList);
+        // die();
+
+        // if ($response) {
+        //     $this->messageManager->setSuccess($this->itemName . ' registered successfully');
+        // } else {
+        //     $this->messageManager->setError('Failed to insert ' . $this->itemName . ' into database');
+        // }
+
+
+
 
         if ($userResponse) {
-            $id = $this->lastInsertId();
+
             if ($userType === 'agent') {
                 $specialities = $extractedData['specialities'];
+                // var_dump($specialities);
+                // die();
                 if ($specialities) {
                     $this->addSpecialities($id, $specialities);
                 }
@@ -274,7 +309,7 @@ class Users extends AppModel
 
     /**
      * Update user with id = $ids
-     * @param int $id
+     * @param string $id
      * @param array $data
      */
     public function updateUser($id, $data)
@@ -317,14 +352,25 @@ class Users extends AppModel
      */
     public function findAgentsWithSpecialtities($agentIds, $specialityId)
     {
+        $markers = array_map(function ($agentId) {
+            return "?";
+        }, $agentIds);
+        $markers = '(' . implode(',', $markers) . ')';
         $query = "SELECT * FROM userspecialities" . SPACER;
-        $query .= "WHERE userId IN {$this->makeMarkersList($agentIds)}" . SPACER;
-        $query .= "AND specialityId = :specialityId" . SPACER;
-        $agents = $this->query($query, ['specialityId' => $specialityId]);
+        $query .= "WHERE userId IN $markers" . SPACER;
+        $query .= "AND specialityId = ?" . SPACER;
+        $attributes = $agentIds;
+        $attributes[] = $specialityId;
+        $agents = $this->query($query, $attributes);
 
         return $agents;
     }
 
+    /**
+     * Get specialities of a user
+     * @param string $userId - user's id (UUID)
+     * @return array[AttributesEntity]
+     */
     private function findUserSpecialities($userId)
     {
         $query = "SELECT s.id AS id, s.title, s.type FROM userspecialities u" . SPACER;
@@ -335,37 +381,45 @@ class Users extends AppModel
 
         return $specialities;
     }
+    
     /**
      * Add specialities from a user
-     * @param int $id - User's id
+     * @param mixed $userId - User's id (UUID)
      * @param array $specialities - User's specialites
      */
-    private function addSpecialities($id, $specialities)
+    private function addSpecialities($userId, $specialities)
     {
-        $deleting = $this->deleteSpecialities($id);
+        $deleting = $this->deleteSpecialities($userId);
 
         if (!$deleting) {
             throw new \Exception("Unable to delete old specialities", 1);
         }
 
-        $markers = [];
-        foreach ($specialities as $key => $value) {
-            $markers[] = '(' . $id . ', ' . $value . ')';
-        }
+        $markers = array_map(function ($specialityId) use ($userId) {
+            return "('$userId' , ?)";
+        }, $specialities);
 
         $markers = implode(',', $markers);
         $query = "INSERT INTO userspecialities VALUES $markers";
-        $result = $this->query($query);
+
+        $result = $this->query($query, $specialities);
+
+        if ($result) {
+            $this->messageManager->setSuccess($this->itemName . ' registered successfully');
+        } else {
+            $this->messageManager->setError('Failed to insert ' . $this->itemName . ' into database');
+        }
+
         return $result;
     }
 
 
     /**
-     * @param int $id - User's id to delete specialities
+     * @param mixed $userId - User's id to delete specialities
      */
-    private function deleteSpecialities($id)
+    private function deleteSpecialities($userId)
     {
         $query = "DELETE FROM userspecialities WHERE userId = :id";
-        return $this->query($query, ['id' => $id]);
+        return $this->query($query, ['id' => $userId]);
     }
 }

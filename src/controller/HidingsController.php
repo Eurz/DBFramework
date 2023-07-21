@@ -56,16 +56,23 @@ class HidingsController extends AppController
     function add()
     {
         $pageTitle = 'Add an hiding';
-
+        $message = 'Firstly, you must create attributes';
         $countries = $this->Attributes->findByKeys('id', 'title', 'country');
         $hidingTypes = $this->Attributes->findByKeys('id', 'title', 'hiding');
 
         $form = null;
 
         if (!$countries || !$hidingTypes) {
-            $this->messageManager->setError('Firstly, you must create attributes country and hiding', 'error');
 
-            $this->render('hidings/actions', compact('pageTitle', 'message'));
+            if (empty($countries)) {
+                $message .= "<div>Country</div>";
+            }
+            if (!$hidingTypes) {
+                $message .= "<div>Hiding type</div>";
+            }
+            // $this->messageManager->setError('', 'error');
+            $viewPath = 'hidings/actions';
+            $options =  compact('pageTitle', 'message');
         } else {
             $form = new Forms();
             $form
@@ -84,8 +91,12 @@ class HidingsController extends AppController
                     $this->redirect('hidings/edit/' . $id);
                 }
             }
-            $this->render('hidings/form', compact('pageTitle', 'form'));
+            $viewPath = 'hidings/form';
+            $options =  compact('pageTitle', 'form');
         }
+
+
+        $this->render($viewPath, $options);
     }
 
     public function edit($id)

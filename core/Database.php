@@ -69,8 +69,6 @@ class Database
 
             $response = $statement->execute($attributes);
 
-
-
             if ($response !== false) {
                 if (
                     strpos($query, 'UPDATE') === 0 ||
@@ -90,7 +88,7 @@ class Database
                 return false;
             }
         } catch (PDOException $e) {
-            $this->messageManager->setError('Something went wrong with your request. Please check it!');
+            // $this->messageManager->setError('Something went wrong with your request. Please check it!');
             var_dump($e->getMessage());
             return false;
         }

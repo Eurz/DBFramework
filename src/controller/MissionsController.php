@@ -108,6 +108,9 @@ class MissionsController extends AppController
     {
         $mission = $this->model->findById($id);
 
+        if (!$mission) {
+            $this->redirect('missions');
+        }
 
         $pageTitle = 'Mission : <i>' . $mission->title . '</i>';
         $this->render('missions/view', compact('pageTitle', 'mission'));
@@ -126,10 +129,13 @@ class MissionsController extends AppController
         // Initialisation
         $pageTitle = 'Missions';
         $countries = $this->Attributes->findByKeys('id', 'title', 'country');
-
         // Form
         $form = new Forms();
-
+        if (isset($_POST['cancelMission'])) {
+            $this->session->delete('Mission');
+            $this->messageManager->setSuccess('You canceled adding a mission');
+            $this->redirect('missions');
+        }
         // Form's data
         switch ($action) {
             case 'hidings':
@@ -138,7 +144,8 @@ class MissionsController extends AppController
                 $hidings = $this->Hidings->findBy('countryId', $countryId);
 
                 if (!$hidings) {
-                    $this->messageManager->setError('There is no hiding for selected country ');
+                    $country = $this->Attributes->findById($countryId);
+                    $this->messageManager->setError('There is no hiding for selected country : ' . $country->title);
                     $message = "Please add a new hiding for the selected country or choose another country for this mission to create it. ";
                     $options = compact('pageTitle', 'action', 'message');
                 } else {
@@ -148,7 +155,7 @@ class MissionsController extends AppController
                     $options = compact('pageTitle', 'form');
                 }
 
-                $view = 'missions/addHiding';
+                $viewPath = 'missions/addHiding';
 
                 break;
 
@@ -157,7 +164,7 @@ class MissionsController extends AppController
                 $countryId = $this->session->getValue('default', 'countryId');
                 $contacts = $this->model->findContactsForMission($countryId);
 
-                $view = 'missions/addUsers';
+                $viewPath = 'missions/addUsers';
                 if (!$contacts) {
                     $this->messageManager->setError('There \'s no contact(s) available(s) for this mission');
                     $options = compact('pageTitle', 'action');
@@ -172,12 +179,10 @@ class MissionsController extends AppController
                 break;
             case 'agents':
                 $pageTitle = 'Mission : Add agent(s)';
-
+                var_dump($_POST);
                 $message = 'Choose agent(s) for mission';
                 $agents = $this->Users->findByKeys('id', 'fullName', 'agent');
-
-
-                if ($agents === false) {
+                if (!$agents) {
                     $this->messageManager->setError('There \'s no agent(s) available(s) in your database for this mission');
                     $options = compact('pageTitle', 'action');
                 } else {
@@ -185,7 +190,7 @@ class MissionsController extends AppController
                         ->addRow('agents', [], 'Agent(s)', 'select:multiple', true, $agents, ['minValue' => 1]);
                     $options = compact('pageTitle', 'form', 'message');
                 }
-                $view = 'missions/addUsers';
+                $viewPath = 'missions/addUsers';
 
                 break;
 
@@ -198,9 +203,7 @@ class MissionsController extends AppController
 
                 $targets = $this->Users->findByKeys('id', 'fullName', $targetsMission->targets);
 
-
-
-                if ($targetsMission->targets === false) {
+                if (!$targetsMission->targets) {
                     $this->messageManager->setError('There \'s no target(s) available(s) in your database for this mission');
                     $options = compact('pageTitle', 'action');
                 } else {
@@ -209,7 +212,7 @@ class MissionsController extends AppController
                     $options = compact('pageTitle', 'form');
                 }
 
-                $view = 'missions/addUsers';
+                $viewPath = 'missions/addUsers';
 
                 break;
 
@@ -227,27 +230,58 @@ class MissionsController extends AppController
                 break;
 
             default:
-
+                $message = 'Firstly, you must add attributes:<br> ';
                 $status = $this->Attributes->findByKeys('id', 'title', 'status');
                 $specialities = $this->Attributes->findByKeys('id', 'title', 'speciality');
                 $missionTypes = $this->Attributes->findByKeys('id', 'title', 'missionType');
 
-                $form
-                    ->addRow('missionTypeId', [], 'Type', 'select', true, $missionTypes, ['notBlank' => true])
-                    ->addRow('status', '', 'Status', 'select', true, $status)
-                    ->addRow('title', '', 'Title', 'input:text', true, null, ['notBlank' => true])
-                    ->addRow('description', '', 'Description', 'textarea')
-                    ->addRow('codeName', '', 'CodeName', 'input:text', true, null, ['notBlank' => true])
-                    ->addRow('countryId', [], 'Country', 'select', true, $countries)
-                    ->addRow('specialityId', [], 'Required speciality', 'select', true, $specialities)
-                    ->addRow('startDate', date('Y-m-d'), 'Start date', 'input:date')
-                    ->addRow('endDate', date('Y-m-d'), 'End date', 'input:date');
+                if (!$specialities || !$status || !$missionTypes || empty($countries)) {
+                    $requiresAttributes = [];
+                    if (!$status) {
+                        $requiresAttributes[] = '
+                            <div> - status 
+                            <a href="/attributes/add/status" target="_blank" class="btn btn-primary">Add a status</a>
+                            </div>';
+                    }
+                    if (!$specialities) {
+                        $requiresAttributes[] = '
+                            <div> - speciality
+                            <a href="/attributes/add/speciality" target="_blank" class="btn btn-primary">Add a speciality</a>
+                            </div>';
+                    }
+                    if (!$missionTypes) {
+                        $requiresAttributes[] = '
+                            <div> - mission type
+                            <a href="/attributes/add/status" target="_blank" class="btn btn-primary">Add a mission type</a>
+                            </div>';
+                    }
+                    if (!$countries) {
+                        $requiresAttributes[] = '
+                            <div> - countries
+                            <a href="/attributes/add/country" target="_blank" class="btn btn-primary">Add a country</a>
+                            </div>';
+                    }
 
+                    $message .= implode('', $requiresAttributes);
+                    $options = compact('pageTitle', 'message');
+                } else {
+                    $form
+                        ->addRow('missionTypeId', [], 'Type', 'select', true, $missionTypes, ['notBlank' => true])
+                        ->addRow('status', '', 'Status', 'select', true, $status)
+                        ->addRow('title', '', 'Title', 'input:text', true, null, ['notBlank' => true])
+                        ->addRow('description', '', 'Description', 'textarea')
+                        ->addRow('codeName', '', 'CodeName', 'input:text', true, null, ['notBlank' => true])
+                        ->addRow('countryId', [], 'Country', 'select', true, $countries)
+                        ->addRow('specialityId', [], 'Required speciality', 'select', true, $specialities)
+                        ->addRow('startDate', date('Y-m-d'), 'Start date', 'input:date')
+                        ->addRow('endDate', date('Y-m-d'), 'End date', 'input:date');
+
+                    $options = compact('pageTitle', 'form', 'message');
+                }
 
                 $this->session->delete('mission');
 
-                $view = 'missions/form';
-                $options = compact('pageTitle', 'form');
+                $viewPath = 'missions/form';
 
                 break;
         }
@@ -255,6 +289,7 @@ class MissionsController extends AppController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $data = $form->getData();
+
             if ($action === 'default') {
                 $this->session->merge($data, $action);
             } else {
@@ -275,7 +310,6 @@ class MissionsController extends AppController
                     $agentsWithSameSpeciality = $this->Users->findAgentsWithSpecialtities($agents, $specialityId);
                     $missionSpeciality = $this->Attributes->findById($specialityId);
 
-
                     if (empty($agentsWithSameSpeciality)) {
                         $this->messageManager->setError('One or more agent should have the speciality "' . $missionSpeciality->title . '"');
                         $this->redirect('missions/add/agents');
@@ -291,15 +325,18 @@ class MissionsController extends AppController
                     $this->session->reset();
                     break;
                 default:
+
                     $this->redirect('missions/add/hidings');
 
                     break;
             }
         }
 
-        $this->render($view, $options);
+        $this->render($viewPath, $options);
     }
-
+    /**
+     * Edit a mission
+     */
     public function edit($id, $action = 'default')
     {
 
@@ -307,10 +344,14 @@ class MissionsController extends AppController
             $this->redirect('missions');
         }
 
+        if (isset($_POST['cancelMission'])) {
+            $this->session->delete('Mission');
+            $this->messageManager->setSuccess('You canceled adding a mission');
+            $this->redirect('missions');
+        }
+
         $pageTitle = 'Missions';
-
         $mission = $this->model->findById($id);
-
         $countries = $this->Attributes->findByKeys('id', 'title', 'country');
         $agents = $this->Users->findByKeys('id', 'fullName', 'agent');
         $contacts = $this->Users->findByKeys('id', 'fullName', 'contact');
@@ -334,18 +375,18 @@ class MissionsController extends AppController
 
                 $form
                     ->addRow('hidingId', $mission->hidingId, 'Hiding', 'select', true, $hidings);
-                $view = 'missions/addHiding';
+                $viewPath = 'missions/addHiding';
                 $options = compact('pageTitle', 'form');
 
                 break;
 
             case 'contact':
+
                 $pageTitle = 'Mission : Add contact(s)';
                 $countryId = $this->session->getValue('default', 'countryId');
                 $contacts = $this->model->findContactsForMission($countryId);
 
-                $view = 'missions/addUsers';
-
+                $viewPath = 'missions/addUsers';
                 if (!$contacts) {
                     $this->messageManager->setError('There \'s no contact(s) available(s) for this mission');
                     $options = compact('pageTitle', 'action');
@@ -374,7 +415,7 @@ class MissionsController extends AppController
                         ->addRow('agents', $agentsMission, 'Agent(s)', 'select:multiple', true, $agents, ['minValue' => 1]);
                     $options = compact('pageTitle', 'form', 'message');
                 }
-                $view = 'missions/addUsers';
+                $viewPath = 'missions/addUsers';
 
                 break;
 
@@ -397,7 +438,7 @@ class MissionsController extends AppController
                     $options = compact('pageTitle', 'form');
                 }
 
-                $view = 'missions/addUsers';
+                $viewPath = 'missions/addUsers';
 
                 break;
 
@@ -407,7 +448,7 @@ class MissionsController extends AppController
                 $response = $this->model->update($id, $data);
 
                 if ($response) {
-                    $this->session->reset();
+                    $this->session->delete('mission');
                 }
 
                 $this->redirect('missions');
@@ -434,7 +475,7 @@ class MissionsController extends AppController
 
                 $this->session->delete('mission');
 
-                $view = 'missions/form';
+                $viewPath = 'missions/form';
                 $options = compact('pageTitle', 'form');
 
                 break;
@@ -475,7 +516,6 @@ class MissionsController extends AppController
                     break;
 
                 case 'end':
-                    $this->session->reset();
                     break;
                 default:
                     $this->redirect('missions/edit/' . $id . '/hiding');
@@ -484,7 +524,7 @@ class MissionsController extends AppController
             }
         }
 
-        $this->render($view, $options);
+        $this->render($viewPath, $options);
     }
 
     /**

@@ -92,7 +92,7 @@
     </table>
     <div>
         <?php if ($auth->grantedAccess('ROLE_ADMIN')) : ?>
-            <a href="/missions/edit/<?= $mission->id ?>" class="btn btn-primary">Edit mission</a>
-            <a href="/missions/delete/<?= $mission->id ?>" class="btn btn-danger">Delete mission</a>
+            <a href="/missions/edit/<?= $mission->id ?>" class="btn btn-primary">Edit</a>
+            <a href="/missions/delete/<?= $mission->id ?>" class="btn btn-danger">Delete</a>
         <?php endif ?>
     </div>
