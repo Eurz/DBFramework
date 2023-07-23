@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Model\Attributes;
 use App\Model\Hidings;
 use App\Model\Users;
+use Core\Application;
 use Core\Session;
 use Core\Forms\Forms;
+use Core\Messages;
 
 class MissionsController extends AppController
 {
@@ -18,12 +20,18 @@ class MissionsController extends AppController
     public function __construct()
     {
         parent::__construct();
-        if (!$this->auth->isLogged()) {
-            $this->redirect('login');
+        $db = Application::getDb();
+        $exist = $db->dbExist();
+        if (!$exist) {
+            // $this->dbInstall();
+            $this->redirect('install');
+            die();
         }
 
-
-
+        if (!$this->auth->isLogged()) {
+            $this->redirect('login');
+            die();
+        }
 
 
         $this->model = $this->getModel();
@@ -179,7 +187,7 @@ class MissionsController extends AppController
                 break;
             case 'agents':
                 $pageTitle = 'Mission : Add agent(s)';
-                var_dump($_POST);
+
                 $message = 'Choose agent(s) for mission';
                 $agents = $this->Users->findByKeys('id', 'fullName', 'agent');
                 if (!$agents) {

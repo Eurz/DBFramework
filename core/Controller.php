@@ -56,7 +56,7 @@ class Controller
     protected function redirect($url)
     {
         // header("HTTP/1.1 301 Moved Permanently");
-
+        // die($url . 'from controller');
         Http::redirect($url);
     }
 

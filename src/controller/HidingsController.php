@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Model\Attributes;
+use Core\Application;
 use Core\Forms\Forms;
 
 class HidingsController extends AppController
@@ -13,8 +14,17 @@ class HidingsController extends AppController
     public function __construct()
     {
         parent::__construct();
+
+        $db = Application::getDb();
+        $exist = $db->dbExist();
+        if (!$exist) {
+            $this->redirect('install');
+            die();
+        }
+
         if (!$this->auth->isLogged()) {
             $this->redirect('login');
+            die();
         }
 
         if (!$this->auth->grantedAccess($this->roles)) {

@@ -27,13 +27,8 @@ class AppController extends Controller
     {
         parent::__construct();
         $db = Application::getDb();
-        $exist = $db->dbExist();
         $this->messageManager = new Messages();
 
-        if (!$exist) {
-            $this->dbInstall();
-            die();
-        }
 
         $this->auth = new Authentication(Application::getDb());
     }
@@ -74,33 +69,33 @@ class AppController extends Controller
     /**
      * Users form login
      */
-    public function login()
-    {
+    // public function login()
+    // {
 
-        if (!$this->auth->isLogged()) {
-            $form = new Forms();
-            $form
-                ->addRow('email', '', 'Email', 'input:email', true, null)
-                ->addRow('password', '', 'Password', 'input:password', true, null);
+    //     if (!$this->auth->isLogged()) {
+    //         $form = new Forms();
+    //         $form
+    //             ->addRow('email', '', 'Email', 'input:email', true, null)
+    //             ->addRow('password', '', 'Password', 'input:password', true, null);
 
-            if ($form->isSubmitted() && $form->isValid()) {
-                $data = $form->getData();
-                $email = $data['email'];
-                $password = $data['password'];
-                if ($this->auth->login($email, $password) !== false) {
-                    $this->redirect('missions');
-                } else {
-                    $this->messageManager->setError('Incorrect email or password');
-                }
-            }
+    //         if ($form->isSubmitted() && $form->isValid()) {
+    //             $data = $form->getData();
+    //             $email = $data['email'];
+    //             $password = $data['password'];
+    //             if ($this->auth->login($email, $password) !== false) {
+    //                 $this->redirect('missions');
+    //             } else {
+    //                 $this->messageManager->setError('Incorrect email or password');
+    //             }
+    //         }
 
-            $pageTitle = 'Login page';
-            $this->render('users/login', compact('pageTitle', 'form'));
-            return;
-        }
+    //         $pageTitle = 'Login page';
+    //         $this->render('users/login', compact('pageTitle', 'form'));
+    //         return;
+    //     }
 
-        $this->redirect('missions');
-    }
+    //     $this->redirect('missions');
+    // }
 
     /**
      * Logoout user

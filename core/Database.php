@@ -64,13 +64,9 @@ class Database
         ];
 
         $pdo = new PDO($dsn, $this->dbUser, $this->dbPassword, $dbOptions);
-        // $query = "CREATE DATABASE IF NOT EXISTS test_db";
         $query = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME=?";
         $stmt = $pdo->prepare($query);
         $db = 'test_db';
-        // var_dump($query);
-        // die();
-        // die();
 
         $stmt->execute([$db]);
         $res = $stmt->fetch();
@@ -78,11 +74,8 @@ class Database
 
             return false;
         } else {
-            // echo "Database exists.";
             return true;
         }
-        // $session = new Session();
-        // $session->set('dbname', $this->dbName);
     }
 
     public function getErrorCode()

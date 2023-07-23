@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Core\Application;
 use Core\Forms\Forms;
 use Core\Session;
 use stdClass;
@@ -25,9 +26,18 @@ class AttributesController extends AppController
     public function __construct()
     {
         parent::__construct();
+
+        $db = Application::getDb();
+        $exist = $db->dbExist();
+        if (!$exist) {
+            $this->redirect('install');
+            die();
+        }
         if (!$this->auth->isLogged()) {
             $this->redirect('login');
+            die();
         }
+
         if (!$this->auth->grantedAccess($this->roles)) {
             $this->redirect('home');
         }

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Model\Attributes;
+use Core\Application;
 use Core\Forms\Forms;
 use Core\Session;
 
@@ -15,18 +16,24 @@ class UsersController extends AppController
     public function __construct()
     {
         parent::__construct();
+
+        $db = Application::getDb();
+        $exist = $db->dbExist();
+        if (!$exist) {
+            // $this->dbInstall();
+            $this->redirect('install');
+            die();
+        }
+
         if (!$this->auth->isLogged()) {
-            $this->redirect('login');
-            return;
+            $this->login();
+            die();
         }
 
         if (!$this->auth->grantedAccess($this->roles)) {
             $this->redirect('home');
         }
 
-        // if (!$this->isAdmin()) {
-        //     $this->redirect('home');
-        // }
         $this->model = $this->getModel();
         $this->Attributes = $this->getModel('attributes');
     }
@@ -238,30 +245,32 @@ class UsersController extends AppController
     /**
      * Users form login
      */
-    // public function login()
-    // {
-    //     $form = new Forms();
-    //     $form
-    //         ->addRow('email', '', 'Email', 'input:email', true, null)
-    //         ->addRow('password', '', 'Password', 'input:password', true, null);
+    public function login()
+    {
+        if (!$this->auth->isLogged()) {
+            $form = new Forms();
+            $form
+                ->addRow('email', '', 'Email', 'input:email', true, null)
+                ->addRow('password', '', 'Password', 'input:password', true, null);
 
-    //     if ($form->isSubmitted() && $form->isValid()) {
-    //         $data = $form->getData();
-    //         $email = $data['email'];
-    //         $password = $data['password'];
-    //         if ($this->auth->login($email, $password)) {
-    //             // var_dump('connection');
-    //             // die('usercontroller');
-    //             $this->redirect('home');
-    //         } else {
+            if ($form->isSubmitted() && $form->isValid()) {
+                $data = $form->getData();
+                $email = $data['email'];
+                $password = $data['password'];
+                if ($this->auth->login($email, $password) !== false) {
+                    $this->redirect('missions');
+                } else {
+                    $this->messageManager->setError('Incorrect email or password');
+                }
+            }
 
-    //             $this->messageManager->setError('Incorrect email or password');
-    //         }
-    //     }
+            $pageTitle = 'Login page';
+            $this->render('users/login', compact('pageTitle', 'form'));
+            return;
+        }
 
-    //     $pageTitle = 'Login page';
-    //     $this->render('users/form', compact('pageTitle', 'form'));
-    // }
+        $this->redirect('missions');
+    }
 
 
     public function signIn()
