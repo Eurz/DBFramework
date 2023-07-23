@@ -6,6 +6,8 @@ class Messages
 {
     private Session $sessionManager;
     private string $sessionName = 'messages';
+    private array $successMessages;
+    private array $errorMessages;
     protected $data;
 
     public function __construct()

@@ -1,3 +1,14 @@
-<div>Bonjour <strong><?= $auth->getUser()->fullName ?></strong></div>
+<?php if (isset($form)) : ?>
+    <p>
+        Your application is not installed.
+    </p>
+    <p>
+        We are going to install it when you'll click on the button.
+    </p>
 
-<p>Etes vous prêts pour de nouvelles aventures?</p>
+    <form action="" method="POST">
+        <?= $form->render(); ?>
+        <button class="btn btn-primary">Install</button>
+    </form>
+
+<?php endif ?>

@@ -31,6 +31,8 @@ class Application
         return self::$db;
     }
 
+
+
     /**
      * Load a model from gien name $modelName
      * @param string $modelName - Model name. Ex: 'Posts', 'Comments',...
@@ -56,13 +58,21 @@ class Application
      */
     public function process(): void
     {
+
+
         // Router
         $router = new Router($_GET['url']);
+
+        // Install
+        $router->get('/install', 'home.index');
+        $router->post('/install', 'home.index');
 
         // Home
         $router->get('/', 'missions.index');
         $router->get('/home', 'missions.index');
         $router->get('/404', 'app.notFound');
+
+        // $router->post('/', 'home.index');
 
         // Attributes
         $router->get('/attributes', 'attributes.index');
@@ -91,6 +101,7 @@ class Application
         // Users
         $router->get('/users', 'users.index');
         $router->get('/users/:filter', 'users.index');
+
         // $router->get('/users/:id', 'users.view');
         $router->get('/users/add/', 'users.add');
         $router->get('/users/add/:userType', 'users.add');

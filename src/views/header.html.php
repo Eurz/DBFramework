@@ -23,6 +23,8 @@
             use Core\Authentication;
 
             $auth = new Authentication(Application::getDb());
+            ?>
+            <?php
 
             if ($auth->isLogged()) : ?>
                 <?php include_once(VIEW_PATH . '/mainnav.html.php') ?>

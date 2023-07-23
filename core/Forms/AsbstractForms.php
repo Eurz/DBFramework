@@ -68,7 +68,7 @@ class AsbstractForms
     public function render()
     {
         if (!$this->formParams) {
-            return 'No forms params';
+            return null;
         }
         // $html = '<form method="POST">';
         $html = '';

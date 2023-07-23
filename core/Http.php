@@ -8,9 +8,7 @@ class Http
     private $header;
 
     /**
-     * @param string $controller - Controller name
-     * @param string $task - Method from controller
-     * @param array $options - Additionnal url params
+     * @param string $url - Controller name
      */
     public static function redirect(string $url)
     {

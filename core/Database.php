@@ -2,6 +2,7 @@
 
 namespace Core;
 
+use App\Controller\AppController;
 use PDO;
 use PDOException;
 
@@ -11,6 +12,7 @@ class Database
     private string $dbHost;
     private string $dbUser;
     private string $dbPassword;
+    private $errorCode;
     private $pdo;
     protected $messageManager;
 
@@ -41,13 +43,55 @@ class Database
 
             try {
                 $this->pdo = new PDO($dsn, $this->dbUser, $this->dbPassword, $dbOptions);
-            } catch (\PDOException $th) {
-                die('Unable to connect to data base');
+            } catch (\PDOException $e) {
+
+                var_dump($e->getMessage());
             }
         }
 
         return $this->pdo;
     }
+
+    public function dbExist()
+    {
+
+        $dsn = "mysql:";
+        $dsn .= "host=" . $this->dbHost . ';';
+
+        $dbOptions = [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+        ];
+
+        $pdo = new PDO($dsn, $this->dbUser, $this->dbPassword, $dbOptions);
+        // $query = "CREATE DATABASE IF NOT EXISTS test_db";
+        $query = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME=?";
+        $stmt = $pdo->prepare($query);
+        $db = 'test_db';
+        // var_dump($query);
+        // die();
+        // die();
+
+        $stmt->execute([$db]);
+        $res = $stmt->fetch();
+        if ($res === false) {
+
+            return false;
+        } else {
+            // echo "Database exists.";
+            return true;
+        }
+        // $session = new Session();
+        // $session->set('dbname', $this->dbName);
+    }
+
+    public function getErrorCode()
+    {
+        return $this->errorCode;
+    }
+
+
+
 
     /**
      * @param string $query - A sql query
@@ -58,6 +102,7 @@ class Database
     public function query(string $query, ?array $attributes, $entity, $isSingleData): mixed
     {
         $pdo = $this->getPdo();
+
         $statement = $pdo->prepare($query);
         if (!is_null($entity)) {
             $statement->setFetchMode(PDO::FETCH_CLASS, $entity);

@@ -381,7 +381,7 @@ class Users extends AppModel
 
         return $specialities;
     }
-    
+
     /**
      * Add specialities from a user
      * @param mixed $userId - User's id (UUID)

@@ -5,8 +5,8 @@ namespace App\Controller;
 use Core\Application;
 use Core\Authentication;
 use Core\Controller;
+use Core\DBMaker;
 use Core\Forms\Forms;
-use Core\Http;
 use Core\Messages;
 
 /**
@@ -20,13 +20,56 @@ class AppController extends Controller
     protected $messageManager;
     protected $itemName = 'Test';
     protected $user;
+    private DBMaker $dbMaker;
+
 
     public function __construct()
     {
         parent::__construct();
-        $this->auth = new Authentication(Application::getDb());
+        $db = Application::getDb();
+        $exist = $db->dbExist();
         $this->messageManager = new Messages();
+
+        if (!$exist) {
+            $this->dbInstall();
+            die();
+        }
+
+        $this->auth = new Authentication(Application::getDb());
     }
+
+
+    public function dbInstall()
+    {
+        $form = new Forms();
+        // $form
+        //     ->addRow('host', 'localhost', 'Host', 'input:text', true, null, ['notBlank' => true])
+        //     ->addRow('user', 'root', 'User', 'input:text', true, null, ['notBlank' => true])
+        //     // ->addRow('password', '', 'Password', 'input:text', true, null)
+        //     // ->addRow('name', '', 'DB name', 'input:text', true, null, ['notBlank' => true])
+        // ;
+
+
+        $pageTitle = "Installation";
+
+        if ($form->isSubmitted()) {
+            // $data = $form->getData();
+            $this->dbMaker = new DBMaker();
+
+            $response = $this->dbMaker->createDB();
+
+            if ($response) {
+                $this->messageManager->setSuccess('Initialization completed');
+                $this->dbMaker->createData();
+                $this->messageManager->setSuccess('Application successfully installed');
+                $this->redirect('login');
+            }
+        }
+        $viewPath = 'home/index';
+
+        $this->render($viewPath, compact('pageTitle', 'form'));
+    }
+
 
     /**
      * Users form login
@@ -52,7 +95,7 @@ class AppController extends Controller
             }
 
             $pageTitle = 'Login page';
-            $this->render('users/form', compact('pageTitle', 'form'));
+            $this->render('users/login', compact('pageTitle', 'form'));
             return;
         }
 
