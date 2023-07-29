@@ -46,6 +46,5 @@ class Entity
 
     public function getEntityName()
     {
-        var_dump(get_called_class());
     }
 }

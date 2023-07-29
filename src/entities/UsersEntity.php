@@ -26,7 +26,7 @@ class UsersEntity extends Entity
     protected $lastName;
     protected $dateOfBirth;
     protected $nationalityId;
-    protected $specialities = [];
+    protected $specialities;
     protected $createdAt;
     protected $identificationCode;
     protected $codeName;

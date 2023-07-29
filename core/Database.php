@@ -44,7 +44,6 @@ class Database
             try {
                 $this->pdo = new PDO($dsn, $this->dbUser, $this->dbPassword, $dbOptions);
             } catch (\PDOException $e) {
-
                 var_dump($e->getMessage());
             }
         }
@@ -94,9 +93,8 @@ class Database
      */
     public function query(string $query, ?array $attributes, $entity, $isSingleData): mixed
     {
-        $pdo = $this->getPdo();
 
-        $statement = $pdo->prepare($query);
+        $statement = $this->getPdo()->prepare($query);
         if (!is_null($entity)) {
             $statement->setFetchMode(PDO::FETCH_CLASS, $entity);
         } else {
@@ -126,7 +124,6 @@ class Database
                 return false;
             }
         } catch (PDOException $e) {
-            // $this->messageManager->setError('Something went wrong with your request. Please check it!');
             var_dump($e->getMessage());
             return false;
         }

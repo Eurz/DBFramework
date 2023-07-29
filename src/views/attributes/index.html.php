@@ -15,6 +15,7 @@
 <form method="post" class="py-3">
     <?= $formFilter->render(); ?>
     <button type="submit" class="btn btn-primary">Go</button>
+
 </form>
 
 <div>

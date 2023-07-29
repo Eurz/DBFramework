@@ -264,9 +264,9 @@ class Users extends AppModel
         $user['userType'] = $userType;
 
         $uuid = $this->query("SELECT UUID()");
-        $id = $uuid[0]['UUID()'];
+        $userId = $uuid[0]['UUID()'];
 
-        $user['id'] = $id;
+        $user['id'] = $userId;
 
         $markers = [];
         foreach ($user as $key => $value) {
@@ -279,34 +279,46 @@ class Users extends AppModel
         $query = "INSERT INTO $this->tableName $fields VALUES $markersList";
         $userResponse = $this->query($query, $user);
 
-        // var_dump($markersList);
-        // die();
-
-        // if ($response) {
-        //     $this->messageManager->setSuccess($this->itemName . ' registered successfully');
-        // } else {
-        //     $this->messageManager->setError('Failed to insert ' . $this->itemName . ' into database');
-        // }
-
-
-
 
         if ($userResponse) {
 
             if ($userType === 'agent') {
                 $specialities = $extractedData['specialities'];
-                // var_dump($specialities);
-                // die();
                 if ($specialities) {
-                    $this->addSpecialities($id, $specialities);
+                    $this->addSpecialities($userId, $specialities);
                 }
             }
+            if ($userType === 'manager') {
 
-            return $id;
+                $this->insertRoleUser($userId, 'ROLE_ADMIN');
+            }
+            return $userId;
         }
         return false;
     }
 
+
+    /** Insert user's role
+     * @param string $userId
+     * @param int $role
+     * @return bool - True
+     */
+    public function insertRoleUser($userId, $role)
+    {
+
+        $queryRole = "SELECT id FROM `roles` WHERE title = :role" . SPACER;
+        $roleId = $this->query($queryRole, ['role' => $role], null, true);
+        if ($roleId) {
+            $roleId = $roleId['id'];
+            $query = "INSERT INTO roles_users VALUES (?,$roleId)" . SPACER;
+            $response = $this->query($query, [$userId]);
+            if ($response !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
     /**
      * Update user with id = $ids
      * @param string $id

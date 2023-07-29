@@ -27,7 +27,6 @@ class MissionsController extends AppController
             $this->redirect('install');
             die();
         }
-
         if (!$this->auth->isLogged()) {
             $this->redirect('login');
             die();
@@ -44,7 +43,6 @@ class MissionsController extends AppController
 
     public function index()
     {
-
         $message = [];
 
         // SEARCH

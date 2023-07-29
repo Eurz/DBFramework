@@ -10,6 +10,8 @@ class DBMaker
 {
     private Messages $messageManager;
     private $pdo;
+    // private $engine = "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci";
+    private $engine = "";
 
 
     public function __construct()
@@ -59,7 +61,7 @@ class DBMaker
     }
 
 
-    public function createTableAttributes()
+    private function createTableAttributes()
     {
 
         $query = "DROP TABLE IF EXISTS `attributes`;" . SPACER;
@@ -69,7 +71,9 @@ class DBMaker
             `type` varchar(120) NOT NULL,
             `createdAt` datetime DEFAULT (now()),
             `attribute` int DEFAULT (NULL)
-          );";
+          )" . SPACER;
+        $query .= "$this->engine;";
+
 
         $response = $this->pdo->exec($query);
 
@@ -79,7 +83,7 @@ class DBMaker
         return $response;
     }
 
-    public function createTableHidings()
+    private function createTableHidings()
     {
 
         $query = "DROP TABLE IF EXISTS `hidings`;" . SPACER;
@@ -89,9 +93,8 @@ class DBMaker
           `countryId` int NOT NULL,
           `address` varchar(120) NOT NULL,
           `typeId` int NOT NULL,
-          PRIMARY KEY (`id`),
-          CONSTRAINT fk_hiding_country_id FOREIGN KEY (`countryId`) REFERENCES attributes (id) ON DELETE RESTRICT ON UPDATE CASCADE
-        );";
+          PRIMARY KEY (`id`))" . SPACER;
+        $query .= "$this->engine;";
 
         $response = $this->pdo->exec($query);
 
@@ -102,7 +105,7 @@ class DBMaker
     }
 
 
-    public function createTableMissions()
+    private function createTableMissions()
     {
 
         $query = "DROP TABLE IF EXISTS `missions`;" . SPACER;
@@ -118,12 +121,9 @@ class DBMaker
           `endDate` date NOT NULL,
           `status` int NOT NULL,
           `hidingId` int NOT NULL,
-          PRIMARY KEY (`id`),
-          CONSTRAINT `fk_mission_country_id` FOREIGN KEY (`countryId`) REFERENCES `attributes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-          CONSTRAINT `fk_mission_hiding_id` FOREIGN KEY (`hidingId`) REFERENCES `hidings` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-          CONSTRAINT `fk_speciality_id` FOREIGN KEY (`specialityId`) REFERENCES `attributes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-          CONSTRAINT `fk_mission_type_id` FOREIGN KEY (`missionTypeId`) REFERENCES `attributes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-        );";
+          PRIMARY KEY (`id`))" . SPACER;
+        $query .= "$this->engine;";
+
 
         $response = $this->pdo->exec($query);
 
@@ -134,16 +134,15 @@ class DBMaker
     }
 
 
-    public function createTableMissionsUsers()
+    private function createTableMissionsUsers()
     {
 
         $query = "DROP TABLE IF EXISTS `missions_users`;" . SPACER;
         $query .= "CREATE TABLE IF NOT EXISTS `missions_users` (
             `user` CHAR(36) NOT NULL,
-            `mission` int NOT NULL,
-            CONSTRAINT `fk_missions_users_mission` FOREIGN KEY (`mission`) REFERENCES `missions` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-            CONSTRAINT `fk_missions_users_user` FOREIGN KEY (`user`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-          );";
+            `mission` int NOT NULL)" . SPACER;
+        $query .= "$this->engine;";
+
 
         $response = $this->pdo->exec($query);
 
@@ -154,7 +153,7 @@ class DBMaker
     }
 
 
-    public function createTableRoles()
+    private function createTableRoles()
     {
 
         $query = "DROP TABLE IF EXISTS `roles`;" . SPACER;
@@ -177,17 +176,14 @@ class DBMaker
     }
 
 
-    public function createTableRolesUsers()
+    private function createTableRolesUsers()
     {
 
         $query = "DROP TABLE IF EXISTS `roles_users`;" . SPACER;
         $query = "CREATE TABLE IF NOT EXISTS `roles_users` (
           `user` CHAR(36) NOT NULL,
-          `role` int NOT NULL,
-          CONSTRAINT `fk_roles_users_user` FOREIGN KEY (`user`) REFERENCES `users` (`id`),
-          CONSTRAINT `fk_roles_users_role` FOREIGN KEY (`role`) REFERENCES `roles` (`id`)
-        );" . SPACER;
-
+          `role` int NOT NULL)" . SPACER;
+        $query .= "$this->engine;";
 
 
         $response = $this->pdo->exec($query);
@@ -197,6 +193,8 @@ class DBMaker
         }
         return $response;
     }
+
+
     private function createTableUsers()
     {
 
@@ -213,10 +211,8 @@ class DBMaker
           `roles` json DEFAULT NULL,
           `email` varchar(120) DEFAULT (NULL),
           `password` varchar(60) DEFAULT (NULL),
-          `createdAt` datetime DEFAULT (now()),
-          CONSTRAINT `fk_users_nationality_id` FOREIGN KEY (`nationalityId`) REFERENCES `attributes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-        );" . SPACER;
-
+          `createdAt` datetime DEFAULT (now()))" . SPACER;
+        $query .= "$this->engine;";
 
 
         $response = $this->pdo->exec($query);
@@ -234,11 +230,8 @@ class DBMaker
         $query = "DROP TABLE IF EXISTS `userspecialities`;" . SPACER;
         $query = "CREATE TABLE IF NOT EXISTS `userspecialities` (
           `userId` CHAR(36) NOT NULL,
-          `specialityId` int NOT NULL,
-          CONSTRAINT `fk_up_specialities` FOREIGN KEY (`specialityId`) REFERENCES `attributes` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-        );" . SPACER;
-
-
+          `specialityId` int NOT NULL)" . SPACER;
+        $query .= "$this->engine;";
 
         $response = $this->pdo->exec($query);
 
@@ -249,106 +242,131 @@ class DBMaker
     }
 
 
+    private function addTablesConstraints()
+    {
+
+        $query = "ALTER TABLE hidings
+        ADD CONSTRAINT fk_hiding_country_id FOREIGN KEY (`countryId`) REFERENCES attributes (id) ON DELETE RESTRICT ON UPDATE CASCADE;" . SPACER;
+
+        $query .= "ALTER TABLE missions
+        ADD CONSTRAINT `fk_mission_country_id` FOREIGN KEY (`countryId`) REFERENCES `attributes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+        -- ADD CONSTRAINT `fk_mission_hiding_id` FOREIGN KEY (`hidingId`) REFERENCES `hidings` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+        ADD CONSTRAINT `fk_speciality_id` FOREIGN KEY (`specialityId`) REFERENCES `attributes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+        ADD CONSTRAINT `fk_mission_type_id` FOREIGN KEY (`missionTypeId`) REFERENCES `attributes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;" . SPACER;
+
+        $query .= "ALTER TABLE missions_users
+        ADD CONSTRAINT `fk_missions_users_mission` FOREIGN KEY (`mission`) REFERENCES `missions` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+        ADD CONSTRAINT `fk_missions_users_user` FOREIGN KEY (`user`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;" . SPACER;
+
+        $query .= "ALTER TABLE roles_users
+        ADD CONSTRAINT `fk_roles_users_user` FOREIGN KEY (`user`) REFERENCES `users` (`id`) ON DELETE CASCADE ,
+        ADD CONSTRAINT `fk_roles_users_role` FOREIGN KEY (`role`) REFERENCES `roles` (`id`);" . SPACER;
+
+        // $query .= "ALTER TABLE users
+        // ADD CONSTRAINT `fk_users_nationality_id` FOREIGN KEY (`nationalityId`) REFERENCES `attributes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;" . SPACER;
+
+        $query .= "ALTER TABLE userspecialities
+        ADD CONSTRAINT `fk_up_specialities` FOREIGN KEY (`specialityId`) REFERENCES `attributes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;" . SPACER;
+
+        $response = $this->pdo->exec($query);
+
+        return $response;
+    }
+
     public function insertData()
     {
 
         // ATTRIBUTES
         $query = "INSERT INTO `attributes` (`id`, `title`, `type`, `createdAt`, `attribute`)" . SPACER;
         $query .= "VALUES
-        (1, 'In preparation for', 'status', '2023-07-19 19:13:42', NULL),
-        (2, 'Failure', 'status', '2023-07-19 19:13:53', NULL),
-        (3, 'Ended', 'status', '2023-07-19 19:14:16', NULL),
-        (4, 'Superninja', 'speciality', '2023-07-19 19:15:01', NULL),
-        (5, 'Bombtracker', 'speciality', '2023-07-19 19:15:16', NULL),
-        (6, 'Hacking', 'speciality', '2023-07-19 19:15:25', NULL),
-        (7, 'Spy', 'speciality', '2023-07-19 19:15:59', NULL),
-        (8, 'Infiltration', 'speciality', '2023-07-19 19:16:24', NULL),
-        (10, 'Surveillance', 'missionType', '2023-07-19 19:18:10', NULL),
-        (11, 'Assassination', 'missionType', '2023-07-19 19:18:57', NULL),
-        (12, 'Infiltration', 'missionType', '2023-07-19 19:19:15', NULL),
-        (13, 'France', 'country', '2023-07-19 19:34:40', NULL),
-        (14, 'USA', 'country', '2023-07-19 19:34:49', NULL),
-        (15, 'Spain', 'country', '2023-07-19 19:35:00', NULL),
-        (16, 'Krypton', 'country', '2023-07-19 19:35:10', NULL),
-        (17, 'Marioworld', 'country', '2023-07-19 19:35:22', NULL),
-        (18, 'Villa', 'hiding', '2023-07-19 19:58:52', NULL),
-        (19, 'Maison', 'hiding', '2023-07-19 19:59:15', NULL),
-        (20, 'Garage', 'hiding', '2023-07-19 19:59:36', NULL),
-        (21, 'Français', 'nationality', '2023-07-19 20:02:32', 13),
-        (22, 'Spanish', 'nationality', '2023-07-19 20:02:42', 15),
-        (23, 'American', 'nationality', '2023-07-19 20:02:53', 14),
-        (24, 'Kryptonian', 'nationality', '2023-07-19 20:03:08', 16),
-        (25, 'Marioman', 'nationality', '2023-07-19 20:03:29', 17),
-        (26, 'England', 'country', '2023-07-19 20:03:39', NULL),
-        (27, 'English', 'nationality', '2023-07-19 20:03:50', 26),
-        (28, 'Daredevil', 'speciality', '2023-07-20 21:16:31', NULL),
-        (29, 'C-53', 'country', '2023-07-20 21:19:02', NULL),
-        (30, 'Terranien', 'nationality', '2023-07-20 21:19:17', 29),
-        (31, 'Tower', 'hiding', '2023-07-20 21:19:36', NULL),
-        (32, 'Superhero', 'speciality', '2023-07-20 21:21:11', NULL),
-        (33, 'Nowhere', 'country', '2023-07-20 21:22:02', NULL),
-        (34, 'Nowhereman', 'nationality', '2023-07-20 21:22:22', 33);" . SPACER;
+        (1, 'In preparation for', 'status', '2023-07-24 10:40:42', NULL),
+        (2, 'Failure', 'status', '2023-07-24 10:40:42', NULL),
+        (3, 'Ended', 'status', '2023-07-24 10:40:54', NULL),
+        (4, 'Surveillance', 'missionType', '2023-07-24 10:41:47', NULL),
+        (5, 'Assassination', 'missionType', '2023-07-24 10:42:00', NULL),
+        (6, 'Infiltration', 'missionType', '2023-07-24 10:42:08', NULL),
+        (7, 'Superhero', 'speciality', '2023-07-24 10:42:24', NULL),
+        (8, 'Daredevil', 'speciality', '2023-07-20 21:16:31', NULL),
+        (9, 'Superninja', 'speciality', '2023-07-19 19:15:01', NULL),
+        (10, 'Bombtracker', 'speciality', '2023-07-19 19:15:16', NULL),
+        (11, 'Hacking', 'speciality', '2023-07-19 19:15:25', NULL),
+        (12, 'Spy', 'speciality', '2023-07-19 19:15:59', NULL),
+        (13, 'Villa', 'hiding', '2023-07-19 19:58:52', NULL),
+        (14, 'Maison', 'hiding', '2023-07-19 19:59:15', NULL),
+        (15, 'Garage', 'hiding', '2023-07-19 19:59:36', NULL),
+        (16, 'Tower', 'hiding', '2023-07-20 21:19:36', NULL),
+        (17, 'France', 'country', '2023-07-19 19:34:40', NULL),
+        (18, 'USA', 'country', '2023-07-19 19:34:49', NULL),
+        (19, 'Spain', 'country', '2023-07-19 19:35:00', NULL),
+        (20, 'Krypton', 'country', '2023-07-19 19:35:10', NULL),
+        (21, 'Marioworld', 'country', '2023-07-19 19:35:22', NULL),
+        (22, 'England', 'country', '2023-07-19 20:03:39', NULL),
+        (23, 'C-53', 'country', '2023-07-20 21:19:02', NULL),
+        (24, 'Nowhere', 'country', '2023-07-20 21:22:02', NULL),
+        (50, 'Cave', 'hiding', '2023-07-24 11:05:42', NULL),
+        (49, 'SPF (Sans Planète Fixe)', 'nationality', '2023-07-24 10:58:30', 24),
+        (48, 'Terranien', 'nationality', '2023-07-24 10:57:54', 23),
+        (47, 'English', 'nationality', '2023-07-24 10:57:40', 22),
+        (46, 'Mariolandais', 'nationality', '2023-07-24 10:57:28', 21),
+        (45, 'Kryptonian', 'nationality', '2023-07-24 10:56:54', 20),
+        (44, 'Spanish', 'nationality', '2023-07-24 10:56:22', 19),
+        (43, 'American', 'nationality', '2023-07-24 10:55:57', 18),
+        (42, 'French', 'nationality', '2023-07-24 10:55:50', 17);" . SPACER;
 
         // HIDINGS
-        $query = "INSERT INTO `hidings` (`id`, `code`, `countryId`, `address`, `typeId`)" . SPACER;
+        $query .= "INSERT INTO `hidings` (`id`, `code`, `countryId`, `address`, `typeId`)" . SPACER;
         $query .= "VALUES
-        (1, 'Villa Martin', 13, '2 reu des Martin', 18),
-        (2, 'La casa de Papel', 15, '2 rue de la Casa', 18),
-        (3, 'Avengers Tower', 29, 'Los Angeles', 31),
-        (4, 'Galaxy', 33, 'In space', 31);" . SPACER;
+        (1, 'Villa Martin', 17, '2 rue des Martins', 13),
+        (2, 'La casa de Papel', 19, '12 rue de la Casa', 13),
+        (3, 'Avengers Tower', 18, '15 Hero Street', 16),
+        (4, 'Galaxy', 24, 'In space', 14);" . SPACER;
 
         // MISSIONS
         $query .= "INSERT INTO `missions` (`id`, `title`, `description`, `codeName`, `countryId`, `missionTypeId`, `specialityId`, `startDate`, `endDate`, `status`, `hidingId`)" . SPACER;
-        $query .= "VALUES(30, 'test', '', 'Test', 13, 10, 4, '2023-07-20', '2023-07-20', 1, 1);" . SPACER;
+        $query .= "VALUES
+        (1, 'Kill Thanos', '', 'He\'s not ineluctable', 18, 5, 7, '2023-07-24', '2023-07-30', 1, 3),
+        (2, 'Spy justice league', '', 'spy them', 18, 4, 7, '2023-07-24', '2023-07-24', 1, 3),
+        (3, 'Explore avenger\'s tower', '', 'WHoe are them?', 18, 6, 7, '2023-07-24', '2023-07-24', 1, 5);" . SPACER;
 
         // MISSIONS USERS
         $query .= "INSERT INTO `missions_users` (`user`, `mission`)" . SPACER;
         $query .= "VALUES
-        ('a0919efb-2732-11ee-b234-089798f34b52', 30),
-        ('2e7891b5-2681-11ee-b234-089798f34b52', 30),
-        ('72c306dc-271a-11ee-b234-089798f34b52', 30),
-        ('c0251822-2721-11ee-b234-089798f34b52', 30),
-        ('d271c2ab-270a-11ee-b234-089798f34b52', 30);";
+        ('c14dc03b-2a00-11ee-b234-089798f34b52', 1),
+        ('b1860b83-2a00-11ee-b234-089798f34b52', 1),
+        ('90285030-2a00-11ee-b234-089798f34b52', 1),
+        ('90285030-2a00-11ee-b234-089798f34b52', 2),
+        ('b1860b83-2a00-11ee-b234-089798f34b52', 2),
+        ('bbd9b2c5-2a01-11ee-b234-089798f34b52', 2),
+        ('d6a278bf-2a01-11ee-b234-089798f34b52', 2),
+        ('c14dc03b-2a00-11ee-b234-089798f34b52', 3),
+        ('bbd9b2c5-2a01-11ee-b234-089798f34b52', 3),
+        ('89588785-2a01-11ee-b234-089798f34b52', 3);" . SPACER;
 
 
         // ROLES USERS
 
         $query .= "INSERT INTO `roles_users` (`user`, `role`)" . SPACER;
         $query .= " VALUES
-        ('143', 1),
-        ('143', 2),
-        ('33bb0b06-2661-11ee-b234-089798f34b52', 1);" . SPACER;
+        ('a8e6e8ec-29fd-11ee-b234-089798f34b52', 2);" . SPACER;
 
         // USERS
         $query .= "INSERT INTO `users` (`id`, `firstName`, `lastName`, `dateOfBirth`, `nationalityId`, `userType`, `identificationCode`, `codeName`, `roles`, `email`, `password`, `createdAt`)" . SPACER;
         $query .= "VALUES
-        ('0918f0e8-2722-11ee-b234-089798f34b52', 'Georgio', 'Contacto', '2010-10-10', 22, 'contact', NULL, 'Mué bien', NULL, NULL, NULL, '2023-07-20 19:22:43'),
-        ('143', 'admin', 'admin', '0000-00-00', 0, 'manager', NULL, NULL, NULL, 'admin@admin.com', '$2y$10$5Wo.lEehzyJab2kN0/7RI.pr920ZGZG.OTqKZm2RySbDHireJe3Qi', '2023-07-09 09:58:36'),
-        ('2e7891b5-2681-11ee-b234-089798f34b52', 'Joe', 'la fouine', '2004-04-04', 21, 'agent', 'dddd', NULL, NULL, 'joe@fouine.com', '$2y$10\$cZ3avTIBTk2JloPe5jKHyOMzO7PVO35KYTLga9qOocn.HiFAMuveG', '2023-07-20 00:11:16'),
-        ('37f97776-2733-11ee-b234-089798f34b52', 'Nick', 'Fury', '1959-05-23', 30, 'contact', NULL, 'Je suis borgne et alors', NULL, NULL, NULL, '2023-07-20 21:25:43'),
-        ('404f1514-271a-11ee-b234-089798f34b52', 'Huggy', 'Les bons tuyaux', '0945-02-13', 23, 'contact', NULL, 'I know everything', NULL, NULL, NULL, '2023-07-20 18:26:59'),
-        ('72c306dc-271a-11ee-b234-089798f34b52', 'Bernard', 'Lataupe', '1937-05-26', 21, 'contact', NULL, 'Je suis une taupe', NULL, NULL, NULL, '2023-07-20 18:28:24'),
-        ('778cbeba-2719-11ee-b234-089798f34b52', 'James', 'Bond', '1936-04-12', 21, 'agent', 'My name is Bond', NULL, NULL, 'james@bond.com', '$2y$10\$vN8dUEcQCgSvJUXzf7392OEfL7i/.4V53aVvh5etsl8O7QO6jMPoq', '2023-07-20 18:21:22'),
-        ('a0919efb-2732-11ee-b234-089798f34b52', 'Iron', 'Man', '1954-01-02', 21, 'agent', 'I\'m Iron Man', NULL, NULL, 'iron@man.com', '$2y$10\$lpPmmtpBo0tJpH8EzKmqg.MhufXGf8W4R2JGF5/J4JziKPE03YnSC', '2023-07-20 21:21:29'),
-        ('a7a44ffa-2721-11ee-b234-089798f34b52', 'Uma', 'Turman', '1971-08-21', 23, 'agent', 'I want to kill Bill', NULL, NULL, 'uma@turman.com', '$2y$10$3iPTqF4VRPz2L5Y1YX1Dd.bAfKPHF7pIqS0fyVj4GtsGKU0NJzTE2', '2023-07-20 19:19:59'),
-        ('c0251822-2721-11ee-b234-089798f34b52', 'Bill', 'Target', '1923-06-29', 27, 'target', NULL, 'She want to kill me', NULL, NULL, NULL, '2023-07-20 19:20:40'),
-        ('d271c2ab-270a-11ee-b234-089798f34b52', 'Jack', 'Target', '1945-12-12', 27, 'target', NULL, 'I\'m not Daniel', NULL, NULL, NULL, '2023-07-20 16:36:32'),
-        ('e241652b-2732-11ee-b234-089798f34b52', 'Than', 'Os', '1900-01-01', 34, 'target', NULL, 'Je suis inéluctable', NULL, NULL, NULL, '2023-07-20 21:23:19');" . SPACER;
+        ('a8e6e8ec-29fd-11ee-b234-089798f34b52', 'Tony', 'Stark', '0000-00-00', 0, 'manager', NULL, NULL, NULL, 'tony@stark.com', '$2y$10\$ebn8LWBoWzixa7QKl2bPXOD6dVBz0EawK/fUAzafwRqb0THnNTv8.', '2023-07-24 10:39:53'),
+        ('90285030-2a00-11ee-b234-089798f34b52', 'Steve', 'Rodgers', '1920-07-04', 48, 'agent', 'Captain America', NULL, NULL, 'steve@rogers.com', '$2y$10$7IV2kgnpb2Ovwubi8yDbKOAghRpdxchoRxf7pL79qcQwJSfvgB2L6', '2023-07-24 11:00:40'),
+        ('b1860b83-2a00-11ee-b234-089798f34b52', 'Natasha', 'Romanov', '1984-12-03', 43, 'contact', NULL, 'Black Widow', NULL, NULL, NULL, '2023-07-24 11:01:36'),
+        ('c14dc03b-2a00-11ee-b234-089798f34b52', 'Than', 'Os', '1900-01-01', 49, 'target', NULL, 'Thanos', NULL, NULL, NULL, '2023-07-24 11:02:02'),
+        ('89588785-2a01-11ee-b234-089798f34b52', 'Bruce', 'Wayne', '1915-04-07', 43, 'agent', 'Im not happy', NULL, NULL, 'bruce@wayne.com', '$2y$10\$SMbFO5xCtIacknWhRRvPN.a1zMv0NhwdJUnlAfB35sCgbgxnOP9wa', '2023-07-24 11:07:38'),
+        ('bbd9b2c5-2a01-11ee-b234-089798f34b52', 'Alfred', 'Thaddeus Crane Middleton Pennyworth', '1943-04-16', 43, 'contact', NULL, 'I know everything', NULL, NULL, NULL, '2023-07-24 11:09:03'),
+        ('d6a278bf-2a01-11ee-b234-089798f34b52', 'Stepen', 'Wolf', '1900-01-01', 49, 'target', NULL, 'Im so bad but unuseful', NULL, NULL, NULL, '2023-07-24 11:09:47'),
+        ('f81807d1-2a01-11ee-b234-089798f34b52', 'Clark', 'Kent', '1900-01-01', 45, 'agent', 'Im very very strong', NULL, NULL, 'clark@kent.com', '$2y$10\$eXXFq6WgjcQttMZ0zGBgUeNK1GaVCycxmySaim79z7ZUpRQHC1kcS', '2023-07-24 11:10:44');" . SPACER;
 
         // USERS'S SPECIALITIES
         $query .= "INSERT INTO `userspecialities` (`userId`, `specialityId`)" . SPACER;
         $query .= "VALUES
-        ('0', 7),
-        ('0', 4),
-        ('2e7891b5-2681-11ee-b234-089798f34b52', 5),
-        ('2e7891b5-2681-11ee-b234-089798f34b52', 4),
-        ('2e7891b5-2681-11ee-b234-089798f34b52', 6),
-        ('2e7891b5-2681-11ee-b234-089798f34b52', 7),
-        ('2e7891b5-2681-11ee-b234-089798f34b52', 8),
-        ('2e7891b5-2681-11ee-b234-089798f34b52', 9),
-        ('778cbeba-2719-11ee-b234-089798f34b52', 7),
-        ('a7a44ffa-2721-11ee-b234-089798f34b52', 4),
-        ('a0919efb-2732-11ee-b234-089798f34b52', 32);" . SPACER;
+        ('90285030-2a00-11ee-b234-089798f34b52', 7),
+        ('89588785-2a01-11ee-b234-089798f34b52', 7),
+        ('f81807d1-2a01-11ee-b234-089798f34b52', 7);" . SPACER;
 
         $response = $this->pdo->exec($query);
 
@@ -367,11 +385,12 @@ class DBMaker
         $this->createTableAttributes();
         $this->createTableHidings();
         $this->createTableMissions();
-        $this->createTableMissionsUsers();
-        $this->createTableRoles();
-        $this->createTableRolesUsers();
         $this->createTableUsers();
+        $this->createTableRoles();
+        $this->createTableMissionsUsers();
+        $this->createTableRolesUsers();
         $this->createTableUsersSpecialities();
         $this->insertData();
+        $this->addTablesConstraints();
     }
 }

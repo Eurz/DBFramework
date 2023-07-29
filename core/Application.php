@@ -64,8 +64,8 @@ class Application
         $router = new Router($_GET['url']);
 
         // Install
-        $router->get('/install', 'home.index');
-        $router->post('/install', 'home.index');
+        $router->get('/install', 'installer.index');
+        $router->post('/install', 'installer.index');
 
         // Home
         $router->get('/', 'missions.index');

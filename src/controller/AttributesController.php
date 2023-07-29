@@ -70,6 +70,7 @@ class AttributesController extends AppController
     {
         $filter = filter_input(INPUT_POST, 'filter', FILTER_DEFAULT);
 
+
         $session = new Session('attributesFilter');
         if ($filter) {
             if (!array_key_exists($filter, $this->types)) {
@@ -140,7 +141,8 @@ class AttributesController extends AppController
 
                 $id = $this->model->lastInsertId();
 
-                $this->redirect('attributes/edit/' . $id);
+                // $this->redirect('attributes/edit/' . $id);
+                $this->redirect('attributes');
             }
         }
 
